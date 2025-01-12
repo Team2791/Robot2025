@@ -4,9 +4,9 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.constants.MathConstants.kTau;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -32,7 +32,7 @@ public final class ModuleConstants {
 	}
 
 	public static final class TurnEncoder {
-		public static final double kPositionFactor = MathConstants.kTau;
+		public static final double kPositionFactor = kTau;
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
 		public static final boolean kInverted = true;
 
@@ -44,7 +44,8 @@ public final class ModuleConstants {
 	public static final class Wheel {
 		public static final Distance kDiameter = Inches.of(3.0);
 		public static final Distance kCircumference = kDiameter.times(Math.PI);
-		public static final AngularVelocity kFreeSpeed = Spark.kFreeSpeed.times(kCircumference.in(Meters))
+		public static final AngularVelocity kFreeSpeed = Spark.kFreeSpeed
+			.times(kCircumference.in(Meters))
 			.div(DriveMotor.kReduction);
 	}
 

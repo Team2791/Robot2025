@@ -10,7 +10,6 @@ import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -24,10 +23,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.robot.constants.DriveConstants;
 import frc.robot.helpers.StreamHelpers;
 import frc.robot.swerve.IOConstants;
-import frc.robot.swerve.ServeUtil;
+import frc.robot.swerve.SlewWrapper;
 import frc.robot.swerve.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
@@ -40,8 +40,7 @@ public class Drivetrain extends SubsystemBase {
 	final SwerveDrivePoseEstimator odometry;
 	final Field2d field;
 
-	final SlewRateLimiter magSlew = new SlewRateLimiter(DriveConstants.Slew.kMagnitude);
-	final SlewRateLimiter rotSlew = new SlewRateLimiter(DriveConstants.Slew.kRotation);
+	final SlewWrapper slew;
 
 	/**
 	 * @return The drivetrain's heading
@@ -141,6 +140,12 @@ public class Drivetrain extends SubsystemBase {
 			new Pose2d()
 		);
 
+		slew = new SlewWrapper(
+			DriveConstants.Slew.kMagnitude,
+			DriveConstants.Slew.kRotation,
+			DriveConstants.Slew.kDirection
+		);
+
 		gyro = new AHRS(NavXComType.kMXP_SPI);
 		field = new Field2d();
 
@@ -196,5 +201,27 @@ public class Drivetrain extends SubsystemBase {
 	 */
 	public void drive(LinearVelocity xspeed, LinearVelocity yspeed, AngularVelocity rot) {
 		drive(xspeed, yspeed, rot, true);
+	}
+
+	/**
+	 * Controller-based swerve drive control
+	 * 
+	 * @param controller The controller to get input from.
+	 */
+	public void drive(CommandXboxController controller) {
+		// [-1..1] inputs w/ deadband
+		double xspeed = MathUtil.applyDeadband(controller.getLeftX(), IOConstants.Controller.kDeadband);
+		double yspeed = MathUtil.applyDeadband(controller.getLeftY(), IOConstants.Controller.kDeadband);
+		double rot = MathUtil.applyDeadband(controller.getRightX(), IOConstants.Controller.kDeadband);
+
+		// do a rate limit
+		SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
+
+		// multiply by max speed
+		LinearVelocity xvel = DriveConstants.MaxSpeed.kLinear.times(slewOutputs.xspeed);
+		LinearVelocity yvel = DriveConstants.MaxSpeed.kLinear.times(slewOutputs.yspeed);
+		AngularVelocity rvel = DriveConstants.MaxSpeed.kAngular.times(slewOutputs.rot);
+
+		drive(xvel, yvel, rvel);
 	}
 }

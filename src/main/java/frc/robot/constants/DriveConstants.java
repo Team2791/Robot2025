@@ -4,10 +4,14 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import static frc.robot.constants.MathConstants.kTau;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 
@@ -31,6 +35,12 @@ public class DriveConstants {
 	public static final class Slew {
 		public static final double kMagnitude = 1.0;
 		public static final double kRotation = 1.0;
+		public static final double kDirection = 1.0;
+	}
+
+	public static final class MaxSpeed {
+		public static final LinearVelocity kLinear = MetersPerSecond.of(20);
+		public static final AngularVelocity kAngular = RadiansPerSecond.of(kTau);
 	}
 
 	public static final double kGyroFactor = 1.0;
