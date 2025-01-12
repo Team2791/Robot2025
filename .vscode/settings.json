@@ -45,5 +45,8 @@
 	"[java]": {
 		"editor.defaultFormatter": "redhat.java",
 		"editor.formatOnSave": true,
-	}
+	},
+	"[xml]": {
+		"editor.formatOnSave": false
+	},
 }

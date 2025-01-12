@@ -128,5 +128,12 @@ public class SwerveModule {
 			new Rotation2d(turnEncoder.getPosition() - angularOffset.in(Radians))
 		);
 	}
+
+	public SwerveModuleState getState() {
+		return new SwerveModuleState(
+			driveEncoder.getVelocity(),
+			new Rotation2d(turnEncoder.getPosition())
+		);
+	}
 }
 
