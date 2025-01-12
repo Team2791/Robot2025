@@ -1,4 +1,4 @@
-package frc.robot.swerve;
+package frc.robot.constants;
 
 import com.studica.frc.AHRS.NavXComType;
 
@@ -25,6 +25,7 @@ public final class IOConstants {
 	}
 
 	public static final class Controller {
-		public static final double kDeadband = 0.1;
+		public static final int kDriver = 0;
+		public static final int kOperator = 1;
 	}
 }

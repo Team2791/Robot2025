@@ -23,10 +23,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
+import frc.robot.constants.IOConstants;
 import frc.robot.helpers.StreamHelpers;
-import frc.robot.swerve.IOConstants;
 import frc.robot.swerve.SlewWrapper;
 import frc.robot.swerve.SwerveModule;
 
@@ -210,9 +210,9 @@ public class Drivetrain extends SubsystemBase {
 	 */
 	public void drive(CommandXboxController controller) {
 		// [-1..1] inputs w/ deadband
-		double xspeed = MathUtil.applyDeadband(controller.getLeftX(), IOConstants.Controller.kDeadband);
-		double yspeed = MathUtil.applyDeadband(controller.getLeftY(), IOConstants.Controller.kDeadband);
-		double rot = MathUtil.applyDeadband(controller.getRightX(), IOConstants.Controller.kDeadband);
+		double xspeed = MathUtil.applyDeadband(controller.getLeftX(), ControllerConstants.kDeadband);
+		double yspeed = MathUtil.applyDeadband(controller.getLeftY(), ControllerConstants.kDeadband);
+		double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
 
 		// do a rate limit
 		SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
@@ -223,5 +223,10 @@ public class Drivetrain extends SubsystemBase {
 		AngularVelocity rvel = DriveConstants.MaxSpeed.kAngular.times(slewOutputs.rot);
 
 		drive(xvel, yvel, rvel);
+	}
+
+	@Override
+	public void periodic() {
+		odometry.update(getHeading(), modulePositions().toArray(SwerveModulePosition[]::new));
 	}
 }
