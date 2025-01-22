@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
@@ -27,8 +27,8 @@ import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.helpers.StreamHelpers;
-import frc.robot.swerve.SlewWrapper;
-import frc.robot.swerve.SwerveModule;
+import frc.robot.subsystems.drivetrain.slew.SlewWrapper;
+import frc.robot.subsystems.drivetrain.swerve.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
 	final SwerveModule frontLeft;

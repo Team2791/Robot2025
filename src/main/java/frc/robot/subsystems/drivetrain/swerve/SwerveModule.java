@@ -1,4 +1,4 @@
-package frc.robot.swerve;
+package frc.robot.subsystems.drivetrain.swerve;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
