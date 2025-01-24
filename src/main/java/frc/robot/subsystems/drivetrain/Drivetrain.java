@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.Arrays;
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,6 +15,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -25,14 +28,15 @@ import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.util.StreamUtil;
-
+import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
+import frc.robotio.drivetrain.SwerveIO;
 
 public class Drivetrain extends SubsystemBase {
-	final SwerveModule frontLeft;
-	final SwerveModule frontRight;
-	final SwerveModule rearLeft;
-	final SwerveModule rearRight;
+	final SwerveIO frontLeft;
+	final SwerveIO frontRight;
+	final SwerveIO rearLeft;
+	final SwerveIO rearRight;
 
 	final GyroIO gyro;
 
@@ -49,7 +53,7 @@ public class Drivetrain extends SubsystemBase {
 	/**
 	 * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
 	 */
-	public List<SwerveModule> modules() {
+	public List<SwerveIO> modules() {
 		return List.of(frontLeft, frontRight, rearLeft, rearRight);
 	}
 
@@ -57,14 +61,14 @@ public class Drivetrain extends SubsystemBase {
 	 * @return A list of all swerve module positions on the robot. In the same order as {@link #modules()}.
 	 */
 	public List<SwerveModulePosition> modulePositions() {
-		return modules().stream().map(SwerveModule::getPosition).toList();
+		return modules().stream().map(SwerveIO::getPosition).toList();
 	}
 
 	/**
 	 * @return A list of all swerve module states on the robot. In the same order as {@link #modules()}.
 	 */
 	public List<SwerveModuleState> moduleStates() {
-		return modules().stream().map(SwerveModule::getState).toList();
+		return modules().stream().map(SwerveIO::getState).toList();
 	}
 
 	/**
@@ -82,7 +86,7 @@ public class Drivetrain extends SubsystemBase {
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed.in(MetersPerSecond));
 
 		// set the desired states of all modules. i miss kotlin :(
-		StreamUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveModule::setDesiredState);
+		StreamUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveIO::setDesiredState);
 	}
 
 	/**
@@ -98,26 +102,29 @@ public class Drivetrain extends SubsystemBase {
 	}
 
 	// TODO: auto stuff
-	public Drivetrain(GyroIO gyro) {
-		frontLeft = new SwerveModule(
+	public Drivetrain(
+		GyroIO gyro,
+		TriSupplier<Integer, Integer, Angle, SwerveIO> moduleConstructor
+	) {
+		frontLeft = moduleConstructor.get(
 			IOConstants.Drivetrain.Drive.kFrontLeft,
 			IOConstants.Drivetrain.Turn.kFrontLeft,
 			DriveConstants.AngularOffsets.kFrontLeft
 		);
 
-		frontRight = new SwerveModule(
+		frontRight = moduleConstructor.get(
 			IOConstants.Drivetrain.Drive.kFrontRight,
 			IOConstants.Drivetrain.Turn.kFrontRight,
 			DriveConstants.AngularOffsets.kFrontRight
 		);
 
-		rearLeft = new SwerveModule(
+		rearLeft = moduleConstructor.get(
 			IOConstants.Drivetrain.Drive.kRearLeft,
 			IOConstants.Drivetrain.Turn.kRearLeft,
 			DriveConstants.AngularOffsets.kRearLeft
 		);
 
-		rearRight = new SwerveModule(
+		rearRight = moduleConstructor.get(
 			IOConstants.Drivetrain.Drive.kRearRight,
 			IOConstants.Drivetrain.Turn.kRearRight,
 			DriveConstants.AngularOffsets.kRearRight
@@ -217,6 +224,21 @@ public class Drivetrain extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		// update gyro data
+		gyro.update();
+
+		// update all modules
+		modules().forEach(SwerveIO::update);
+
+		// update odometry
 		odometry.update(getHeading(), modulePositions().toArray(SwerveModulePosition[]::new));
+		field.setRobotPose(getPose());
+
+		// log to advantagekit
+		StreamUtil.enumerateThen(modules().stream(), (idx, module) -> {
+			Logger.processInputs("Drivetrain/SwerveModule/" + idx, module.data);
+		});
+
+		Logger.processInputs("Drivetrain/Gyro", gyro.data);
 	}
 }

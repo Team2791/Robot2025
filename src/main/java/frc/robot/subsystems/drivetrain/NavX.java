@@ -18,12 +18,12 @@ import frc.robot.constants.SignalConstants;
 import frc.robot.thread.SensorThread;
 
 public class NavX extends GyroIO {
-	private final AHRS gyro;
-	private final Queue<Timestamped<Angle>> history;
+	final AHRS gyro;
+	final Queue<Timestamped<Angle>> cache;
 
 	public NavX() {
 		this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (int) SignalConstants.kRate.in(Hertz));
-		this.history = SensorThread.getInstance().register(this::measure);
+		this.cache = SensorThread.getInstance().register(this::measure);
 	}
 
 	public Angle measure() {
@@ -36,9 +36,9 @@ public class NavX extends GyroIO {
 		data.connected = gyro.isConnected();
 		data.heading = this.measure();
 		data.velocity = DegreesPerSecond.of(gyro.getRate() * DriveConstants.kGyroFactor);
-		data.cached = history.toArray(Timestamped[]::new);
+		data.cached = cache.toArray(Timestamped[]::new);
 
-		history.clear();
+		cache.clear();
 	}
 
 	@Override

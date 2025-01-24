@@ -18,7 +18,7 @@ public abstract class GyroIO {
 	/**
 	 * The current gyro's data, since the last update() call
 	 */
-	public final GyroData data = new GyroDataAutoLogged();
+	public final GyroDataAutoLogged data = new GyroDataAutoLogged();
 
 	/**
 	 * Updates this.data with the current gyro data.
