@@ -1,4 +1,4 @@
-package frc.robot.helpers;
+package frc.robot.util;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -6,8 +6,8 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-public class StreamHelpers {
-	private StreamHelpers() {}
+public class StreamUtil {
+	private StreamUtil() {}
 
 	/**
 	 * Zips two streams together, applying a consumer to each pair of elements.

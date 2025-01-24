@@ -26,9 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
-import frc.robot.helpers.StreamHelpers;
-import frc.robot.subsystems.drivetrain.slew.SlewWrapper;
-import frc.robot.subsystems.drivetrain.swerve.SwerveModule;
+import frc.robot.util.StreamUtil;
 
 public class Drivetrain extends SubsystemBase {
 	final SwerveModule frontLeft;
@@ -92,7 +90,7 @@ public class Drivetrain extends SubsystemBase {
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed.in(MetersPerSecond));
 
 		// set the desired states of all modules. i miss kotlin :(
-		StreamHelpers.zipThen(modules().stream(), Arrays.stream(states), SwerveModule::setDesiredState);
+		StreamUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveModule::setDesiredState);
 	}
 
 	/**
@@ -103,7 +101,7 @@ public class Drivetrain extends SubsystemBase {
 	/**
 	 * @param pose The new pose of the robot.
 	 */
-	private void resetOdometry(Pose2d pose) {
+	public void resetOdometry(Pose2d pose) {
 		odometry.resetPosition(getHeading(), modulePositions().toArray(SwerveModulePosition[]::new), pose);
 	}
 
