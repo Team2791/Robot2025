@@ -5,9 +5,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.Arrays;
 import java.util.List;
 
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,10 +20,13 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.util.StreamUtil;
+
+import frc.robotio.drivetrain.GyroIO;
 
 public class Drivetrain extends SubsystemBase {
 	final SwerveModule frontLeft;
@@ -34,7 +34,8 @@ public class Drivetrain extends SubsystemBase {
 	final SwerveModule rearLeft;
 	final SwerveModule rearRight;
 
-	final AHRS gyro;
+	final GyroIO gyro;
+
 	final SwerveDrivePoseEstimator odometry;
 	final Field2d field;
 
@@ -43,16 +44,7 @@ public class Drivetrain extends SubsystemBase {
 	/**
 	 * @return The drivetrain's heading
 	 */
-	public Rotation2d getHeading() {
-		return Rotation2d.fromDegrees(gyro.getAngle() * DriveConstants.kGyroFactor); // use kGyroFactor to invert the gyro
-	}
-
-	/**
-	 * @return The gyro's reported heading, without modifications.
-	 */
-	public Rotation2d gyroRaw() {
-		return Rotation2d.fromDegrees(gyro.getAngle());
-	}
+	public Rotation2d getHeading() { return new Rotation2d(gyro.data.heading); }
 
 	/**
 	 * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
@@ -106,7 +98,7 @@ public class Drivetrain extends SubsystemBase {
 	}
 
 	// TODO: auto stuff
-	public Drivetrain() {
+	public Drivetrain(GyroIO gyro) {
 		frontLeft = new SwerveModule(
 			IOConstants.Drivetrain.Drive.kFrontLeft,
 			IOConstants.Drivetrain.Turn.kFrontLeft,
@@ -144,10 +136,10 @@ public class Drivetrain extends SubsystemBase {
 			DriveConstants.Slew.kDirection
 		);
 
-		gyro = new AHRS(NavXComType.kMXP_SPI);
+		this.gyro = gyro;
 		field = new Field2d();
 
-		gyro.reset();
+		this.gyro.reset();
 
 		ShuffleboardTab drive = Shuffleboard.getTab("Drivetrain");
 

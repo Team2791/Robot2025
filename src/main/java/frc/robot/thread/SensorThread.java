@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+
 import frc.robot.constants.SignalConstants;
 
 public class SensorThread {

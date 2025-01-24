@@ -6,20 +6,27 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.util.Timestamped;
 
-public interface GyroIO {
+public abstract class GyroIO {
 	@AutoLog
-	public static class Inputs {
+	public static class GyroData {
 		public boolean connected;
-		public Angle angle;
+		public Angle heading;
 		public AngularVelocity velocity;
-		public Timestamped<Angle>[] history;
+		public Timestamped<Angle>[] cached;
 	}
 
 	/**
-	 * Takes in Inputs by reference, and updates the values,
-	 * returning nothing.
-	 * 
-	 * @param inputs The Inputs object to update.
+	 * The current gyro's data, since the last update() call
 	 */
-	public void update(Inputs inputs);
+	public final GyroData data = new GyroDataAutoLogged();
+
+	/**
+	 * Updates this.data with the current gyro data.
+	 */
+	public abstract void update();
+
+	/**
+	 * Resets the gyro.
+	 */
+	public abstract void reset();
 }

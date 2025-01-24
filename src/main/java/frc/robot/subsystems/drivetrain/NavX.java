@@ -6,8 +6,9 @@ import static edu.wpi.first.units.Units.Hertz;
 
 import java.util.Queue;
 
-import com.studica.frc.AHRS;
 import edu.wpi.first.units.measure.Angle;
+
+import com.studica.frc.AHRS;
 
 import frc.robot.util.Timestamped;
 import frc.robotio.drivetrain.GyroIO;
@@ -16,7 +17,7 @@ import frc.robot.constants.IOConstants;
 import frc.robot.constants.SignalConstants;
 import frc.robot.thread.SensorThread;
 
-public class NavX implements GyroIO {
+public class NavX extends GyroIO {
 	private final AHRS gyro;
 	private final Queue<Timestamped<Angle>> history;
 
@@ -31,12 +32,17 @@ public class NavX implements GyroIO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void update(GyroIO.Inputs inputs) {
-		inputs.connected = gyro.isConnected();
-		inputs.angle = this.measure();
-		inputs.velocity = DegreesPerSecond.of(gyro.getRate() * DriveConstants.kGyroFactor);
-		inputs.history = history.toArray(Timestamped[]::new);
+	public void update() {
+		data.connected = gyro.isConnected();
+		data.heading = this.measure();
+		data.velocity = DegreesPerSecond.of(gyro.getRate() * DriveConstants.kGyroFactor);
+		data.cached = history.toArray(Timestamped[]::new);
 
 		history.clear();
+	}
+
+	@Override
+	public void reset() {
+		gyro.reset();
 	}
 }

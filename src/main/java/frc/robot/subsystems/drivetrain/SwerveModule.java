@@ -8,9 +8,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
-import frc.robot.constants.ModuleConstants;
-import frc.robot.constants.PIDConstants;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
@@ -20,6 +17,9 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import frc.robot.constants.ModuleConstants;
+import frc.robot.constants.PIDConstants;
 
 public class SwerveModule {
 	final SparkMax driveMotor;
