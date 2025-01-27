@@ -23,8 +23,8 @@ public class SwerveSim extends SwerveIO {
 	final PIDFController drivectl;
 	final PIDFController turnctl;
 
-	public SwerveSim(Angle angularOffset) {
-		super(angularOffset);
+	public SwerveSim(int driveId, int turnId, Angle angularOffset) {
+		super(driveId, turnId, angularOffset);
 
 		driveSim = new DCMotorSim(
 			LinearSystemId.createDCMotorSystem(

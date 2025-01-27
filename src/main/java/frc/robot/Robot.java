@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -68,6 +69,10 @@ public class Robot extends LoggedRobot {
 
 		// start logger
 		Logger.start();
+
+		// allow autologging in frc.robotio and robotsim
+		AutoLogOutputManager.addPackage("frc.robotio");
+		AutoLogOutputManager.addPackage("frc.robotsim");
 
 		this.container = new RobotContainer();
 	}

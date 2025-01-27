@@ -50,7 +50,7 @@ public class SwerveModule extends SwerveIO {
 		int turnId,
 		Angle angularOffset
 	) {
-		super(angularOffset);
+		super(driveId, turnId, angularOffset);
 
 		// initialize motors, encoders, etc.
 		driveMotor = new SparkMax(driveId, MotorType.kBrushless);

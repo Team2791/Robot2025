@@ -13,6 +13,8 @@ import frc.robot.util.AdvantageUtil;
 import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
+import frc.robotreplay.drivetrain.SwerveReplay;
+import frc.robotsim.drivetrain.SwerveSim;
 
 public class RobotContainer {
 	// controllers
@@ -27,8 +29,8 @@ public class RobotContainer {
 		).get(),
 		AdvantageUtil.<TriSupplier<Integer, Integer, Angle, SwerveIO>>matchReal(
 			SwerveModule::new,
-			(_a, _b, _c) -> null,
-			(_a, _b, _c) -> null
+			SwerveSim::new,
+			SwerveReplay::new
 		)
 	);
 

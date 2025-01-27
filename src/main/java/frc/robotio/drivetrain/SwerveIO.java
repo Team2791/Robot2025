@@ -39,9 +39,18 @@ public abstract class SwerveIO {
 	}
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
-	protected final Angle angularOffset;
 
-	public SwerveIO(Angle angularOffset) {
+	protected final Angle angularOffset;
+	protected final double driveId;
+	protected final double turnId;
+
+	public SwerveIO(
+		int driveId,
+		int turnId,
+		Angle angularOffset
+	) {
+		this.driveId = driveId;
+		this.turnId = turnId;
 		this.angularOffset = angularOffset;
 	}
 

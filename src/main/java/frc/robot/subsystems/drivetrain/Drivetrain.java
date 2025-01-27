@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.Arrays;
 import java.util.List;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -92,6 +94,7 @@ public class Drivetrain extends SubsystemBase {
 	/**
 	 * @return The estimated pose of the robot.
 	 */
+	@AutoLogOutput
 	public Pose2d getPose() { return odometry.getEstimatedPosition(); }
 
 	/**
@@ -155,6 +158,8 @@ public class Drivetrain extends SubsystemBase {
 		drive.addNumber("Y Speed", () -> getChassisSpeeds().vyMetersPerSecond);
 		drive.addNumber("Angular Speed", () -> getChassisSpeeds().omegaRadiansPerSecond);
 		drive.add("Field", field);
+
+		AutoLogOutputManager.addObject(this);
 	}
 
 	/**
