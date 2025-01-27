@@ -5,7 +5,7 @@ public final class PIDConstants {
 		public static final double kP = 0.0;
 		public static final double kI = 0.0;
 		public static final double kD = 0.0;
-		public static final double kFF = 0.0;
+		public static final double kF = 0.0;
 		public static final double kMin = 0.0;
 		public static final double kMax = 0.0;
 	}
@@ -14,7 +14,7 @@ public final class PIDConstants {
 		public static final double kP = 0.0;
 		public static final double kI = 0.0;
 		public static final double kD = 0.0;
-		public static final double kFF = 0.0;
+		public static final double kF = 0.0;
 		public static final double kMin = 0.0;
 		public static final double kMax = 0.0;
 	}

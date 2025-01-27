@@ -236,7 +236,9 @@ public class Drivetrain extends SubsystemBase {
 
 		// log to advantagekit
 		StreamUtil.enumerateThen(modules().stream(), (idx, module) -> {
-			Logger.processInputs("Drivetrain/SwerveModule/" + idx, module.data);
+			final double driveCan = (40 - (idx * 10));
+			final String path = "Drivetrain/SwerveModule/" + driveCan;
+			Logger.processInputs(path, module.data);
 		});
 
 		Logger.processInputs("Drivetrain/Gyro", gyro.data);

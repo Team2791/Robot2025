@@ -2,7 +2,6 @@ package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -88,7 +87,7 @@ public class SwerveModule extends SwerveIO {
 			PIDConstants.DriveMotor.kP,
 			PIDConstants.DriveMotor.kI,
 			PIDConstants.DriveMotor.kD,
-			PIDConstants.DriveMotor.kFF
+			PIDConstants.DriveMotor.kF
 		);
 
 		driveConfig.closedLoop.outputRange(
@@ -100,7 +99,7 @@ public class SwerveModule extends SwerveIO {
 			PIDConstants.TurnMotor.kP,
 			PIDConstants.TurnMotor.kI,
 			PIDConstants.TurnMotor.kD,
-			PIDConstants.TurnMotor.kFF
+			PIDConstants.TurnMotor.kF
 		);
 
 		turnConfig.closedLoop.outputRange(
@@ -109,10 +108,10 @@ public class SwerveModule extends SwerveIO {
 		);
 
 		// misc
-		driveConfig.idleMode(ModuleConstants.Spark.kIdleMode);
-		turnConfig.idleMode(ModuleConstants.Spark.kIdleMode);
-		driveConfig.smartCurrentLimit((int) ModuleConstants.Spark.kCurrentLimit.in(Amps));
-		turnConfig.smartCurrentLimit((int) ModuleConstants.Spark.kCurrentLimit.in(Amps));
+		driveConfig.idleMode(ModuleConstants.Neo.kIdleMode);
+		turnConfig.idleMode(ModuleConstants.Neo.kIdleMode);
+		driveConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit.in(Amps));
+		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit.in(Amps));
 
 		// apply and burn configs
 		driveMotor.configure(driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
@@ -141,8 +140,8 @@ public class SwerveModule extends SwerveIO {
 	@Override
 	public void update() {
 		this.data.driveConnected = driveMotor.getLastError() != REVLibError.kOk;
-		this.data.drivePosition = Meters.of(driveEncoder.getPosition());
-		this.data.driveVelocity = MetersPerSecond.of(driveEncoder.getVelocity());
+		this.data.drivePosition = Radians.of(driveEncoder.getPosition());
+		this.data.driveVelocity = RadiansPerSecond.of(driveEncoder.getVelocity());
 		this.data.driveVoltage = Volts.of(driveMotor.getBusVoltage() * driveMotor.getAppliedOutput());
 		this.data.driveCurrent = Amps.of(driveMotor.getOutputCurrent());
 

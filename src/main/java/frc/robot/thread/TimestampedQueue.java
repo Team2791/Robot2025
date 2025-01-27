@@ -19,7 +19,6 @@ public class TimestampedQueue<E> implements Queue<Timestamped<E>> {
 
 
 	/** Interface methods, standard stuff */
-
 	@Override
 	public boolean add(Timestamped<E> e) {
 		cache.add(e.value());
