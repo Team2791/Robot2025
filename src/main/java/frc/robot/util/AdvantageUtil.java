@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import java.util.function.Supplier;
+
 import frc.robot.constants.AdvantageConstants;
 
 public final class AdvantageUtil {
@@ -18,5 +20,13 @@ public final class AdvantageUtil {
 			default:
 				return replay;
 		}
+	}
+
+	public static <T> T getReal(
+		Supplier<T> real,
+		Supplier<T> sim,
+		Supplier<T> replay
+	) {
+		return matchReal(real, sim, replay).get();
 	}
 }

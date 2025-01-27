@@ -1,18 +1,14 @@
 package frc.robot;
 
-import java.util.function.Supplier;
-
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.NavX;
 import frc.robot.subsystems.drivetrain.SwerveModule;
 import frc.robot.util.AdvantageUtil;
-import frc.robot.util.TriSupplier;
-import frc.robotio.drivetrain.GyroIO;
-import frc.robotio.drivetrain.SwerveIO;
+import frc.robotreplay.drivetrain.GyroReplay;
 import frc.robotreplay.drivetrain.SwerveReplay;
 import frc.robotsim.drivetrain.SwerveSim;
 
@@ -22,12 +18,12 @@ public class RobotContainer {
 
 	// subsystems
 	final Drivetrain drivetrain = new Drivetrain(
-		AdvantageUtil.<Supplier<GyroIO>>matchReal(
+		AdvantageUtil.getReal(
 			NavX::new,
-			() -> null,
-			() -> null
-		).get(),
-		AdvantageUtil.<TriSupplier<Integer, Integer, Angle, SwerveIO>>matchReal(
+			GyroReplay::new,
+			GyroReplay::new
+		),
+		AdvantageUtil.matchReal(
 			SwerveModule::new,
 			SwerveSim::new,
 			SwerveReplay::new

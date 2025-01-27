@@ -19,6 +19,7 @@ public abstract class GyroIO {
 		public Timestamped<Angle>[] cached = new Timestamped[0];
 	}
 
+
 	/**
 	 * The current gyro's data, since the last update() call
 	 */
