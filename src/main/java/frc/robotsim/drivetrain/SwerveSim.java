@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PIDConstants;
+import frc.robot.util.PIDFController;
 import frc.robotio.drivetrain.SwerveIO;
-import frc.robotsim.PIDFController;
 
 public class SwerveSim extends SwerveIO {
 	final DCMotorSim driveSim;
