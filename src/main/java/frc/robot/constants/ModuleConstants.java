@@ -55,18 +55,17 @@ public final class ModuleConstants {
 	}
 
 	public static final class DriveEncoder {
-		public static final double kPositionFactor = Wheel.kDiameter.in(Meters) * Math.PI / DriveMotor.kReduction;
+		public static final double kPositionFactor = (Wheel.kDiameter.in(Meters) * Math.PI) / DriveMotor.kReduction;
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
 	}
 
 	public static final class TurnEncoder {
 		public static final double kPositionFactor = kTau;
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
-		public static final boolean kInverted = true;
+		public static final boolean kInverted = false;
 
 		public static final double kMinPidInput = 0.0;
 		public static final double kMaxPidInput = kPositionFactor;
-
 	}
 
 	public static final class Wheel {
