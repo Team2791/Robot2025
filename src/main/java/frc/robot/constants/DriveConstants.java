@@ -2,34 +2,23 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import static frc.robot.constants.MathConstants.kTau;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
 
 public class DriveConstants {
 	public static final class AngularOffsets {
-		public static final Angle kFrontLeft = Radians.of(-Math.PI / 2);
-		public static final Angle kFrontRight = Radians.of(0);
-		public static final Angle kRearLeft = Radians.of(-Math.PI);
-		public static final Angle kRearRight = Radians.of(-Math.PI / 2);
+		public static final double kFrontLeft = -Math.PI / 2;
+		public static final double kFrontRight = 0;
+		public static final double kRearLeft = -Math.PI;
+		public static final double kRearRight = -Math.PI / 2;
 	}
 
-	// TODO: get proper values from design ppl
 	public static final class Dimensions {
-		public static final Distance kWheelBase = Inches.of(20);
-		public static final Distance kTrackWidth = Inches.of(20);
-		public static final Distance kDriveRadius = Meters.of(
-			0.5 * Math.hypot(kWheelBase.in(Meters), kTrackWidth.in(Meters))
-		);
+		public static final double kWheelBase = Inches.of(20).in(Meters);
+		public static final double kTrackWidth = Inches.of(20).in(Meters);
+		public static final double kDriveRadius = 0.5 * Math.hypot(kWheelBase, kTrackWidth);
 	}
 
 	public static final class Slew {
@@ -39,16 +28,16 @@ public class DriveConstants {
 	}
 
 	public static final class MaxSpeed {
-		public static final LinearVelocity kLinear = MetersPerSecond.of(20);
-		public static final AngularVelocity kAngular = RadiansPerSecond.of(kTau);
+		public static final double kLinear = 20;
+		public static final double kAngular = kTau;
 	}
 
 	public static final double kGyroFactor = 1.0;
-	public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(20);
+	public static final double kMaxSpeed = 20;
 	public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(
-		new Translation2d(Dimensions.kWheelBase.div(2).in(Meters), Dimensions.kTrackWidth.div(2).in(Meters)),
-		new Translation2d(Dimensions.kWheelBase.div(2).in(Meters), -Dimensions.kTrackWidth.div(2).in(Meters)),
-		new Translation2d(-Dimensions.kWheelBase.div(2).in(Meters), Dimensions.kTrackWidth.div(2).in(Meters)),
-		new Translation2d(-Dimensions.kWheelBase.div(2).in(Meters), -Dimensions.kTrackWidth.div(2).in(Meters))
+		new Translation2d(Dimensions.kWheelBase / 2, Dimensions.kTrackWidth / 2),
+		new Translation2d(Dimensions.kWheelBase / 2, -Dimensions.kTrackWidth / 2),
+		new Translation2d(-Dimensions.kWheelBase / 2, Dimensions.kTrackWidth / 2),
+		new Translation2d(-Dimensions.kWheelBase / 2, -Dimensions.kTrackWidth / 2)
 	);
 }

@@ -2,7 +2,6 @@ package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Hertz;
 
 import java.util.Queue;
 
@@ -22,7 +21,7 @@ public class NavX extends GyroIO {
 	final Queue<Timestamped<Angle>> cache;
 
 	public NavX() {
-		this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (int) SignalConstants.kRate.in(Hertz));
+		this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (int) (1. / SignalConstants.kDelay));
 		this.cache = SensorThread.getInstance().register(this::measure);
 	}
 

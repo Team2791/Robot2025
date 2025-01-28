@@ -1,29 +1,20 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.constants.MathConstants.kTau;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.MomentOfInertia;
-
 public final class ModuleConstants {
 	public static final class Neo {
-		public static final AngularVelocity kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0);
+		/** https://www.revrobotics.com/rev-21-1650/#:~:text=empirical%20free%20speed%3A%205676%20rpm */
+		/* revert to just 5676.0 / 60.0 if failure!! */
+		public static final double kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0).in(RadiansPerSecond);
 		public static final IdleMode kIdleMode = IdleMode.kBrake;
-		public static final Current kCurrentLimit = Amps.of(40);
+		public static final double kCurrentLimit = 40;
 	}
 
 	public static final class DriveMotor {
@@ -43,25 +34,33 @@ public final class ModuleConstants {
 		public static final double kReduction = (kBevelGearTeeth * kSpurTeeth) / (kPinionTeeth * kBevelPinionTeeth);
 
 		/** Moment of inertia */
-		public static final MomentOfInertia kMoI = KilogramSquareMeters.of(1.91e-4);
+		public static final double kMoI = 1.91e-4;
 	}
 
 	public static final class TurnMotor {
 		/** Moment of intertia */
-		public static final MomentOfInertia kMoI = KilogramSquareMeters.of(2.17e-5);
+		public static final double kMoI = 2.17e-5;
 
 		/** Reduction factor */
 		public static final double kReduction = 9424. / 203.;
 	}
 
 	public static final class DriveEncoder {
-		public static final double kPositionFactor = (Wheel.kDiameter.in(Meters) * Math.PI) / DriveMotor.kReduction;
+		/** Convert from motor-rotations to wheel-meters */
+		public static final double kPositionFactor = Wheel.kCircumference / DriveMotor.kReduction;
+
+		/** Convert from motor rotations per minute to wheel meters per second */
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
 	}
 
 	public static final class TurnEncoder {
+		/** Convert from motor-rotations to motor-radians */
 		public static final double kPositionFactor = kTau;
+
+		/** Convert from motor rotations per minute to motor radians per second */
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
+
+		/** May need in future, leaving */
 		public static final boolean kInverted = false;
 
 		public static final double kMinPidInput = 0.0;
@@ -69,19 +68,9 @@ public final class ModuleConstants {
 	}
 
 	public static final class Wheel {
-		public static final Distance kDiameter = Inches.of(3.0);
-		public static final Distance kCircumference = kDiameter.times(Math.PI);
-
-		public static final AngularVelocity kFreeSpeed = Neo.kFreeSpeed.div(DriveMotor.kReduction);
-		public static final LinearVelocity kLinearSpeed = toLinearVel(Neo.kFreeSpeed);
-
-		public static final Distance toLinear(Angle motorRotations) {
-			return kCircumference.times(motorRotations.in(Radians)).times(DriveMotor.kReduction);
-		}
-
-		public static final LinearVelocity toLinearVel(AngularVelocity motorSpeed) {
-			return kCircumference.times(motorSpeed.times(DriveMotor.kReduction).in(RadiansPerSecond))
-				.div(Seconds.of(1));
-		}
+		public static final double kDiameter = Inches.of(3.0).in(Meters);
+		public static final double kCircumference = kDiameter * Math.PI;
+		public static final double kFreeSpeedAngular = Neo.kFreeSpeed / DriveMotor.kReduction;
+		public static final double kFreeSpeedLinear = kFreeSpeedAngular * kCircumference;
 	}
 }

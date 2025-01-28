@@ -1,7 +1,5 @@
 package frc.robot.subsystems.drivetrain;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,9 +15,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -85,7 +80,7 @@ public class Drivetrain extends SubsystemBase {
 	 */
 	public void setDesiredSpeeds(ChassisSpeeds speeds) {
 		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(speeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed.in(MetersPerSecond));
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed);
 
 		// set the desired states of all modules. i miss kotlin :(
 		StreamUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveIO::setDesiredState);
@@ -107,7 +102,7 @@ public class Drivetrain extends SubsystemBase {
 	// TODO: auto stuff
 	public Drivetrain(
 		GyroIO gyro,
-		TriSupplier<Integer, Integer, Angle, SwerveIO> moduleConstructor
+		TriSupplier<Integer, Integer, Double, SwerveIO> moduleConstructor
 	) {
 		frontLeft = moduleConstructor.get(
 			IOConstants.Drivetrain.Drive.kFrontLeft,
@@ -190,7 +185,7 @@ public class Drivetrain extends SubsystemBase {
 	 * @param rot           The desired rotation for the robot to move with.
 	 * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
 	 */
-	public void drive(LinearVelocity xspeed, LinearVelocity yspeed, AngularVelocity rot, boolean fieldRelative) {
+	public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
 		drive(new ChassisSpeeds(xspeed, yspeed, rot), fieldRelative);
 	}
 
@@ -201,7 +196,7 @@ public class Drivetrain extends SubsystemBase {
 	 * @param yspeed The desired speed for the robot to move in the y direction.
 	 * @param rot    The desired rotation for the robot to move with.
 	 */
-	public void drive(LinearVelocity xspeed, LinearVelocity yspeed, AngularVelocity rot) {
+	public void drive(double xspeed, double yspeed, double rot) {
 		drive(xspeed, yspeed, rot, true);
 	}
 
@@ -217,12 +212,12 @@ public class Drivetrain extends SubsystemBase {
 		double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
 
 		// do a rate limit
-		SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
+		// TODO: SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
 
 		// multiply by max speed
-		LinearVelocity xvel = DriveConstants.MaxSpeed.kLinear.times(slewOutputs.xspeed);
-		LinearVelocity yvel = DriveConstants.MaxSpeed.kLinear.times(slewOutputs.yspeed);
-		AngularVelocity rvel = DriveConstants.MaxSpeed.kAngular.times(slewOutputs.rot);
+		double xvel = DriveConstants.MaxSpeed.kLinear * xspeed;
+		double yvel = DriveConstants.MaxSpeed.kLinear * yspeed;
+		double rvel = DriveConstants.MaxSpeed.kAngular * rot;
 
 		drive(xvel, yvel, rvel);
 	}

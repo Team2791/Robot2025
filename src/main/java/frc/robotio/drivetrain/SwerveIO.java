@@ -1,6 +1,8 @@
 package frc.robotio.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -14,8 +16,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.constants.ModuleConstants;
 import frc.robot.util.Timestamped;
 
 public abstract class SwerveIO {
@@ -23,8 +25,8 @@ public abstract class SwerveIO {
 	@AutoLog
 	public static class SwerveData {
 		public boolean driveConnected = false;
-		public Angle drivePosition = Radians.of(0);
-		public AngularVelocity driveVelocity = RadiansPerSecond.of(0);
+		public Distance drivePosition = Meters.of(0); // wheel position
+		public LinearVelocity driveVelocity = MetersPerSecond.of(0); // wheel velocity
 		public Voltage driveVoltage = Volts.of(0);
 		public Current driveCurrent = Amps.of(0);
 
@@ -40,20 +42,19 @@ public abstract class SwerveIO {
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
 
-	protected final Angle angularOffset;
+	protected final double angularOffset;
 	protected final double driveId;
 	protected final double turnId;
 
 	public SwerveIO(
 		int driveId,
 		int turnId,
-		Angle angularOffset
+		double angularOffset
 	) {
 		this.driveId = driveId;
 		this.turnId = turnId;
 		this.angularOffset = angularOffset;
 	}
-
 
 	public abstract void update();
 
@@ -61,14 +62,14 @@ public abstract class SwerveIO {
 
 	public SwerveModulePosition getPosition() {
 		return new SwerveModulePosition(
-			ModuleConstants.Wheel.toLinear(data.drivePosition),
-			new Rotation2d(data.turnPosition.minus(angularOffset))
+			data.drivePosition,
+			new Rotation2d(data.turnPosition.minus(Radians.of(angularOffset)))
 		);
 	}
 
 	public SwerveModuleState getState() {
 		return new SwerveModuleState(
-			ModuleConstants.Wheel.toLinearVel(data.driveVelocity),
+			data.driveVelocity,
 			new Rotation2d(data.turnPosition)
 		);
 	}

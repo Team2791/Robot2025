@@ -1,14 +1,15 @@
 package frc.robotsim.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.constants.ModuleConstants;
@@ -23,13 +24,13 @@ public class SwerveSim extends SwerveIO {
 	final PIDFController drivectl;
 	final PIDFController turnctl;
 
-	public SwerveSim(int driveId, int turnId, Angle angularOffset) {
+	public SwerveSim(int driveId, int turnId, double angularOffset) {
 		super(driveId, turnId, angularOffset);
 
 		driveSim = new DCMotorSim(
 			LinearSystemId.createDCMotorSystem(
 				DCMotor.getNEO(1),
-				ModuleConstants.DriveMotor.kMoI.in(KilogramSquareMeters),
+				ModuleConstants.DriveMotor.kMoI,
 				ModuleConstants.DriveMotor.kReduction
 			),
 			DCMotor.getNEO(1)
@@ -38,7 +39,7 @@ public class SwerveSim extends SwerveIO {
 		turnSim = new DCMotorSim(
 			LinearSystemId.createDCMotorSystem(
 				DCMotor.getNeo550(1),
-				ModuleConstants.TurnMotor.kMoI.in(KilogramSquareMeters),
+				ModuleConstants.TurnMotor.kMoI,
 				ModuleConstants.TurnMotor.kReduction
 			),
 			DCMotor.getNeo550(1)
@@ -80,14 +81,22 @@ public class SwerveSim extends SwerveIO {
 
 		// actually update the inputs
 		data.driveConnected = true;
-		data.drivePosition = driveSim.getAngularPosition();
-		data.driveVelocity = driveSim.getAngularVelocity();
+		data.drivePosition = Meters.of(
+			driveSim.getAngularPositionRotations() * ModuleConstants.DriveEncoder.kPositionFactor
+		);
+		data.driveVelocity = MetersPerSecond.of(
+			driveSim.getAngularVelocityRPM() * ModuleConstants.DriveEncoder.kVelocityFactor
+		);
 		data.driveVoltage = Volts.of(driveVolts);
 		data.driveCurrent = Amps.of(driveSim.getCurrentDrawAmps());
 
 		data.turnConnected = true;
-		data.turnPosition = turnSim.getAngularPosition();
-		data.turnVelocity = turnSim.getAngularVelocity();
+		data.turnPosition = Radians.of(
+			turnSim.getAngularPositionRotations() * ModuleConstants.TurnEncoder.kPositionFactor
+		);
+		data.turnVelocity = RadiansPerSecond.of(
+			turnSim.getAngularVelocityRPM() * ModuleConstants.TurnEncoder.kVelocityFactor
+		);
 		data.turnVoltage = Volts.of(turnVolts);
 		data.turnCurrent = Amps.of(turnSim.getCurrentDrawAmps());
 	}

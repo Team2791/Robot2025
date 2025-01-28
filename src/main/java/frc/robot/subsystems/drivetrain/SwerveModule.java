@@ -2,6 +2,7 @@ package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -48,7 +49,7 @@ public class SwerveModule extends SwerveIO {
 	public SwerveModule(
 		int driveId,
 		int turnId,
-		Angle angularOffset
+		double angularOffset
 	) {
 		super(driveId, turnId, angularOffset);
 
@@ -110,8 +111,8 @@ public class SwerveModule extends SwerveIO {
 		// misc
 		driveConfig.idleMode(ModuleConstants.Neo.kIdleMode);
 		turnConfig.idleMode(ModuleConstants.Neo.kIdleMode);
-		driveConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit.in(Amps));
-		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit.in(Amps));
+		driveConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit);
+		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit);
 
 		// apply and burn configs
 		driveMotor.configure(driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
@@ -140,8 +141,8 @@ public class SwerveModule extends SwerveIO {
 	@Override
 	public void update() {
 		this.data.driveConnected = driveMotor.getLastError() != REVLibError.kOk;
-		this.data.drivePosition = Radians.of(driveEncoder.getPosition());
-		this.data.driveVelocity = RadiansPerSecond.of(driveEncoder.getVelocity());
+		this.data.drivePosition = Meters.of(driveEncoder.getPosition());
+		this.data.driveVelocity = MetersPerSecond.of(driveEncoder.getVelocity());
 		this.data.driveVoltage = Volts.of(driveMotor.getBusVoltage() * driveMotor.getAppliedOutput());
 		this.data.driveCurrent = Amps.of(driveMotor.getOutputCurrent());
 

@@ -1,7 +1,5 @@
 package frc.robot.thread;
 
-import static edu.wpi.first.units.Units.Hertz;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -39,7 +37,7 @@ public class SensorThread {
 		this.scheduler = new Notifier(this::run);
 
 		scheduler.setName("SensorThread");
-		scheduler.startPeriodic(1. / SignalConstants.kRate.in(Hertz));
+		scheduler.startPeriodic(SignalConstants.kDelay);
 	}
 
 	public <T> TimestampedQueue<T> register(Supplier<T> signal) {
