@@ -1,16 +1,19 @@
-package frc.robot.swerve;
+package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.Queue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.units.measure.Distance;
 
-import frc.robot.constants.ModuleConstants;
-import frc.robot.constants.PIDConstants;
-
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
@@ -21,7 +24,13 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-public class SwerveModule {
+import frc.robot.constants.ModuleConstants;
+import frc.robot.constants.PIDConstants;
+import frc.robot.thread.SensorThread;
+import frc.robot.util.Timestamped;
+import frc.robotio.drivetrain.SwerveIO;
+
+public class SwerveModule extends SwerveIO {
 	final SparkMax driveMotor;
 	final SparkMax turnMotor;
 
@@ -31,15 +40,18 @@ public class SwerveModule {
 	final SparkClosedLoopController driveController;
 	final SparkClosedLoopController turnController;
 
-	SwerveModuleState desiredState;
+	final Queue<Timestamped<Distance>> driveCache;
+	final Queue<Timestamped<Angle>> turnCache;
 
-	final Angle angularOffset;
+	SwerveModuleState desiredState;
 
 	public SwerveModule(
 		int driveId,
 		int turnId,
 		Angle angularOffset
 	) {
+		super(driveId, turnId, angularOffset);
+
 		// initialize motors, encoders, etc.
 		driveMotor = new SparkMax(driveId, MotorType.kBrushless);
 		turnMotor = new SparkMax(turnId, MotorType.kBrushless);
@@ -51,8 +63,6 @@ public class SwerveModule {
 		turnController = turnMotor.getClosedLoopController();
 
 		desiredState = new SwerveModuleState();
-
-		this.angularOffset = angularOffset;
 
 		// configure motors
 		SparkMaxConfig driveConfig = new SparkMaxConfig();
@@ -77,7 +87,7 @@ public class SwerveModule {
 			PIDConstants.DriveMotor.kP,
 			PIDConstants.DriveMotor.kI,
 			PIDConstants.DriveMotor.kD,
-			PIDConstants.DriveMotor.kFF
+			PIDConstants.DriveMotor.kF
 		);
 
 		driveConfig.closedLoop.outputRange(
@@ -89,7 +99,7 @@ public class SwerveModule {
 			PIDConstants.TurnMotor.kP,
 			PIDConstants.TurnMotor.kI,
 			PIDConstants.TurnMotor.kD,
-			PIDConstants.TurnMotor.kFF
+			PIDConstants.TurnMotor.kF
 		);
 
 		turnConfig.closedLoop.outputRange(
@@ -98,14 +108,18 @@ public class SwerveModule {
 		);
 
 		// misc
-		driveConfig.idleMode(ModuleConstants.Spark.kIdleMode);
-		turnConfig.idleMode(ModuleConstants.Spark.kIdleMode);
-		driveConfig.smartCurrentLimit((int) ModuleConstants.Spark.kCurrentLimit.in(Amps));
-		turnConfig.smartCurrentLimit((int) ModuleConstants.Spark.kCurrentLimit.in(Amps));
+		driveConfig.idleMode(ModuleConstants.Neo.kIdleMode);
+		turnConfig.idleMode(ModuleConstants.Neo.kIdleMode);
+		driveConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit.in(Amps));
+		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit.in(Amps));
 
 		// apply and burn configs
 		driveMotor.configure(driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 		turnMotor.configure(turnConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+		// initialize caches
+		driveCache = SensorThread.getInstance().register(() -> Meters.of(driveEncoder.getPosition()));
+		turnCache = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
 	}
 
 	public void setDesiredState(SwerveModuleState desired) {
@@ -122,18 +136,26 @@ public class SwerveModule {
 		desiredState = corrected;
 	}
 
-	public SwerveModulePosition getPosition() {
-		return new SwerveModulePosition(
-			driveEncoder.getPosition(),
-			new Rotation2d(turnEncoder.getPosition() - angularOffset.in(Radians))
-		);
-	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public void update() {
+		this.data.driveConnected = driveMotor.getLastError() != REVLibError.kOk;
+		this.data.drivePosition = Radians.of(driveEncoder.getPosition());
+		this.data.driveVelocity = RadiansPerSecond.of(driveEncoder.getVelocity());
+		this.data.driveVoltage = Volts.of(driveMotor.getBusVoltage() * driveMotor.getAppliedOutput());
+		this.data.driveCurrent = Amps.of(driveMotor.getOutputCurrent());
 
-	public SwerveModuleState getState() {
-		return new SwerveModuleState(
-			driveEncoder.getVelocity(),
-			new Rotation2d(turnEncoder.getPosition())
-		);
+		this.data.turnConnected = turnMotor.getLastError() != REVLibError.kOk;
+		this.data.turnPosition = Radians.of(turnEncoder.getPosition());
+		this.data.turnVelocity = RadiansPerSecond.of(turnEncoder.getVelocity());
+		this.data.turnVoltage = Volts.of(turnMotor.getBusVoltage() * turnMotor.getAppliedOutput());
+		this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
+
+		this.data.driveCached = driveCache.toArray(Timestamped[]::new);
+		this.data.turnCached = turnCache.toArray(Timestamped[]::new);
+
+		driveCache.clear();
+		turnCache.clear();
 	}
 }
 

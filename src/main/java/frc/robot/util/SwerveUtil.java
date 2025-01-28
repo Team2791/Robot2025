@@ -1,9 +1,8 @@
-package frc.robot.swerve;
+package frc.robot.util;
 
 import static frc.robot.constants.MathConstants.kTau;
 
 public final class SwerveUtil {
-
 	/**
 	 * Prevent instantiation.
 	 */
