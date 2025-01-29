@@ -18,7 +18,7 @@ public class PIDFController extends PIDController {
 	) {
 		super(kP, kI, kD);
 		this.kF = kF;
-		this.lastOutput = Double.NaN;
+		this.lastOutput = 0.0;
 		this.minOutput = Double.NEGATIVE_INFINITY;
 		this.maxOutput = Double.POSITIVE_INFINITY;
 	}
@@ -34,18 +34,19 @@ public class PIDFController extends PIDController {
 
 	@Override
 	public double calculate(double measurement, double setpoint) {
-		this.lastOutput = super.calculate(measurement, setpoint) + this.kF * setpoint;
-		return this.clampOutput();
+		double pidout = super.calculate(measurement, setpoint);
+		double ffout = this.kF * setpoint;
+
+		this.lastOutput = Math.min(Math.max(pidout + ffout, this.minOutput), this.maxOutput);
+		return this.lastOutput;
 	}
 
 	@Override
 	public double calculate(double measurement) {
-		this.lastOutput = super.calculate(measurement) + this.kF * getSetpoint();
-		return this.clampOutput();
-	}
+		double pidout = super.calculate(measurement);
+		double ffout = this.kF * getSetpoint();
 
-	private double clampOutput() {
-		this.lastOutput = Math.min(Math.max(this.lastOutput, this.minOutput), this.maxOutput);
+		this.lastOutput = Math.min(Math.max(pidout + ffout, this.minOutput), this.maxOutput);
 		return this.lastOutput;
 	}
 

@@ -24,15 +24,17 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PIDConstants;
+import frc.robot.constants.ModuleConstants.DriveEncoder;
+import frc.robot.constants.ModuleConstants.TurnEncoder;
 import frc.robot.thread.SensorThread;
-import frc.robot.util.Timestamped;
 import frc.robotio.drivetrain.SwerveIO;
 
 public class SwerveModule extends SwerveIO {
-	final SparkMax driveMotor;
+	public final SparkMax driveMotor;
 	final SparkMax turnMotor;
 
 	final RelativeEncoder driveEncoder;
@@ -41,8 +43,9 @@ public class SwerveModule extends SwerveIO {
 	final SparkClosedLoopController driveController;
 	final SparkClosedLoopController turnController;
 
-	final Queue<Timestamped<Distance>> driveCache;
-	final Queue<Timestamped<Angle>> turnCache;
+	final Queue<Distance> driveCache;
+	final Queue<Angle> turnCache;
+	final Queue<Double> timestamps;
 
 	SwerveModuleState desiredState;
 
@@ -70,18 +73,21 @@ public class SwerveModule extends SwerveIO {
 		SparkMaxConfig turnConfig = new SparkMaxConfig();
 
 		// position, velocity factors
-		driveConfig.encoder.positionConversionFactor(ModuleConstants.DriveEncoder.kPositionFactor);
-		driveConfig.encoder.velocityConversionFactor(ModuleConstants.DriveEncoder.kVelocityFactor);
-		turnConfig.absoluteEncoder.positionConversionFactor(ModuleConstants.TurnEncoder.kPositionFactor);
-		turnConfig.absoluteEncoder.velocityConversionFactor(ModuleConstants.TurnEncoder.kVelocityFactor);
+		driveConfig.encoder.positionConversionFactor(DriveEncoder.kPositionFactor);
+		driveConfig.encoder.velocityConversionFactor(DriveEncoder.kVelocityFactor);
+		turnConfig.absoluteEncoder.positionConversionFactor(TurnEncoder.kPositionFactor);
+		turnConfig.absoluteEncoder.velocityConversionFactor(TurnEncoder.kVelocityFactor);
 
-		// invert turn encoder
-		turnConfig.absoluteEncoder.inverted(ModuleConstants.TurnEncoder.kInverted);
+		// configure feedback encoders
+		turnConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+
+		// invert encoders
+		turnConfig.absoluteEncoder.inverted(TurnEncoder.kInverted);
 
 		// pid wrapping
 		turnConfig.closedLoop.positionWrappingEnabled(true);
-		turnConfig.closedLoop.positionWrappingMinInput(ModuleConstants.TurnEncoder.kMinPidInput);
-		turnConfig.closedLoop.positionWrappingMaxInput(ModuleConstants.TurnEncoder.kMaxPidInput);
+		turnConfig.closedLoop.positionWrappingMinInput(TurnEncoder.kMinPidInput);
+		turnConfig.closedLoop.positionWrappingMaxInput(TurnEncoder.kMaxPidInput);
 
 		// pid constants
 		driveConfig.closedLoop.pidf(
@@ -115,12 +121,13 @@ public class SwerveModule extends SwerveIO {
 		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit);
 
 		// apply and burn configs
-		driveMotor.configure(driveConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-		turnMotor.configure(turnConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+		driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+		turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 		// initialize caches
 		driveCache = SensorThread.getInstance().register(() -> Meters.of(driveEncoder.getPosition()));
 		turnCache = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
+		timestamps = SensorThread.getInstance().addTimestamps();
 	}
 
 	public void setDesiredState(SwerveModuleState desired) {
@@ -137,7 +144,6 @@ public class SwerveModule extends SwerveIO {
 		desiredState = corrected;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void update() {
 		this.data.driveConnected = driveMotor.getLastError() != REVLibError.kOk;
@@ -151,9 +157,6 @@ public class SwerveModule extends SwerveIO {
 		this.data.turnVelocity = RadiansPerSecond.of(turnEncoder.getVelocity());
 		this.data.turnVoltage = Volts.of(turnMotor.getBusVoltage() * turnMotor.getAppliedOutput());
 		this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
-
-		this.data.driveCached = driveCache.toArray(Timestamped[]::new);
-		this.data.turnCached = turnCache.toArray(Timestamped[]::new);
 
 		driveCache.clear();
 		turnCache.clear();

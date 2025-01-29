@@ -16,7 +16,7 @@ import frc.robot.constants.SignalConstants;
 public class SensorThread {
 	@SuppressWarnings("rawtypes")
 	private final List<SignalEntry> entries;
-	private final List<Queue<Double>> timestamps;
+	private final ArrayList<Queue<Double>> timestamps;
 
 	/** ArrayList is not threadsafe. Need to lock on read-write */
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -33,23 +33,27 @@ public class SensorThread {
 
 	private SensorThread() {
 		this.entries = new ArrayList<>();
-		this.timestamps = new ArrayList<>();
+		this.timestamps = new ArrayList<>(20);
 		this.scheduler = new Notifier(this::run);
 
 		scheduler.setName("SensorThread");
 		scheduler.startPeriodic(SignalConstants.kDelay);
 	}
 
-	public <T> TimestampedQueue<T> register(Supplier<T> signal) {
+	public <T> Queue<T> register(Supplier<T> signal) {
 		SignalEntry<T> entry = new SignalEntry<>(signal);
-		Queue<Double> ts = new ArrayBlockingQueue<>(20);
 
 		lock.writeLock().lock(); // prevent reads while we write
 		entries.add(entry);
-		timestamps.add(ts);
 		lock.writeLock().lock();
 
-		return new TimestampedQueue<>(entry.cache, ts);
+		return entry.cache;
+	}
+
+	public Queue<Double> addTimestamps() {
+		Queue<Double> timestamps = new ArrayBlockingQueue<>(20);
+		this.timestamps.add(timestamps);
+		return timestamps;
 	}
 
 	private void run() {
@@ -58,7 +62,8 @@ public class SensorThread {
 		lock.readLock().lock(); // prevent writes while we read
 		for (int i = 0; i < entries.size(); i++) {
 			entries.get(i).update();
-			timestamps.get(i).offer(ts);
+
+			if (i < timestamps.size()) timestamps.get(i).offer(ts);
 		}
 		lock.readLock().unlock();
 	}

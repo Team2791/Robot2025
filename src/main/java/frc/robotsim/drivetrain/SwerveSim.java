@@ -1,11 +1,14 @@
 package frc.robotsim.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
+import java.util.Arrays;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -66,9 +69,11 @@ public class SwerveSim extends SwerveIO {
 
 	@Override
 	public void update() {
+		turnctl.setSetpoint(Degrees.of(90).in(Radians));
+
 		// do a drive
 		final double drivePow = drivectl.calculate(driveSim.getAngularVelocity().in(RadiansPerSecond));
-		final double turnPow = turnctl.calculate(turnSim.getAngularVelocity().in(RadiansPerSecond));
+		final double turnPow = turnctl.calculate(turnSim.getAngularPosition().in(Radians));
 
 		// https://www.chiefdelphi.com/t/sparkmax-set-vs-setvoltage/415059/2
 		// correct for differing voltages cuz battery won't always be 12V
@@ -78,6 +83,9 @@ public class SwerveSim extends SwerveIO {
 		// set the input voltage to simulate
 		driveSim.setInputVoltage(driveVolts);
 		turnSim.setInputVoltage(turnVolts);
+
+		driveSim.update(0.02);
+		turnSim.update(0.02);
 
 		// actually update the inputs
 		data.driveConnected = true;
