@@ -3,9 +3,6 @@ package frc.robotio.drivetrain;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.units.measure.Angle;

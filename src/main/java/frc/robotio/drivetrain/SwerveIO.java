@@ -20,7 +20,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 
 public abstract class SwerveIO {
-	@SuppressWarnings("unchecked")
 	@AutoLog
 	public static class SwerveData {
 		public boolean driveConnected = false;
@@ -34,6 +33,8 @@ public abstract class SwerveIO {
 		public AngularVelocity turnVelocity = RadiansPerSecond.of(0);
 		public Voltage turnVoltage = Volts.of(0);
 		public Current turnCurrent = Amps.of(0);
+
+		public SwerveModuleState desired = new SwerveModuleState();
 	}
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();

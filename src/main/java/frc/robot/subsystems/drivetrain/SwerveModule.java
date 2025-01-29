@@ -141,7 +141,7 @@ public class SwerveModule extends SwerveIO {
 		driveController.setReference(corrected.speedMetersPerSecond, ControlType.kVelocity);
 		turnController.setReference(corrected.angle.getRadians(), ControlType.kPosition);
 
-		desiredState = corrected;
+		this.data.desired = corrected;
 	}
 
 	@Override

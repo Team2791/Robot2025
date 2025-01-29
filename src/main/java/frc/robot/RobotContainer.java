@@ -35,7 +35,7 @@ public class RobotContainer {
 	}
 
 	private void configureBindings() {
-		//this.drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
+		this.drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
 	}
 
 	public Command getAutonomousCommand() {

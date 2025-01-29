@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radian;
-import static edu.wpi.first.units.Units.Radians;
-
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -17,36 +13,17 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
-import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Threads;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
-import frc.robot.constants.ModuleConstants;
-import frc.robot.subsystems.drivetrain.SwerveModule;
-import frc.robotsim.drivetrain.SwerveSim;
 
 public class Robot extends LoggedRobot {
 	final RobotContainer container;
 
 	Command autoCommand;
-
-	SwerveModule sm;
-	SparkMaxSim smsim;
-	DCMotorSim tmsim;
 
 	public Robot() {
 		// setup logger constants
@@ -149,34 +126,8 @@ public class Robot extends LoggedRobot {
 	public void testPeriodic() {}
 
 	@Override
-	public void simulationInit() {
-		sm = ((SwerveModule) container.drivetrain.modules().get(0));
-		tmsim = new DCMotorSim(
-			LinearSystemId.createDCMotorSystem(
-				DCMotor.getNEO(1),
-				ModuleConstants.TurnMotor.kMoI,
-				ModuleConstants.TurnMotor.kReduction
-			),
-			DCMotor.getNEO(1)
-		);
-		smsim = new SparkMaxSim(sm.driveMotor, DCMotor.getNeo550(1));
-
-		sm.driveMotor.getClosedLoopController()
-			.setReference(1.0, ControlType.kVelocity);
-	}
+	public void simulationInit() {}
 
 	@Override
-	public void simulationPeriodic() {
-		tmsim.setInput(sm.driveMotor.getAppliedOutput() * RoboRioSim.getVInVoltage());
-
-		tmsim.update(0.02);
-
-		smsim.iterate(
-			tmsim.getAngularVelocityRadPerSec(),
-			RoboRioSim.getVInVoltage(),
-			0.02
-		);
-
-		RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(tmsim.getCurrentDrawAmps()));
-	}
+	public void simulationPeriodic() {}
 }

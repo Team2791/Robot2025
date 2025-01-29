@@ -8,8 +8,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.Arrays;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -72,8 +71,12 @@ public class SwerveSim extends SwerveIO {
 		turnctl.setSetpoint(Degrees.of(90).in(Radians));
 
 		// do a drive
-		final double drivePow = drivectl.calculate(driveSim.getAngularVelocity().in(RadiansPerSecond));
-		final double turnPow = turnctl.calculate(turnSim.getAngularPosition().in(Radians));
+		final double drivePow = drivectl.calculate(
+			driveSim.getAngularVelocityRPM() * ModuleConstants.DriveEncoder.kVelocityFactor
+		);
+		final double turnPow = turnctl.calculate(
+			turnSim.getAngularPositionRotations() * ModuleConstants.TurnEncoder.kPositionFactor
+		);
 
 		// https://www.chiefdelphi.com/t/sparkmax-set-vs-setvoltage/415059/2
 		// correct for differing voltages cuz battery won't always be 12V
@@ -110,7 +113,14 @@ public class SwerveSim extends SwerveIO {
 	}
 
 	public void setDesiredState(SwerveModuleState desired) {
-		turnctl.setSetpoint(desired.speedMetersPerSecond);
-		drivectl.setSetpoint(desired.angle.getRadians());
+		SwerveModuleState corrected = new SwerveModuleState(
+			desired.speedMetersPerSecond,
+			desired.angle.plus(new Rotation2d(angularOffset))
+		);
+
+		corrected.optimize(new Rotation2d(turnSim.getAngularPositionRad()));
+
+		drivectl.setSetpoint(corrected.speedMetersPerSecond);
+		turnctl.setSetpoint(corrected.angle.getRadians());
 	}
 }
