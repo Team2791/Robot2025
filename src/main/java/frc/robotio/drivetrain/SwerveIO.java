@@ -18,10 +18,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.Timestamped;
 
 public abstract class SwerveIO {
-	@SuppressWarnings("unchecked")
 	@AutoLog
 	public static class SwerveData {
 		public boolean driveConnected = false;
@@ -36,8 +34,7 @@ public abstract class SwerveIO {
 		public Voltage turnVoltage = Volts.of(0);
 		public Current turnCurrent = Amps.of(0);
 
-		public Timestamped<Distance>[] driveCached = new Timestamped[0];
-		public Timestamped<Angle>[] turnCached = new Timestamped[0];
+		public SwerveModuleState desired = new SwerveModuleState();
 	}
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();

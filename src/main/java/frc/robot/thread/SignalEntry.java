@@ -4,7 +4,7 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Supplier;
 
-class SignalEntry<T> {
+public class SignalEntry<T> {
 	final Supplier<T> signal;
 	final Queue<T> cache;
 

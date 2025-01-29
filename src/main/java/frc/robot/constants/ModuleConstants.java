@@ -11,10 +11,15 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 public final class ModuleConstants {
 	public static final class Neo {
 		/** https://www.revrobotics.com/rev-21-1650/#:~:text=empirical%20free%20speed%3A%205676%20rpm */
-		/* revert to just 5676.0 / 60.0 if failure!! */
 		public static final double kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0).in(RadiansPerSecond);
 		public static final IdleMode kIdleMode = IdleMode.kBrake;
 		public static final double kCurrentLimit = 40;
+	}
+
+	public static final class Neo550 {
+		/** https://www.revrobotics.com/rev-21-1651/#:~:text=free%20speed%3A%2011000%20rpm */
+		public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
+		public static final IdleMode kIdleMode = IdleMode.kBrake;
 	}
 
 	public static final class DriveMotor {
@@ -64,7 +69,7 @@ public final class ModuleConstants {
 		public static final boolean kInverted = false;
 
 		public static final double kMinPidInput = 0.0;
-		public static final double kMaxPidInput = kPositionFactor;
+		public static final double kMaxPidInput = kTau;
 	}
 
 	public static final class Wheel {

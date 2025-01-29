@@ -7,16 +7,14 @@ import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.util.Timestamped;
 
 public abstract class GyroIO {
-	@SuppressWarnings("unchecked")
+	// @SuppressWarnings("unchecked")
 	@AutoLog
 	public static class GyroData {
 		public boolean connected = false;
 		public Angle heading = Radians.of(0);
 		public AngularVelocity velocity = RadiansPerSecond.of(0);
-		public Timestamped<Angle>[] cached = new Timestamped[0];
 	}
 
 

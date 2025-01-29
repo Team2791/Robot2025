@@ -104,6 +104,8 @@ public class Drivetrain extends SubsystemBase {
 		GyroIO gyro,
 		TriSupplier<Integer, Integer, Double, SwerveIO> moduleConstructor
 	) {
+		this.gyro = gyro;
+
 		frontLeft = moduleConstructor.get(
 			IOConstants.Drivetrain.Drive.kFrontLeft,
 			IOConstants.Drivetrain.Turn.kFrontLeft,
@@ -141,7 +143,6 @@ public class Drivetrain extends SubsystemBase {
 			DriveConstants.Slew.kDirection
 		);
 
-		this.gyro = gyro;
 		field = new Field2d();
 
 		this.gyro.reset();
