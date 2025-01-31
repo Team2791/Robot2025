@@ -80,6 +80,7 @@ public class SwerveModule extends SwerveIO {
 
 		// invert encoders
 		turnConfig.absoluteEncoder.inverted(TurnEncoder.kInverted);
+		turnConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
 		// pid wrapping
 		turnConfig.closedLoop.positionWrappingEnabled(true);
