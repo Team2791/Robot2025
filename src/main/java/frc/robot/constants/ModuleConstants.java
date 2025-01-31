@@ -66,7 +66,7 @@ public final class ModuleConstants {
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
 
 		/** May need in future, leaving */
-		public static final boolean kInverted = false;
+		public static final boolean kInverted = true;
 
 		public static final double kMinPidInput = 0.0;
 		public static final double kMaxPidInput = kTau;

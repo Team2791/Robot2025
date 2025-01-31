@@ -78,9 +78,6 @@ public class SwerveModule extends SwerveIO {
 		turnConfig.absoluteEncoder.positionConversionFactor(TurnEncoder.kPositionFactor);
 		turnConfig.absoluteEncoder.velocityConversionFactor(TurnEncoder.kVelocityFactor);
 
-		// configure feedback encoders
-		turnConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-
 		// invert encoders
 		turnConfig.absoluteEncoder.inverted(TurnEncoder.kInverted);
 
