@@ -122,5 +122,7 @@ public class SwerveSim extends SwerveIO {
 
 		drivectl.setSetpoint(corrected.speedMetersPerSecond);
 		turnctl.setSetpoint(corrected.angle.getRadians());
+
+		this.data.desired = corrected;
 	}
 }

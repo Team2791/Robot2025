@@ -24,18 +24,18 @@ public class NavX extends GyroIO {
 
 	public NavX() {
 		this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (int) (1. / SignalConstants.kDelay));
-		this.headings = SensorThread.getInstance().register(this::heading);
+		this.headings = SensorThread.getInstance().register(this::measure);
 		this.timestamps = SensorThread.getInstance().addTimestamps();
 	}
 
-	public Angle heading() {
+	Angle measure() {
 		return Degrees.of(gyro.getAngle() * DriveConstants.kGyroFactor);
 	}
 
 	@Override
 	public void update() {
 		data.connected = gyro.isConnected();
-		data.heading = this.heading();
+		data.heading = this.measure();
 		data.velocity = DegreesPerSecond.of(gyro.getRate() * DriveConstants.kGyroFactor);
 
 		data.timestamps = IterUtil.toDoubleArray(timestamps.stream());

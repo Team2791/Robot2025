@@ -1,11 +1,17 @@
 package frc.robot.subsystems.drivetrain;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -15,6 +21,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -24,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
+import frc.robot.constants.PIDConstants;
 import frc.robot.util.IterUtil;
 import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
@@ -42,10 +50,85 @@ public class Drivetrain extends SubsystemBase {
 
 	final SlewWrapper slew;
 
-	/**
-	 * @return The drivetrain's heading
-	 */
-	public Rotation2d getHeading() { return new Rotation2d(gyro.data.heading); }
+	public Drivetrain(
+		GyroIO gyro,
+		TriSupplier<Integer, Integer, Double, SwerveIO> moduleConstructor
+	) throws IOException, ParseException {
+		this.gyro = gyro;
+
+		frontLeft = moduleConstructor.get(
+			IOConstants.Drivetrain.Drive.kFrontLeft,
+			IOConstants.Drivetrain.Turn.kFrontLeft,
+			DriveConstants.AngularOffsets.kFrontLeft
+		);
+
+		frontRight = moduleConstructor.get(
+			IOConstants.Drivetrain.Drive.kFrontRight,
+			IOConstants.Drivetrain.Turn.kFrontRight,
+			DriveConstants.AngularOffsets.kFrontRight
+		);
+
+		rearLeft = moduleConstructor.get(
+			IOConstants.Drivetrain.Drive.kRearLeft,
+			IOConstants.Drivetrain.Turn.kRearLeft,
+			DriveConstants.AngularOffsets.kRearLeft
+		);
+
+		rearRight = moduleConstructor.get(
+			IOConstants.Drivetrain.Drive.kRearRight,
+			IOConstants.Drivetrain.Turn.kRearRight,
+			DriveConstants.AngularOffsets.kRearRight
+		);
+
+		odometry = new SwerveDrivePoseEstimator(
+			DriveConstants.kKinematics,
+			gyro.heading(),
+			modulePositions().toArray(SwerveModulePosition[]::new),
+			new Pose2d()
+		);
+
+		slew = new SlewWrapper(
+			DriveConstants.Slew.kMagnitude,
+			DriveConstants.Slew.kRotation,
+			DriveConstants.Slew.kDirection
+		);
+
+		field = new Field2d();
+
+		this.gyro.reset();
+
+		ShuffleboardTab drive = Shuffleboard.getTab("Drivetrain");
+
+		drive.addNumber("Heading (degrees)", () -> getHeading().getDegrees());
+		drive.addNumber("X Speed", () -> getChassisSpeeds().vxMetersPerSecond);
+		drive.addNumber("Y Speed", () -> getChassisSpeeds().vyMetersPerSecond);
+		drive.addNumber("Angular Speed", () -> getChassisSpeeds().omegaRadiansPerSecond);
+		drive.add("Field", field);
+
+		AutoBuilder.configure(
+			this::getPose,
+			this::resetOdometry,
+			this::getChassisSpeeds,
+			s -> this.drive(s, false),
+			new PPHolonomicDriveController(
+				new com.pathplanner.lib.config.PIDConstants(
+					PIDConstants.ADStar.kOrthoP,
+					PIDConstants.ADStar.kOrthoI,
+					PIDConstants.ADStar.kOrthoD
+				),
+				new com.pathplanner.lib.config.PIDConstants(
+					PIDConstants.ADStar.kTurnP,
+					PIDConstants.ADStar.kTurnI,
+					PIDConstants.ADStar.kTurnD
+				)
+			),
+			RobotConfig.fromGUISettings(),
+			() -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
+			this
+		);
+
+		AutoLogOutputManager.addObject(this);
+	}
 
 	/**
 	 * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
@@ -93,69 +176,15 @@ public class Drivetrain extends SubsystemBase {
 	public Pose2d getPose() { return odometry.getEstimatedPosition(); }
 
 	/**
+	 * @return The drivetrain's heading
+	 */
+	public Rotation2d getHeading() { return getPose().getRotation(); }
+
+	/**
 	 * @param pose The new pose of the robot.
 	 */
 	public void resetOdometry(Pose2d pose) {
-		odometry.resetPosition(getHeading(), modulePositions().toArray(SwerveModulePosition[]::new), pose);
-	}
-
-	// TODO: auto stuff
-	public Drivetrain(
-		GyroIO gyro,
-		TriSupplier<Integer, Integer, Double, SwerveIO> moduleConstructor
-	) {
-		this.gyro = gyro;
-
-		frontLeft = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kFrontLeft,
-			IOConstants.Drivetrain.Turn.kFrontLeft,
-			DriveConstants.AngularOffsets.kFrontLeft
-		);
-
-		frontRight = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kFrontRight,
-			IOConstants.Drivetrain.Turn.kFrontRight,
-			DriveConstants.AngularOffsets.kFrontRight
-		);
-
-		rearLeft = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kRearLeft,
-			IOConstants.Drivetrain.Turn.kRearLeft,
-			DriveConstants.AngularOffsets.kRearLeft
-		);
-
-		rearRight = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kRearRight,
-			IOConstants.Drivetrain.Turn.kRearRight,
-			DriveConstants.AngularOffsets.kRearRight
-		);
-
-		odometry = new SwerveDrivePoseEstimator(
-			DriveConstants.kKinematics,
-			getHeading(),
-			modulePositions().toArray(SwerveModulePosition[]::new),
-			new Pose2d()
-		);
-
-		slew = new SlewWrapper(
-			DriveConstants.Slew.kMagnitude,
-			DriveConstants.Slew.kRotation,
-			DriveConstants.Slew.kDirection
-		);
-
-		field = new Field2d();
-
-		this.gyro.reset();
-
-		ShuffleboardTab drive = Shuffleboard.getTab("Drivetrain");
-
-		drive.addNumber("Heading (degrees)", () -> getHeading().getDegrees());
-		drive.addNumber("X Speed", () -> getChassisSpeeds().vxMetersPerSecond);
-		drive.addNumber("Y Speed", () -> getChassisSpeeds().vyMetersPerSecond);
-		drive.addNumber("Angular Speed", () -> getChassisSpeeds().omegaRadiansPerSecond);
-		drive.add("Field", field);
-
-		AutoLogOutputManager.addObject(this);
+		odometry.resetPosition(gyro.heading(), modulePositions().toArray(SwerveModulePosition[]::new), pose);
 	}
 
 	/**
@@ -213,7 +242,7 @@ public class Drivetrain extends SubsystemBase {
 		double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
 
 		// do a rate limit
-		// TODO: fix: SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
+		// SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
 
 		// multiply by max speed
 		double xvel = DriveConstants.MaxSpeed.kLinear * xspeed;
@@ -232,7 +261,7 @@ public class Drivetrain extends SubsystemBase {
 		modules().forEach(SwerveIO::update);
 
 		// update odometry
-		odometry.update(getHeading(), modulePositions().toArray(SwerveModulePosition[]::new));
+		odometry.update(gyro.heading(), modulePositions().toArray(SwerveModulePosition[]::new));
 		field.setRobotPose(getPose());
 
 		// log to advantagekit

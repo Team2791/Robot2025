@@ -5,11 +5,11 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 public abstract class GyroIO {
-	// @SuppressWarnings("unchecked")
 	@AutoLog
 	public static class GyroData {
 		public boolean connected = false;
@@ -31,8 +31,13 @@ public abstract class GyroIO {
 	 */
 	public abstract void update();
 
+
 	/**
 	 * Resets the gyro.
 	 */
 	public abstract void reset();
+
+	public Rotation2d heading() {
+		return new Rotation2d(data.heading);
+	}
 }

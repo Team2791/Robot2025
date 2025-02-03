@@ -21,7 +21,17 @@ public final class PIDConstants {
 		public static final double kTolerance = 0.01;
 	}
 
-	public static final class Autos {
+	public static final class ADStar {
+		public static final double kOrthoP = 0;
+		public static final double kOrthoI = 0;
+		public static final double kOrthoD = 0;
+
+		public static final double kTurnP = 0;
+		public static final double kTurnI = 0;
+		public static final double kTurnD = 0;
+	}
+
+	public static final class BuiltAutos {
 		public static final double kOrthoP = 0;
 		public static final double kOrthoI = 0;
 		public static final double kOrthoD = 0;

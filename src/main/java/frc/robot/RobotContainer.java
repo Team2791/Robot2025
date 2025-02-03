@@ -1,5 +1,9 @@
 package frc.robot;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
 import choreo.auto.AutoChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -35,7 +39,7 @@ public class RobotContainer {
 	final AutoManager autos = new AutoManager(drivetrain);
 	final AutoChooser chooser = new AutoChooser();
 
-	public RobotContainer() {
+	public RobotContainer() throws IOException, ParseException {
 		configureBindings();
 	}
 

@@ -22,18 +22,18 @@ public class AutoManager {
 	public AutoManager(Drivetrain drivetrain) {
 		this.drivetrain = drivetrain;
 		this.orthoctl = new PIDController(
-			PIDConstants.Autos.kOrthoP,
-			PIDConstants.Autos.kOrthoI,
-			PIDConstants.Autos.kOrthoD
+			PIDConstants.BuiltAutos.kOrthoP,
+			PIDConstants.BuiltAutos.kOrthoI,
+			PIDConstants.BuiltAutos.kOrthoD
 		);
 		this.turnctl = new PIDController(
-			PIDConstants.Autos.kTurnP,
-			PIDConstants.Autos.kTurnI,
-			PIDConstants.Autos.kTurnD
+			PIDConstants.BuiltAutos.kTurnP,
+			PIDConstants.BuiltAutos.kTurnI,
+			PIDConstants.BuiltAutos.kTurnD
 		);
 
-		this.orthoctl.setTolerance(PIDConstants.Autos.kOrthoTolerance);
-		this.turnctl.setTolerance(PIDConstants.Autos.kTurnTolerance);
+		this.orthoctl.setTolerance(PIDConstants.BuiltAutos.kOrthoTolerance);
+		this.turnctl.setTolerance(PIDConstants.BuiltAutos.kTurnTolerance);
 
 		this.factory = new AutoFactory(
 			drivetrain::getPose,

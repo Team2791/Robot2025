@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -25,7 +28,7 @@ public class Robot extends LoggedRobot {
 
 	Command autoCommand;
 
-	public Robot() {
+	public Robot() throws IOException, ParseException {
 		// setup logger constants
 		Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
 		Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
