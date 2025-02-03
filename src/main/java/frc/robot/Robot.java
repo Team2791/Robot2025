@@ -16,10 +16,12 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+import com.pathplanner.lib.pathfinding.Pathfinding;
+
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import frc.robot.autos.ADStar;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
 
@@ -79,6 +81,11 @@ public class Robot extends LoggedRobot {
 		AutoLogOutputManager.addPackage("frc.robotreplay");
 
 		this.container = new RobotContainer();
+	}
+
+	@Override
+	public void robotInit() {
+		Pathfinding.setPathfinder(new ADStar());
 	}
 
 	@Override

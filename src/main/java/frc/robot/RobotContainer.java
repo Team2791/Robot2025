@@ -4,11 +4,12 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import choreo.auto.AutoChooser;
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.autos.AutoManager;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.NavX;
 import frc.robot.subsystems.drivetrain.SwerveModule;
@@ -19,27 +20,22 @@ import frc.robotsim.drivetrain.SwerveSim;
 
 public class RobotContainer {
 	// controllers
-	final CommandXboxController driverctl = new CommandXboxController(0);
+	final CommandXboxController driverctl;
 
 	// subsystems
-	final Drivetrain drivetrain = new Drivetrain(
-		AdvantageUtil.getReal(
-			NavX::new,
-			GyroReplay::new,
-			GyroReplay::new
-		),
-		AdvantageUtil.matchReal(
-			SwerveModule::new,
-			SwerveSim::new,
-			SwerveReplay::new
-		)
-	);
+	final Drivetrain drivetrain;
 
 	// autos
-	final AutoManager autos = new AutoManager(drivetrain);
-	final AutoChooser chooser = new AutoChooser();
+	final SendableChooser<Command> autoChooser;
 
 	public RobotContainer() throws IOException, ParseException {
+		this.driverctl = new CommandXboxController(0);
+		this.drivetrain = new Drivetrain(
+			AdvantageUtil.matchReal(NavX::new, GyroReplay::new, GyroReplay::new),
+			AdvantageUtil.matchReal(SwerveModule::new, SwerveSim::new, SwerveReplay::new)
+		);
+		this.autoChooser = AutoBuilder.buildAutoChooser();
+
 		configureBindings();
 	}
 
