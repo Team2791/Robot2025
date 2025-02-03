@@ -20,6 +20,7 @@ public final class ModuleConstants {
 		/** https://www.revrobotics.com/rev-21-1651/#:~:text=free%20speed%3A%2011000%20rpm */
 		public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
 		public static final IdleMode kIdleMode = IdleMode.kBrake;
+		public static final double kCurrentLimit = 20;
 	}
 
 	public static final class DriveMotor {
@@ -65,7 +66,7 @@ public final class ModuleConstants {
 		/** Convert from motor rotations per minute to motor radians per second */
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
 
-		/** May need in future, leaving */
+		/** Invert the turn encoder. Never change this. Ever. */
 		public static final boolean kInverted = true;
 
 		public static final double kMinPidInput = 0.0;

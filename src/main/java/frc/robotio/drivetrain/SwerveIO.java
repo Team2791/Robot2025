@@ -35,6 +35,10 @@ public abstract class SwerveIO {
 		public Current turnCurrent = Amps.of(0);
 
 		public SwerveModuleState desired = new SwerveModuleState();
+
+		public double[] timestamps = new double[0];
+		public double[] drivePositions = new double[0];
+		public double[] turnPositions = new double[0];
 	}
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();

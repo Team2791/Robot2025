@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
-import frc.robot.util.StreamUtil;
+import frc.robot.util.IterUtil;
 import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
@@ -83,7 +83,7 @@ public class Drivetrain extends SubsystemBase {
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed);
 
 		// set the desired states of all modules. i miss kotlin :(
-		StreamUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveIO::setDesiredState);
+		IterUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveIO::setDesiredState);
 	}
 
 	/**
@@ -213,7 +213,7 @@ public class Drivetrain extends SubsystemBase {
 		double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
 
 		// do a rate limit
-		// TODO: SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
+		// TODO: fix: SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
 
 		// multiply by max speed
 		double xvel = DriveConstants.MaxSpeed.kLinear * xspeed;
@@ -236,7 +236,7 @@ public class Drivetrain extends SubsystemBase {
 		field.setRobotPose(getPose());
 
 		// log to advantagekit
-		StreamUtil.enumerateThen(modules().stream(), (idx, module) -> {
+		IterUtil.enumerateThen(modules().stream(), (idx, module) -> {
 			final double driveCan = (40 - (idx * 10));
 			final String path = "Drivetrain/SwerveModule/" + driveCan;
 			Logger.processInputs(path, module.data);

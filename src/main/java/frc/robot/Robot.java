@@ -60,7 +60,7 @@ public class Robot extends LoggedRobot {
 
 				setUseTiming(false);
 				Logger.setReplaySource(new WPILOGReader(logfile));
-				Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logfile, "sim")));
+				Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logfile, ".sim")));
 				break;
 		}
 
@@ -70,9 +70,10 @@ public class Robot extends LoggedRobot {
 		// start logger
 		Logger.start();
 
-		// allow autologging in frc.robotio and robotsim
+		// allow autologging in frc.robotio, frc.robotsim, and frc.robotreplay
 		AutoLogOutputManager.addPackage("frc.robotio");
 		AutoLogOutputManager.addPackage("frc.robotsim");
+		AutoLogOutputManager.addPackage("frc.robotreplay");
 
 		this.container = new RobotContainer();
 	}

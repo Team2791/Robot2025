@@ -6,8 +6,11 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-public class StreamUtil {
-	private StreamUtil() {}
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Unit;
+
+public class IterUtil {
+	private IterUtil() {}
 
 	/**
 	 * Zips two streams together, applying a consumer to each pair of elements.
@@ -79,5 +82,26 @@ public class StreamUtil {
 			consumer.accept(i, aIterator.next());
 			i++;
 		}
+	}
+
+	/**
+	 * Convert uom stream to a double array
+	 * 
+	 * @param <T> The type of the stream
+	 * @param a   The stream
+	 * @return A stream of doubles
+	 */
+	public static <U extends Unit, M extends Measure<U>> double[] toDoubleArray(Stream<M> a, U unit) {
+		return a.mapToDouble(m -> m.in(unit)).toArray();
+	}
+
+	/**
+	 * Convert Double stream to double array
+	 * 
+	 * @param a The stream
+	 * @return A stream of doubles
+	 */
+	public static double[] toDoubleArray(Stream<Double> a) {
+		return a.mapToDouble(Double::doubleValue).toArray();
 	}
 }

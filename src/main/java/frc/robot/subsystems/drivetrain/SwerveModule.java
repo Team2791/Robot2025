@@ -31,6 +31,7 @@ import frc.robot.constants.PIDConstants;
 import frc.robot.constants.ModuleConstants.DriveEncoder;
 import frc.robot.constants.ModuleConstants.TurnEncoder;
 import frc.robot.thread.SensorThread;
+import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.SwerveIO;
 
 public class SwerveModule extends SwerveIO {
@@ -43,8 +44,8 @@ public class SwerveModule extends SwerveIO {
 	final SparkClosedLoopController driveController;
 	final SparkClosedLoopController turnController;
 
-	final Queue<Distance> driveCache;
-	final Queue<Angle> turnCache;
+	final Queue<Distance> driveHist;
+	final Queue<Angle> turnHist;
 	final Queue<Double> timestamps;
 
 	SwerveModuleState desiredState;
@@ -114,17 +115,17 @@ public class SwerveModule extends SwerveIO {
 
 		// misc
 		driveConfig.idleMode(ModuleConstants.Neo.kIdleMode);
-		turnConfig.idleMode(ModuleConstants.Neo.kIdleMode);
+		turnConfig.idleMode(ModuleConstants.Neo550.kIdleMode);
 		driveConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit);
-		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit);
+		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo550.kCurrentLimit);
 
 		// apply and burn configs
 		driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 		turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 		// initialize caches
-		driveCache = SensorThread.getInstance().register(() -> Meters.of(driveEncoder.getPosition()));
-		turnCache = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
+		driveHist = SensorThread.getInstance().register(() -> Meters.of(driveEncoder.getPosition()));
+		turnHist = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
 		timestamps = SensorThread.getInstance().addTimestamps();
 	}
 
@@ -156,8 +157,12 @@ public class SwerveModule extends SwerveIO {
 		this.data.turnVoltage = Volts.of(turnMotor.getBusVoltage() * turnMotor.getAppliedOutput());
 		this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
 
-		driveCache.clear();
-		turnCache.clear();
+		this.data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
+		this.data.drivePositions = IterUtil.toDoubleArray(driveHist.stream(), Meters);
+		this.data.turnPositions = IterUtil.toDoubleArray(turnHist.stream(), Radians);
+
+		driveHist.clear();
+		turnHist.clear();
 	}
 }
 
