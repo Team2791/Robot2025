@@ -1,9 +1,10 @@
 package frc.robot;
 
+import choreo.auto.AutoChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import frc.robot.autos.AutoManager;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.NavX;
 import frc.robot.subsystems.drivetrain.SwerveModule;
@@ -29,6 +30,10 @@ public class RobotContainer {
 			SwerveReplay::new
 		)
 	);
+
+	// autos
+	final AutoManager autos = new AutoManager(drivetrain);
+	final AutoChooser chooser = new AutoChooser();
 
 	public RobotContainer() {
 		configureBindings();

@@ -183,7 +183,7 @@ public class Drivetrain extends SubsystemBase {
 	 * 
 	 * @param xspeed        The desired speed for the robot to move in the x direction.
 	 * @param yspeed        The desired speed for the robot to move in the y direction.
-	 * @param rot           The desired rotation for the robot to move with.
+	 * @param rot           The desired rotational speed
 	 * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
 	 */
 	public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
@@ -195,7 +195,7 @@ public class Drivetrain extends SubsystemBase {
 	 * 
 	 * @param xspeed The desired speed for the robot to move in the x direction.
 	 * @param yspeed The desired speed for the robot to move in the y direction.
-	 * @param rot    The desired rotation for the robot to move with.
+	 * @param rot    The desired rotational speed
 	 */
 	public void drive(double xspeed, double yspeed, double rot) {
 		drive(xspeed, yspeed, rot, true);
