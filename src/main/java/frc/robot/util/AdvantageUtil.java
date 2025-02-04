@@ -22,11 +22,11 @@ public final class AdvantageUtil {
 		}
 	}
 
-	public static <T> T getReal(
+	public static <T> T matchReal(
 		Supplier<T> real,
 		Supplier<T> sim,
 		Supplier<T> replay
 	) {
-		return matchReal(real, sim, replay).get();
+		return AdvantageUtil.<Supplier<T>>matchReal(real, sim, replay).get();
 	}
 }

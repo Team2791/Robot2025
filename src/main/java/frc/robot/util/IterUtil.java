@@ -6,8 +6,8 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-public class StreamUtil {
-	private StreamUtil() {}
+public class IterUtil {
+	private IterUtil() {}
 
 	/**
 	 * Zips two streams together, applying a consumer to each pair of elements.
