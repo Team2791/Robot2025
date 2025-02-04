@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "score_pos2_blue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "get_side2_blue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "score_side2_blue"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}

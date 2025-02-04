@@ -27,15 +27,17 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.PIDConstants;
+import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robot.util.IterUtil;
 import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
+import frc.robotsim.drivetrain.GyroSim;
 
 public class Drivetrain extends SubsystemBase {
 	final SwerveIO frontLeft;
@@ -49,6 +51,7 @@ public class Drivetrain extends SubsystemBase {
 	final Field2d field;
 
 	final SlewWrapper slew;
+
 
 	public Drivetrain(
 		GyroIO gyro,
@@ -83,7 +86,7 @@ public class Drivetrain extends SubsystemBase {
 		odometry = new SwerveDrivePoseEstimator(
 			DriveConstants.kKinematics,
 			gyro.heading(),
-			modulePositions().toArray(SwerveModulePosition[]::new),
+			modulePositions(),
 			new Pose2d()
 		);
 
@@ -112,14 +115,14 @@ public class Drivetrain extends SubsystemBase {
 			s -> this.drive(s, false),
 			new PPHolonomicDriveController(
 				new com.pathplanner.lib.config.PIDConstants(
-					PIDConstants.ADStar.kOrthoP,
-					PIDConstants.ADStar.kOrthoI,
-					PIDConstants.ADStar.kOrthoD
+					PIDConstants.Autos.kOrthoP,
+					PIDConstants.Autos.kOrthoI,
+					PIDConstants.Autos.kOrthoD
 				),
 				new com.pathplanner.lib.config.PIDConstants(
-					PIDConstants.ADStar.kTurnP,
-					PIDConstants.ADStar.kTurnI,
-					PIDConstants.ADStar.kTurnD
+					PIDConstants.Autos.kTurnP,
+					PIDConstants.Autos.kTurnI,
+					PIDConstants.Autos.kTurnD
 				)
 			),
 			RobotConfig.fromGUISettings(),
@@ -133,22 +136,25 @@ public class Drivetrain extends SubsystemBase {
 	/**
 	 * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
 	 */
-	public List<SwerveIO> modules() {
-		return List.of(frontLeft, frontRight, rearLeft, rearRight);
+	public SwerveIO[] modules() {
+		return new SwerveIO[]{
+			frontLeft, frontRight, rearLeft, rearRight
+		};
 	}
 
 	/**
 	 * @return A list of all swerve module positions on the robot. In the same order as {@link #modules()}.
 	 */
-	public List<SwerveModulePosition> modulePositions() {
-		return modules().stream().map(SwerveIO::getPosition).toList();
+	@AutoLogOutput
+	public SwerveModulePosition[] modulePositions() {
+		return Arrays.stream(modules()).map(SwerveIO::getPosition).toArray(SwerveModulePosition[]::new);
 	}
 
 	/**
 	 * @return A list of all swerve module states on the robot. In the same order as {@link #modules()}.
 	 */
 	public List<SwerveModuleState> moduleStates() {
-		return modules().stream().map(SwerveIO::getState).toList();
+		return Arrays.stream(modules()).map(SwerveIO::getState).toList();
 	}
 
 	/**
@@ -166,7 +172,12 @@ public class Drivetrain extends SubsystemBase {
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed);
 
 		// set the desired states of all modules. i miss kotlin :(
-		IterUtil.zipThen(modules().stream(), Arrays.stream(states), SwerveIO::setDesiredState);
+		IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
+
+		// simulation gyro needs this
+		if (AdvantageConstants.Modes.kCurrent == AdvantageMode.Sim) {
+			((GyroSim) gyro).updateOmega(speeds.omegaRadiansPerSecond);
+		}
 	}
 
 	/**
@@ -175,16 +186,13 @@ public class Drivetrain extends SubsystemBase {
 	@AutoLogOutput
 	public Pose2d getPose() { return odometry.getEstimatedPosition(); }
 
-	/**
-	 * @return The drivetrain's heading
-	 */
 	public Rotation2d getHeading() { return getPose().getRotation(); }
 
 	/**
 	 * @param pose The new pose of the robot.
 	 */
 	public void resetOdometry(Pose2d pose) {
-		odometry.resetPosition(gyro.heading(), modulePositions().toArray(SwerveModulePosition[]::new), pose);
+		odometry.resetPosition(gyro.heading(), modulePositions(), pose);
 	}
 
 	/**
@@ -204,7 +212,7 @@ public class Drivetrain extends SubsystemBase {
 	 * @param speeds The desired speeds for the robot to move at.
 	 */
 	public void drive(ChassisSpeeds speeds) {
-		drive(speeds, true);
+		drive(speeds, false);
 	}
 
 	/**
@@ -227,7 +235,7 @@ public class Drivetrain extends SubsystemBase {
 	 * @param rot    The desired rotational speed
 	 */
 	public void drive(double xspeed, double yspeed, double rot) {
-		drive(xspeed, yspeed, rot, true);
+		drive(xspeed, yspeed, rot, false);
 	}
 
 	/**
@@ -237,9 +245,9 @@ public class Drivetrain extends SubsystemBase {
 	 */
 	public void drive(CommandXboxController controller) {
 		// [-1..1] inputs w/ deadband
-		double xspeed = MathUtil.applyDeadband(controller.getLeftX(), ControllerConstants.kDeadband);
-		double yspeed = MathUtil.applyDeadband(controller.getLeftY(), ControllerConstants.kDeadband);
-		double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
+		final double xspeed = MathUtil.applyDeadband(controller.getLeftX(), ControllerConstants.kDeadband);
+		final double yspeed = MathUtil.applyDeadband(controller.getLeftY(), ControllerConstants.kDeadband);
+		final double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
 
 		// do a rate limit
 		// SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
@@ -258,14 +266,14 @@ public class Drivetrain extends SubsystemBase {
 		gyro.update();
 
 		// update all modules
-		modules().forEach(SwerveIO::update);
+		Arrays.stream(modules()).forEach(SwerveIO::update);
 
 		// update odometry
-		odometry.update(gyro.heading(), modulePositions().toArray(SwerveModulePosition[]::new));
+		odometry.update(gyro.heading(), modulePositions());
 		field.setRobotPose(getPose());
 
 		// log to advantagekit
-		IterUtil.enumerateThen(modules().stream(), (idx, module) -> {
+		IterUtil.enumerateThen(Arrays.stream(modules()), (idx, module) -> {
 			final double driveCan = (40 - (idx * 10));
 			final String path = "Drivetrain/SwerveModule/" + driveCan;
 			Logger.processInputs(path, module.data);

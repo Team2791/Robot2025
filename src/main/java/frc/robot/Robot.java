@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.wpilibj.Threads;
@@ -86,6 +87,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotInit() {
 		Pathfinding.setPathfinder(new ADStar());
+		FollowPathCommand.warmupCommand().schedule();
 	}
 
 	@Override
