@@ -112,14 +112,14 @@ public class Drivetrain extends SubsystemBase {
 			s -> this.drive(s, false),
 			new PPHolonomicDriveController(
 				new com.pathplanner.lib.config.PIDConstants(
-					PIDConstants.ADStar.kOrthoP,
-					PIDConstants.ADStar.kOrthoI,
-					PIDConstants.ADStar.kOrthoD
+					PIDConstants.Autos.kOrthoP,
+					PIDConstants.Autos.kOrthoI,
+					PIDConstants.Autos.kOrthoD
 				),
 				new com.pathplanner.lib.config.PIDConstants(
-					PIDConstants.ADStar.kTurnP,
-					PIDConstants.ADStar.kTurnI,
-					PIDConstants.ADStar.kTurnD
+					PIDConstants.Autos.kTurnP,
+					PIDConstants.Autos.kTurnI,
+					PIDConstants.Autos.kTurnD
 				)
 			),
 			RobotConfig.fromGUISettings(),

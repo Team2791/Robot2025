@@ -43,8 +43,5 @@ public class RobotContainer {
 		this.drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
 	}
 
-	public Command getAutonomousCommand() {
-		// TODO: autos
-		return null;
-	}
+	public Command getAutonomousCommand() { return autoChooser.getSelected(); }
 }
