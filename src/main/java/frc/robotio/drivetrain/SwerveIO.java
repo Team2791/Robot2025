@@ -67,7 +67,7 @@ public abstract class SwerveIO {
 	public SwerveModuleState getState() {
 		return new SwerveModuleState(
 			data.driveVelocity,
-			new Rotation2d(data.turnPosition)
+			new Rotation2d(data.turnPosition.minus(Radians.of(angularOffset)))
 		);
 	}
 }
