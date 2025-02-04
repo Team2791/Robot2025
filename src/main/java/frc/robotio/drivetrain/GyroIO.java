@@ -38,6 +38,7 @@ public abstract class GyroIO {
 	public abstract void reset();
 
 	public Rotation2d heading() {
-		return new Rotation2d(data.heading);
+		return new Rotation2d(this.data.heading);
 	}
 }
+

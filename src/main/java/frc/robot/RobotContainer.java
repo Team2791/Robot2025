@@ -10,12 +10,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.NavX;
 import frc.robot.subsystems.drivetrain.SwerveModule;
 import frc.robot.util.AdvantageUtil;
 import frc.robotreplay.drivetrain.GyroReplay;
 import frc.robotreplay.drivetrain.SwerveReplay;
+import frc.robotsim.drivetrain.GyroSim;
 import frc.robotsim.drivetrain.SwerveSim;
 
 public class RobotContainer {
@@ -29,7 +31,7 @@ public class RobotContainer {
 	final SendableChooser<Command> autoChooser;
 
 	public RobotContainer() throws IOException, ParseException {
-		this.driverctl = new CommandXboxController(0);
+		this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
 		this.drivetrain = new Drivetrain(
 			AdvantageUtil.matchReal(NavX::new, GyroReplay::new, GyroReplay::new),
 			AdvantageUtil.matchReal(SwerveModule::new, SwerveSim::new, SwerveReplay::new)
