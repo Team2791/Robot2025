@@ -17,7 +17,6 @@ import frc.robot.subsystems.drivetrain.SwerveModule;
 import frc.robot.util.AdvantageUtil;
 import frc.robotreplay.drivetrain.GyroReplay;
 import frc.robotreplay.drivetrain.SwerveReplay;
-import frc.robotsim.drivetrain.GyroSim;
 import frc.robotsim.drivetrain.SwerveSim;
 
 public class RobotContainer {
