@@ -9,8 +9,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 public class DriveConstants {
 	public static final class AngularOffsets {
-		public static final double kFrontLeft = 0;
-		public static final double kFrontRight = -Math.PI / 2;
+		public static final double kFrontLeft = -Math.PI / 2;
+		public static final double kFrontRight = 0;
 		public static final double kRearLeft = Math.PI;
 		public static final double kRearRight = Math.PI / 2;
 	}

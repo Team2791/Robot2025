@@ -48,7 +48,7 @@ public class Robot extends LoggedRobot {
 		// setup logger data receivers
 		switch (AdvantageConstants.Modes.kCurrent) {
 			case Real:
-				Logger.addDataReceiver(new WPILOGWriter());
+				Logger.addDataReceiver(new WPILOGWriter("/var/log/akit"));
 				Logger.addDataReceiver(new NT4Publisher());
 
 				break;

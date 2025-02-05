@@ -115,7 +115,7 @@ public class SwerveSim extends SwerveIO {
 	public void setDesiredState(SwerveModuleState desired) {
 		SwerveModuleState corrected = new SwerveModuleState(
 			desired.speedMetersPerSecond,
-			desired.angle.plus(Rotation2d.fromRadians(angularOffset))
+			desired.angle.plus(Rotation2d.fromRadians(this.data.angularOffset))
 		);
 
 		corrected.optimize(new Rotation2d(turnSim.getAngularPositionRad()));
@@ -124,5 +124,6 @@ public class SwerveSim extends SwerveIO {
 		turnctl.setSetpoint(corrected.angle.getRadians());
 
 		this.data.desired = desired;
+		this.data.corrected = corrected;
 	}
 }

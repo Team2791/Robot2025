@@ -35,11 +35,17 @@ public abstract class SwerveIO {
 		public Current turnCurrent = Amps.of(0);
 
 		public SwerveModuleState desired = new SwerveModuleState();
+		public SwerveModuleState corrected = new SwerveModuleState();
+
+		public double[] timestamps = new double[0];
+		public double[] drivePositions = new double[0];
+		public double[] turnPositions = new double[0];
+
+		public double angularOffset = 0;
 	}
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
 
-	protected final double angularOffset;
 	protected final double driveId;
 	protected final double turnId;
 
@@ -50,7 +56,7 @@ public abstract class SwerveIO {
 	) {
 		this.driveId = driveId;
 		this.turnId = turnId;
-		this.angularOffset = angularOffset;
+		this.data.angularOffset = angularOffset;
 	}
 
 	public abstract void update();
@@ -60,14 +66,14 @@ public abstract class SwerveIO {
 	public SwerveModulePosition getPosition() {
 		return new SwerveModulePosition(
 			data.drivePosition,
-			new Rotation2d(data.turnPosition.minus(Radians.of(angularOffset)))
+			new Rotation2d(data.turnPosition.minus(Radians.of(this.data.angularOffset)))
 		);
 	}
 
 	public SwerveModuleState getState() {
 		return new SwerveModuleState(
 			data.driveVelocity,
-			new Rotation2d(data.turnPosition.minus(Radians.of(angularOffset)))
+			new Rotation2d(data.turnPosition.minus(Radians.of(this.data.angularOffset)))
 		);
 	}
 }

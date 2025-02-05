@@ -34,7 +34,7 @@ import frc.robot.thread.SensorThread;
 import frc.robotio.drivetrain.SwerveIO;
 
 public class SwerveModule extends SwerveIO {
-	public final SparkMax driveMotor;
+	final SparkMax driveMotor;
 	final SparkMax turnMotor;
 
 	final RelativeEncoder driveEncoder;
@@ -131,7 +131,7 @@ public class SwerveModule extends SwerveIO {
 	public void setDesiredState(SwerveModuleState desired) {
 		SwerveModuleState corrected = new SwerveModuleState(
 			desired.speedMetersPerSecond,
-			desired.angle.plus(new Rotation2d(angularOffset))
+			desired.angle.plus(new Rotation2d(this.data.angularOffset))
 		);
 
 		corrected.optimize(new Rotation2d(turnEncoder.getPosition()));
@@ -139,7 +139,8 @@ public class SwerveModule extends SwerveIO {
 		driveController.setReference(corrected.speedMetersPerSecond, ControlType.kVelocity);
 		turnController.setReference(corrected.angle.getRadians(), ControlType.kPosition);
 
-		this.data.desired = corrected;
+		this.data.desired = desired;
+		this.data.corrected = corrected;
 	}
 
 	@Override

@@ -8,15 +8,15 @@ import com.studica.frc.AHRS.NavXComType;
 public final class IOConstants {
 	public static final class Drivetrain {
 		public static final class Drive {
-			public static final int kFrontLeft = 40;
-			public static final int kFrontRight = 30;
+			public static final int kFrontLeft = 30;
+			public static final int kFrontRight = 40;
 			public static final int kRearLeft = 20;
 			public static final int kRearRight = 10;
 		}
 
 		public static final class Turn {
-			public static final int kFrontLeft = 45;
-			public static final int kFrontRight = 35;
+			public static final int kFrontLeft = 35;
+			public static final int kFrontRight = 45;
 			public static final int kRearLeft = 25;
 			public static final int kRearRight = 15;
 		}
