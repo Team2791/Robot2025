@@ -33,7 +33,6 @@ public class DriveConstants {
 	}
 
 	public static final double kGyroFactor = -1.0;
-	public static final double kMaxSpeed = 20;
 	public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(
 		new Translation2d(Dimensions.kWheelBase / 2, Dimensions.kTrackWidth / 2),
 		new Translation2d(Dimensions.kWheelBase / 2, -Dimensions.kTrackWidth / 2),

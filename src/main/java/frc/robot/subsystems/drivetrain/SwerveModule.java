@@ -16,11 +16,13 @@ import edu.wpi.first.units.measure.Distance;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -34,8 +36,8 @@ import frc.robot.thread.SensorThread;
 import frc.robotio.drivetrain.SwerveIO;
 
 public class SwerveModule extends SwerveIO {
-	final SparkMax driveMotor;
-	final SparkMax turnMotor;
+	protected final SparkMax driveMotor;
+	protected final SparkMax turnMotor;
 
 	final RelativeEncoder driveEncoder;
 	final SparkAbsoluteEncoder turnEncoder;
@@ -136,8 +138,17 @@ public class SwerveModule extends SwerveIO {
 
 		corrected.optimize(new Rotation2d(turnEncoder.getPosition()));
 
-		driveController.setReference(corrected.speedMetersPerSecond, ControlType.kVelocity);
+		double sign = Math.signum(corrected.speedMetersPerSecond);
+		double ffVolts = sign * PIDConstants.DriveMotor.kS + corrected.speedMetersPerSecond * PIDConstants.DriveMotor.kV;
+
 		turnController.setReference(corrected.angle.getRadians(), ControlType.kPosition);
+		driveController.setReference(
+			corrected.speedMetersPerSecond,
+			ControlType.kVelocity,
+			ClosedLoopSlot.kSlot0,
+			ffVolts,
+			ArbFFUnits.kVoltage
+		);
 
 		this.data.desired = desired;
 		this.data.corrected = corrected;
@@ -159,6 +170,12 @@ public class SwerveModule extends SwerveIO {
 
 		driveCache.clear();
 		turnCache.clear();
+	}
+
+	@Override
+	public void characterize(double output) {
+		turnController.setReference(this.data.angularOffset, ControlType.kPosition);
+		driveMotor.setVoltage(output);
 	}
 }
 

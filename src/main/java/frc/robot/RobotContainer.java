@@ -33,6 +33,9 @@ public class RobotContainer {
 
 	private void configureBindings() {
 		this.drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
+
+		/* Debug command, to be disabled during comps, etc */
+		driverctl.a().onTrue(this.drivetrain.characterize());
 	}
 
 	public Command getAutonomousCommand() {

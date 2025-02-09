@@ -8,7 +8,12 @@ public class SwerveReplay extends SwerveIO {
 		super(driveId, turnId, angularOffset);
 	}
 
+	@Override
 	public void update() {}
 
+	@Override
 	public void setDesiredState(SwerveModuleState desired) {}
+
+	@Override
+	public void characterize(double output) {}
 }

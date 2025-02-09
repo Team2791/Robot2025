@@ -187,4 +187,4 @@ compile_commands.json
 .factorypath
 
 src/main/java/frc/robot/constants/BuildConstants.java
-!.vscode/*
+!.vscode/fmt.xml

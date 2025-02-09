@@ -59,10 +59,23 @@ public abstract class SwerveIO {
 		this.data.angularOffset = angularOffset;
 	}
 
+	/**
+	 * Update this.data
+	 */
 	public abstract void update();
 
+	/**
+	 * Set the desired state of the module
+	 * 
+	 * @param desired The desired state
+	 */
 	public abstract void setDesiredState(SwerveModuleState desired);
 
+	/**
+	 * Get the current position of the module
+	 * 
+	 * @return The current position
+	 */
 	public SwerveModulePosition getPosition() {
 		return new SwerveModulePosition(
 			data.drivePosition,
@@ -70,10 +83,22 @@ public abstract class SwerveIO {
 		);
 	}
 
+	/**
+	 * Get the current state of the module
+	 * 
+	 * @return The current state
+	 */
 	public SwerveModuleState getState() {
 		return new SwerveModuleState(
 			data.driveVelocity,
 			new Rotation2d(data.turnPosition.minus(Radians.of(this.data.angularOffset)))
 		);
 	}
+
+	/**
+	 * Run FF characterization on the module
+	 * 
+	 * @param output The output, in volts, to run the characterization with
+	 */
+	public abstract void characterize(double output);
 }
