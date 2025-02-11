@@ -41,6 +41,9 @@ public final class ModuleConstants {
 
 		/** Moment of inertia */
 		public static final double kMoI = 1.91e-4;
+
+		/** The minumum amount of voltage that can turn the drive motor */
+		public static final double kStaticFriction = 0.1;
 	}
 
 	public static final class TurnMotor {
@@ -49,6 +52,9 @@ public final class ModuleConstants {
 
 		/** Reduction factor */
 		public static final double kReduction = 9424. / 203.;
+
+		/** The minumum amount of voltage that can turn the turn motor */
+		public static final double kStaticFriction = 0.1;
 	}
 
 	public static final class DriveEncoder {
@@ -78,5 +84,6 @@ public final class ModuleConstants {
 		public static final double kCircumference = kDiameter * Math.PI;
 		public static final double kFreeSpeedAngular = Neo.kFreeSpeed / DriveMotor.kReduction;
 		public static final double kFreeSpeedLinear = kFreeSpeedAngular * kCircumference;
+		public static final double kFrictionCoefficient = 0.72;
 	}
 }

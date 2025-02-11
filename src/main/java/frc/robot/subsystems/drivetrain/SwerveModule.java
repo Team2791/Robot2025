@@ -152,7 +152,7 @@ public class SwerveModule extends SwerveIO {
 		this.data.driveCurrent = Amps.of(driveMotor.getOutputCurrent());
 
 		this.data.turnConnected = turnMotor.getLastError() != REVLibError.kOk;
-		this.data.turnPosition = Radians.of(turnEncoder.getPosition());
+		this.data.turnPosition = Radians.of(turnEncoder.getPosition() - angularOffset);
 		this.data.turnVelocity = RadiansPerSecond.of(turnEncoder.getVelocity());
 		this.data.turnVoltage = Volts.of(turnMotor.getBusVoltage() * turnMotor.getAppliedOutput());
 		this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());

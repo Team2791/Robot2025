@@ -65,14 +65,14 @@ public abstract class SwerveIO {
 	public SwerveModulePosition getPosition() {
 		return new SwerveModulePosition(
 			data.drivePosition,
-			new Rotation2d(data.turnPosition.minus(Radians.of(angularOffset)))
+			new Rotation2d(data.turnPosition)
 		);
 	}
 
 	public SwerveModuleState getState() {
 		return new SwerveModuleState(
 			data.driveVelocity,
-			new Rotation2d(data.turnPosition.minus(Radians.of(angularOffset)))
+			new Rotation2d(data.turnPosition)
 		);
 	}
 }

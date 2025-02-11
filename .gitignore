@@ -188,3 +188,6 @@ compile_commands.json
 
 src/main/java/frc/robot/constants/BuildConstants.java
 !.vscode/*
+
+# akit logs
+!logs/

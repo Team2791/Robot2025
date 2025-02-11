@@ -9,15 +9,17 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 public class DriveConstants {
 	public static final class AngularOffsets {
-		public static final double kFrontLeft = 0;
-		public static final double kFrontRight = -Math.PI / 2;
+		public static final double kFrontLeft = -Math.PI / 2;
+		public static final double kFrontRight = 0;
 		public static final double kRearLeft = Math.PI;
 		public static final double kRearRight = Math.PI / 2;
 	}
 
 	public static final class Dimensions {
-		public static final double kWheelBase = Inches.of(20).in(Meters);
-		public static final double kTrackWidth = Inches.of(20).in(Meters);
+		public static final double kWheelBase = Inches.of(21.5).in(Meters);
+		public static final double kTrackWidth = Inches.of(21.5).in(Meters);
+		public static final double kBumperWidth = .808; // from design
+		public static final double kBumperLength = .808;
 		public static final double kDriveRadius = 0.5 * Math.hypot(kWheelBase, kTrackWidth);
 	}
 

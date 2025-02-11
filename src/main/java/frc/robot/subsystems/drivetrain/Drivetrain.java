@@ -2,7 +2,6 @@ package frc.robot.subsystems.drivetrain;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -27,17 +26,15 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.constants.AdvantageConstants;
+
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.PIDConstants;
-import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robot.util.IterUtil;
 import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
-import frc.robotsim.drivetrain.GyroSim;
 
 public class Drivetrain extends SubsystemBase {
 	final SwerveIO frontLeft;
@@ -87,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
 			DriveConstants.kKinematics,
 			gyro.heading(),
 			modulePositions(),
-			new Pose2d()
+			new Pose2d(7.5, 5, new Rotation2d())
 		);
 
 		slew = new SlewWrapper(
@@ -153,16 +150,14 @@ public class Drivetrain extends SubsystemBase {
 	/**
 	 * @return A list of all swerve module states on the robot. In the same order as {@link #modules()}.
 	 */
-	public List<SwerveModuleState> moduleStates() {
-		return Arrays.stream(modules()).map(SwerveIO::getState).toList();
+	public SwerveModuleState[] moduleStates() {
+		return Arrays.stream(modules()).map(SwerveIO::getState).toArray(SwerveModuleState[]::new);
 	}
 
 	/**
 	 * @return The speeds of all swerve modules on the robot. In the same order as {@link #modules()}.
 	 */
-	public ChassisSpeeds getChassisSpeeds() {
-		return DriveConstants.kKinematics.toChassisSpeeds(moduleStates().toArray(SwerveModuleState[]::new));
-	}
+	public ChassisSpeeds getChassisSpeeds() { return DriveConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
 	/**
 	 * @param speeds The desired speeds for the robot to move at.
@@ -173,11 +168,6 @@ public class Drivetrain extends SubsystemBase {
 
 		// set the desired states of all modules. i miss kotlin :(
 		IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
-
-		// simulation gyro needs this
-		if (AdvantageConstants.Modes.kCurrent == AdvantageMode.Sim) {
-			((GyroSim) gyro).updateOmega(speeds.omegaRadiansPerSecond);
-		}
 	}
 
 	/**
@@ -212,7 +202,7 @@ public class Drivetrain extends SubsystemBase {
 	 * @param speeds The desired speeds for the robot to move at.
 	 */
 	public void drive(ChassisSpeeds speeds) {
-		drive(speeds, false);
+		drive(speeds, true);
 	}
 
 	/**
@@ -235,7 +225,7 @@ public class Drivetrain extends SubsystemBase {
 	 * @param rot    The desired rotational speed
 	 */
 	public void drive(double xspeed, double yspeed, double rot) {
-		drive(xspeed, yspeed, rot, false);
+		drive(xspeed, yspeed, rot, true);
 	}
 
 	/**
@@ -279,6 +269,7 @@ public class Drivetrain extends SubsystemBase {
 			Logger.processInputs(path, module.data);
 		});
 
+		Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
 		Logger.processInputs("Drivetrain/Gyro", gyro.data);
 	}
 }
