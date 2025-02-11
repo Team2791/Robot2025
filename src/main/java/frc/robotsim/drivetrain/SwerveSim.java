@@ -1,7 +1,6 @@
 package frc.robotsim.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
@@ -68,8 +67,6 @@ public class SwerveSim extends SwerveIO {
 
 	@Override
 	public void update() {
-		turnctl.setSetpoint(Degrees.of(90).in(Radians));
-
 		// do a drive
 		final double drivePow = drivectl.calculate(
 			driveSim.getAngularVelocityRPM() * ModuleConstants.DriveEncoder.kVelocityFactor
@@ -124,5 +121,6 @@ public class SwerveSim extends SwerveIO {
 		turnctl.setSetpoint(corrected.angle.getRadians());
 
 		this.data.desired = desired;
+		this.data.corrected = corrected;
 	}
 }

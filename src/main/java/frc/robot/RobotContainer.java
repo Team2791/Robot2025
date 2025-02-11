@@ -17,6 +17,7 @@ import frc.robot.subsystems.drivetrain.SwerveModule;
 import frc.robot.util.AdvantageUtil;
 import frc.robotreplay.drivetrain.GyroReplay;
 import frc.robotreplay.drivetrain.SwerveReplay;
+import frc.robotsim.drivetrain.GyroSim;
 import frc.robotsim.drivetrain.SwerveSim;
 
 public class RobotContainer {
@@ -32,7 +33,7 @@ public class RobotContainer {
 	public RobotContainer() throws IOException, ParseException {
 		this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
 		this.drivetrain = new Drivetrain(
-			AdvantageUtil.matchReal(NavX::new, GyroReplay::new, GyroReplay::new),
+			AdvantageUtil.matchReal(NavX::new, GyroSim::new, GyroReplay::new),
 			AdvantageUtil.matchReal(SwerveModule::new, SwerveSim::new, SwerveReplay::new)
 		);
 		this.autoChooser = AutoBuilder.buildAutoChooser();
