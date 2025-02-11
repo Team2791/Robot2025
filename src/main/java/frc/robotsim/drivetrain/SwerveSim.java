@@ -2,8 +2,6 @@
 package frc.robotsim.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -63,7 +61,7 @@ public class SwerveSim extends SwerveIO {
 
 	@Override
 	public void update() {
-		final double drivePow = drivectl.calculate(this.data.driveVelocity.in(MetersPerSecond));
+		final double drivePow = drivectl.calculate(this.data.driveVelocity.in(RadiansPerSecond));
 		final double turnPow = turnctl.calculate(this.data.turnPosition.in(Radians));
 
 		// https://www.chiefdelphi.com/t/sparkmax-set-vs-setvoltage/415059/2
@@ -75,19 +73,15 @@ public class SwerveSim extends SwerveIO {
 		driveSim.requestVoltage(Volts.of(driveVolts));
 		turnSim.requestVoltage(Volts.of(turnVolts));
 
-		final double driveWheel = moduleSim.getDriveWheelFinalPosition().in(Radians);
-		final double driveVelRot = moduleSim.getDriveWheelFinalSpeed().in(RadiansPerSecond);
-
-		final double drivePos = driveWheel * ModuleConstants.Wheel.kCircumference;
-		final double driveVel = driveVelRot * ModuleConstants.Wheel.kCircumference;
-
+		final Angle drivePos = moduleSim.getDriveWheelFinalPosition();
+		final AngularVelocity driveVel = moduleSim.getDriveWheelFinalSpeed();
 		final Angle turnPos = moduleSim.getSteerAbsoluteAngle();
 		final AngularVelocity turnVel = moduleSim.getSteerAbsoluteEncoderSpeed();
 
 		// actually update the inputs
 		data.driveConnected = true;
-		data.drivePosition = Meters.of(drivePos);
-		data.driveVelocity = MetersPerSecond.of(driveVel);
+		data.drivePosition = drivePos;
+		data.driveVelocity = driveVel;
 		data.driveVoltage = Volts.of(driveVolts);
 		data.driveCurrent = moduleSim.getDriveMotorSupplyCurrent();
 
@@ -101,7 +95,7 @@ public class SwerveSim extends SwerveIO {
 	public void setDesiredState(SwerveModuleState desired) {
 		desired.optimize(new Rotation2d(moduleSim.getSteerAbsoluteAngle()));
 
-		drivectl.setSetpoint(desired.speedMetersPerSecond);
+		drivectl.setSetpoint(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
 		turnctl.setSetpoint(desired.angle.getRadians());
 
 		this.data.desired = desired;

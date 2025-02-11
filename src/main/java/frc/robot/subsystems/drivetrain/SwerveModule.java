@@ -1,8 +1,6 @@
 package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -12,7 +10,6 @@ import java.util.Queue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
@@ -44,7 +41,7 @@ public class SwerveModule extends SwerveIO {
 	final SparkClosedLoopController driveController;
 	final SparkClosedLoopController turnController;
 
-	final Queue<Distance> driveHist;
+	final Queue<Angle> driveHist;
 	final Queue<Angle> turnHist;
 	final Queue<Double> timestamps;
 
@@ -124,7 +121,7 @@ public class SwerveModule extends SwerveIO {
 		turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 		// initialize caches
-		driveHist = SensorThread.getInstance().register(() -> Meters.of(driveEncoder.getPosition()));
+		driveHist = SensorThread.getInstance().register(() -> Radians.of(driveEncoder.getPosition()));
 		turnHist = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
 		timestamps = SensorThread.getInstance().addTimestamps();
 	}
@@ -146,8 +143,8 @@ public class SwerveModule extends SwerveIO {
 	@Override
 	public void update() {
 		this.data.driveConnected = driveMotor.getLastError() != REVLibError.kOk;
-		this.data.drivePosition = Meters.of(driveEncoder.getPosition());
-		this.data.driveVelocity = MetersPerSecond.of(driveEncoder.getVelocity());
+		this.data.drivePosition = Radians.of(driveEncoder.getPosition());
+		this.data.driveVelocity = RadiansPerSecond.of(driveEncoder.getVelocity());
 		this.data.driveVoltage = Volts.of(driveMotor.getBusVoltage() * driveMotor.getAppliedOutput());
 		this.data.driveCurrent = Amps.of(driveMotor.getOutputCurrent());
 
@@ -158,7 +155,7 @@ public class SwerveModule extends SwerveIO {
 		this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
 
 		this.data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
-		this.data.drivePositions = IterUtil.toDoubleArray(driveHist.stream(), Meters);
+		this.data.drivePositions = IterUtil.toDoubleArray(driveHist.stream(), Radians);
 		this.data.turnPositions = IterUtil.toDoubleArray(turnHist.stream(), Radians);
 
 		driveHist.clear();

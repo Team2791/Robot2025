@@ -6,7 +6,6 @@ import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
