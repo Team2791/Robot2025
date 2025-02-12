@@ -14,7 +14,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PhysicalConstants;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
@@ -42,7 +41,7 @@ public class MapleSim {
 				COTS.ofMAXSwerve(
 					DCMotor.getNEO(1),
 					DCMotor.getNeo550(1),
-					COTS.WHEELS.SLS_PRINTED_WHEELS.cof, // TODO: get proper est from design ppl
+					ModuleConstants.Wheel.kFrictionCoefficient,
 					switch ((int) ModuleConstants.DriveMotor.kPinionTeeth) {
 						case 12 -> 1;
 						case 13 -> 2;
@@ -68,14 +67,8 @@ public class MapleSim {
 		return instance;
 	}
 
-	public SwerveSim makeModule(int driveId, int turnId, double angularOffset) {
-		return new SwerveSim(driveId, turnId, angularOffset, drivetrain.getModules()[switch (driveId) {
-			case IOConstants.Drivetrain.Drive.kFrontLeft -> 0;
-			case IOConstants.Drivetrain.Drive.kFrontRight -> 1;
-			case IOConstants.Drivetrain.Drive.kRearLeft -> 2;
-			case IOConstants.Drivetrain.Drive.kRearRight -> 3;
-			default -> -1;
-		}]);
+	public SwerveSim makeModule(int id) {
+		return new SwerveSim(drivetrain.getModules()[id]);
 	}
 
 	public GyroSim makeGyro() {

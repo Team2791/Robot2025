@@ -23,6 +23,13 @@ public final class ModuleConstants {
 		public static final double kCurrentLimit = 20;
 	}
 
+	public static final class AngularOffsets {
+		public static final double kFrontLeft = -Math.PI / 2;
+		public static final double kFrontRight = 0;
+		public static final double kRearLeft = Math.PI;
+		public static final double kRearRight = Math.PI / 2;
+	}
+
 	public static final class DriveMotor {
 		/** Number of teeth on the pinion gear. According to docs, either 12, 13, or 14T */
 		public static final double kPinionTeeth = 14.0;
@@ -85,6 +92,6 @@ public final class ModuleConstants {
 		public static final double kCircumference = kDiameter * Math.PI;
 		public static final double kFreeSpeedAngular = Neo.kFreeSpeed / DriveMotor.kReduction;
 		public static final double kFreeSpeedLinear = kFreeSpeedAngular * kCircumference;
-		public static final double kFrictionCoefficient = 0.72;
+		public static final double kFrictionCoefficient = 1.3;
 	}
 }

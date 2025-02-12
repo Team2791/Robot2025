@@ -23,6 +23,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
+import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PIDConstants;
 import frc.robot.constants.ModuleConstants.DriveEncoder;
@@ -32,7 +33,7 @@ import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.SwerveIO;
 
 public class SwerveModule extends SwerveIO {
-	public final SparkMax driveMotor;
+	final SparkMax driveMotor;
 	final SparkMax turnMotor;
 
 	final RelativeEncoder driveEncoder;
@@ -45,14 +46,39 @@ public class SwerveModule extends SwerveIO {
 	final Queue<Angle> turnHist;
 	final Queue<Double> timestamps;
 
+	final double angularOffset;
+
 	SwerveModuleState desiredState;
 
-	public SwerveModule(
-		int driveId,
-		int turnId,
-		double angularOffset
-	) {
-		super(driveId, turnId, angularOffset);
+	/**
+	 * Constructs a new SwerveModule
+	 * 
+	 * @param id the module's id. [0..=3] corresponds to [fl, fr, bl, br]
+	 */
+	public SwerveModule(int id) {
+		int driveId = switch (id) {
+			case 0 -> IOConstants.Drivetrain.Drive.kFrontLeft;
+			case 1 -> IOConstants.Drivetrain.Drive.kFrontRight;
+			case 2 -> IOConstants.Drivetrain.Drive.kRearLeft;
+			case 3 -> IOConstants.Drivetrain.Drive.kRearRight;
+			default -> throw new IllegalArgumentException("Invalid module id: " + id);
+		};
+
+		int turnId = switch (id) {
+			case 0 -> IOConstants.Drivetrain.Turn.kFrontLeft;
+			case 1 -> IOConstants.Drivetrain.Turn.kFrontRight;
+			case 2 -> IOConstants.Drivetrain.Turn.kRearLeft;
+			case 3 -> IOConstants.Drivetrain.Turn.kRearRight;
+			default -> throw new IllegalArgumentException("Invalid module id: " + id);
+		};
+
+		angularOffset = switch (id) {
+			case 0 -> ModuleConstants.AngularOffsets.kFrontLeft;
+			case 1 -> ModuleConstants.AngularOffsets.kFrontRight;
+			case 2 -> ModuleConstants.AngularOffsets.kRearLeft;
+			case 3 -> ModuleConstants.AngularOffsets.kRearRight;
+			default -> throw new IllegalArgumentException("Invalid module id: " + id);
+		};
 
 		// initialize motors, encoders, etc.
 		driveMotor = new SparkMax(driveId, MotorType.kBrushless);

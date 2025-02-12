@@ -27,9 +27,7 @@ public class SwerveSim extends SwerveIO {
 	final PIDFController drivectl;
 	final PIDFController turnctl;
 
-	public SwerveSim(int driveId, int turnId, double angularOffset, SwerveModuleSimulation moduleSim) {
-		super(driveId, turnId, angularOffset);
-
+	public SwerveSim(SwerveModuleSimulation moduleSim) {
 		drivectl = new PIDFController(
 			PIDConstants.DriveMotor.kP,
 			PIDConstants.DriveMotor.kI,
@@ -74,8 +72,8 @@ public class SwerveSim extends SwerveIO {
 		turnSim.requestVoltage(Volts.of(turnVolts));
 
 		final Angle drivePos = moduleSim.getDriveWheelFinalPosition();
-		final AngularVelocity driveVel = moduleSim.getDriveWheelFinalSpeed();
 		final Angle turnPos = moduleSim.getSteerAbsoluteAngle();
+		final AngularVelocity driveVel = moduleSim.getDriveWheelFinalSpeed();
 		final AngularVelocity turnVel = moduleSim.getSteerAbsoluteEncoderSpeed();
 
 		// actually update the inputs

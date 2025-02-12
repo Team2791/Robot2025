@@ -41,20 +41,6 @@ public abstract class SwerveIO {
 
 	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
 
-	protected final double angularOffset;
-	protected final double driveId;
-	protected final double turnId;
-
-	public SwerveIO(
-		int driveId,
-		int turnId,
-		double angularOffset
-	) {
-		this.driveId = driveId;
-		this.turnId = turnId;
-		this.angularOffset = angularOffset;
-	}
-
 	public abstract void update();
 
 	public abstract void setDesiredState(SwerveModuleState desired);

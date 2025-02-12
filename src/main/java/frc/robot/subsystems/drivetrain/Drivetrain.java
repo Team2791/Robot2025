@@ -2,6 +2,7 @@ package frc.robot.subsystems.drivetrain;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.Function;
 
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -29,10 +30,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.IOConstants;
 import frc.robot.constants.PIDConstants;
 import frc.robot.util.IterUtil;
-import frc.robot.util.TriSupplier;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
 
@@ -49,36 +48,16 @@ public class Drivetrain extends SubsystemBase {
 
 	final SlewWrapper slew;
 
-
 	public Drivetrain(
 		GyroIO gyro,
-		TriSupplier<Integer, Integer, Double, SwerveIO> moduleConstructor
+		Function<Integer, SwerveIO> moduleConstructor
 	) throws IOException, ParseException {
 		this.gyro = gyro;
 
-		frontLeft = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kFrontLeft,
-			IOConstants.Drivetrain.Turn.kFrontLeft,
-			DriveConstants.AngularOffsets.kFrontLeft
-		);
-
-		frontRight = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kFrontRight,
-			IOConstants.Drivetrain.Turn.kFrontRight,
-			DriveConstants.AngularOffsets.kFrontRight
-		);
-
-		rearLeft = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kRearLeft,
-			IOConstants.Drivetrain.Turn.kRearLeft,
-			DriveConstants.AngularOffsets.kRearLeft
-		);
-
-		rearRight = moduleConstructor.get(
-			IOConstants.Drivetrain.Drive.kRearRight,
-			IOConstants.Drivetrain.Turn.kRearRight,
-			DriveConstants.AngularOffsets.kRearRight
-		);
+		frontLeft = moduleConstructor.apply(0);
+		frontRight = moduleConstructor.apply(1);
+		rearLeft = moduleConstructor.apply(2);
+		rearRight = moduleConstructor.apply(3);
 
 		odometry = new SwerveDrivePoseEstimator(
 			DriveConstants.kKinematics,
@@ -164,7 +143,7 @@ public class Drivetrain extends SubsystemBase {
 	 */
 	public void setDesiredSpeeds(ChassisSpeeds speeds) {
 		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(speeds);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.kMaxSpeed);
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MaxSpeed.kLinear);
 
 		// set the desired states of all modules. i miss kotlin :(
 		IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
