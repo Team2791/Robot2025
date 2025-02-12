@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.io.IOException;
 
+import org.ironmaple.simulation.SimulatedArena;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -139,8 +140,12 @@ public class Robot extends LoggedRobot {
 	public void testPeriodic() {}
 
 	@Override
-	public void simulationInit() {}
+	public void simulationInit() {
+
+	}
 
 	@Override
-	public void simulationPeriodic() {}
+	public void simulationPeriodic() {
+		SimulatedArena.getInstance().simulationPeriodic();
+	}
 }

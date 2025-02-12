@@ -13,7 +13,7 @@ public final class ModuleConstants {
 		/** https://www.revrobotics.com/rev-21-1650/#:~:text=empirical%20free%20speed%3A%205676%20rpm */
 		public static final double kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0).in(RadiansPerSecond);
 		public static final IdleMode kIdleMode = IdleMode.kBrake;
-		public static final double kCurrentLimit = 40;
+		public static final double kCurrentLimit = 60;
 	}
 
 	public static final class Neo550 {
@@ -21,6 +21,13 @@ public final class ModuleConstants {
 		public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
 		public static final IdleMode kIdleMode = IdleMode.kBrake;
 		public static final double kCurrentLimit = 20;
+	}
+
+	public static final class AngularOffsets {
+		public static final double kFrontLeft = -Math.PI / 2;
+		public static final double kFrontRight = 0;
+		public static final double kRearLeft = Math.PI;
+		public static final double kRearRight = Math.PI / 2;
 	}
 
 	public static final class DriveMotor {
@@ -41,6 +48,9 @@ public final class ModuleConstants {
 
 		/** Moment of inertia */
 		public static final double kMoI = 1.91e-4;
+
+		/** The minumum amount of voltage that can turn the drive motor */
+		public static final double kStaticFriction = 0.1;
 	}
 
 	public static final class TurnMotor {
@@ -49,13 +59,16 @@ public final class ModuleConstants {
 
 		/** Reduction factor */
 		public static final double kReduction = 9424. / 203.;
+
+		/** The minumum amount of voltage that can turn the turn motor */
+		public static final double kStaticFriction = 0.1;
 	}
 
 	public static final class DriveEncoder {
-		/** Convert from motor-rotations to wheel-meters */
-		public static final double kPositionFactor = Wheel.kCircumference / DriveMotor.kReduction;
+		/** Convert from motor-rotations to wheel-radians */
+		public static final double kPositionFactor = kTau / DriveMotor.kReduction;
 
-		/** Convert from motor rotations per minute to wheel meters per second */
+		/** Convert from motor rotations per minute to wheel radians per second */
 		public static final double kVelocityFactor = kPositionFactor / 60.0;
 	}
 
@@ -74,9 +87,11 @@ public final class ModuleConstants {
 	}
 
 	public static final class Wheel {
-		public static final double kDiameter = Inches.of(3.0).in(Meters);
+		public static final double kRadius = Inches.of(1.5).in(Meters);
+		public static final double kDiameter = 2 * kRadius;
 		public static final double kCircumference = kDiameter * Math.PI;
 		public static final double kFreeSpeedAngular = Neo.kFreeSpeed / DriveMotor.kReduction;
 		public static final double kFreeSpeedLinear = kFreeSpeedAngular * kCircumference;
+		public static final double kFrictionCoefficient = 1.3;
 	}
 }
