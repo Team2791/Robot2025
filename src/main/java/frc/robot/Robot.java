@@ -16,13 +16,12 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
-
-import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import frc.robot.autos.ADStar;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
@@ -53,7 +52,7 @@ public class Robot extends LoggedRobot {
 		}
 
 		// setup logger data receivers
-		switch (AdvantageConstants.Modes.kCurrent) {
+		switch (AdvantageConstants.kCurrentMode) {
 			case Real:
 				Logger.addDataReceiver(new WPILOGWriter());
 				Logger.addDataReceiver(new NT4Publisher());
@@ -88,7 +87,7 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotInit() {
 		Pathfinding.setPathfinder(new ADStar());
-		FollowPathCommand.warmupCommand().schedule();
+		//FollowPathCommand.warmupCommand().schedule();
 	}
 
 	@Override

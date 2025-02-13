@@ -26,7 +26,7 @@ public class MapleSim {
 	static MapleSim instance;
 
 	private MapleSim() {
-		if (AdvantageConstants.Modes.kCurrent != AdvantageMode.Sim) {
+		if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
 			this.drivetrain = null;
 			return;
 		}
@@ -68,12 +68,34 @@ public class MapleSim {
 	}
 
 	public SwerveSim makeModule(int id) {
+		if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
+			return null;
+		}
+
 		return new SwerveSim(drivetrain.getModules()[id]);
 	}
 
 	public GyroSim makeGyro() {
+		if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
+			return null;
+		}
+
 		return new GyroSim(drivetrain.getGyroSimulation());
 	}
 
-	public Pose2d getPose() { return drivetrain.getSimulatedDriveTrainPose(); }
+	public Pose2d getPose() {
+		if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
+			return null;
+		}
+
+		return drivetrain.getSimulatedDriveTrainPose();
+	}
+
+	public void resetPose(Pose2d pose) {
+		if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
+			return;
+		}
+
+		drivetrain.setSimulationWorldPose(pose);
+	}
 }

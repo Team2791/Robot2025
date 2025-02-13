@@ -12,7 +12,7 @@ public final class AdvantageUtil {
 		T sim,
 		T replay
 	) {
-		switch (AdvantageConstants.Modes.kCurrent) {
+		switch (AdvantageConstants.kCurrentMode) {
 			case Real:
 				return real;
 			case Sim:

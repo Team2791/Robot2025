@@ -23,7 +23,7 @@ public class DriveConstants {
 	}
 
 	public static final class MaxSpeed {
-		public static final double kLinear = 4.8;
+		public static final double kLinear = 3.6;
 		public static final double kAngular = kTau;
 	}
 

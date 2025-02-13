@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.Logger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -31,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.ControllerConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.PIDConstants;
+import frc.robot.maple.MapleSim;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
@@ -106,6 +108,13 @@ public class Drivetrain extends SubsystemBase {
 			this
 		);
 
+		PathPlannerLogging.setLogActivePathCallback(
+			(path) -> Logger.recordOutput("Autos/Path", path.toArray(Pose2d[]::new))
+		);
+		PathPlannerLogging.setLogTargetPoseCallback(
+			(pose) -> Logger.recordOutput("Autos/TargetPose", pose)
+		);
+
 		AutoLogOutputManager.addObject(this);
 	}
 
@@ -134,7 +143,7 @@ public class Drivetrain extends SubsystemBase {
 	}
 
 	/**
-	 * @return The speeds of all swerve modules on the robot. In the same order as {@link #modules()}.
+	 * @return The speeds of the entire chassis
 	 */
 	public ChassisSpeeds getChassisSpeeds() { return DriveConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
@@ -142,7 +151,8 @@ public class Drivetrain extends SubsystemBase {
 	 * @param speeds The desired speeds for the robot to move at.
 	 */
 	public void setDesiredSpeeds(ChassisSpeeds speeds) {
-		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(speeds);
+		ChassisSpeeds descrete = ChassisSpeeds.discretize(speeds, 0.02);
+		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(descrete);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MaxSpeed.kLinear);
 
 		// set the desired states of all modules. i miss kotlin :(
@@ -162,6 +172,7 @@ public class Drivetrain extends SubsystemBase {
 	 */
 	public void resetOdometry(Pose2d pose) {
 		odometry.resetPosition(gyro.heading(), modulePositions(), pose);
+		MapleSim.getInstance().resetPose(pose);
 	}
 
 	/**
@@ -249,6 +260,7 @@ public class Drivetrain extends SubsystemBase {
 		});
 
 		Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
+		Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());
 		Logger.processInputs("Drivetrain/Gyro", gyro.data);
 	}
 }
