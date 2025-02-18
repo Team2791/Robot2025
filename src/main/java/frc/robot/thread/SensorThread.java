@@ -50,7 +50,7 @@ public class SensorThread {
 		return entry.cache;
 	}
 
-	public Queue<Double> addTimestamps() {
+	public Queue<Double> makeTimestampQueue() {
 		Queue<Double> timestamps = new ArrayBlockingQueue<>(20);
 		this.timestamps.add(timestamps);
 		return timestamps;

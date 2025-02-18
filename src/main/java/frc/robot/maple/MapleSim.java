@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 import frc.robot.constants.AdvantageConstants;
-import frc.robot.constants.DriveConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PhysicalConstants;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
@@ -34,8 +33,8 @@ public class MapleSim {
 		DriveTrainSimulationConfig config = DriveTrainSimulationConfig.Default()
 			.withGyro(COTS.ofNav2X())
 			.withTrackLengthTrackWidth(
-				Meters.of(DriveConstants.Dimensions.kTrackWidth),
-				Meters.of(DriveConstants.Dimensions.kWheelBase)
+				Meters.of(PhysicalConstants.Drivetrain.kTrackWidth),
+				Meters.of(PhysicalConstants.Drivetrain.kWheelBase)
 			)
 			.withSwerveModule(
 				COTS.ofMAXSwerve(
@@ -51,8 +50,8 @@ public class MapleSim {
 				)
 			)
 			.withBumperSize(
-				Meters.of(DriveConstants.Dimensions.kBumperLength),
-				Meters.of(DriveConstants.Dimensions.kBumperWidth)
+				Meters.of(PhysicalConstants.Drivetrain.kBumperLength),
+				Meters.of(PhysicalConstants.Drivetrain.kBumperWidth)
 			)
 			.withRobotMass(Kilogram.of(PhysicalConstants.kMass));
 

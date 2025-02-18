@@ -25,7 +25,7 @@ public class NavX extends GyroIO {
 	public NavX() {
 		this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (int) (1. / SignalConstants.kDelay));
 		this.headings = SensorThread.getInstance().register(this::measure);
-		this.timestamps = SensorThread.getInstance().addTimestamps();
+		this.timestamps = SensorThread.getInstance().makeTimestampQueue();
 	}
 
 	Angle measure() {

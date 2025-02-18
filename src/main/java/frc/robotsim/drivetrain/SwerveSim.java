@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.ModuleConstants;
+import frc.robot.constants.MotorConstants;
 import frc.robot.constants.PIDConstants;
 import frc.robot.util.PIDFController;
 import frc.robotio.drivetrain.SwerveIO;
@@ -46,11 +47,11 @@ public class SwerveSim extends SwerveIO {
 
 		driveSim = moduleSim
 			.useGenericMotorControllerForDrive()
-			.withCurrentLimit(Amps.of(ModuleConstants.Neo.kCurrentLimit));
+			.withCurrentLimit(Amps.of(MotorConstants.Neo.kCurrentLimit));
 
 		turnSim = moduleSim
 			.useGenericControllerForSteer()
-			.withCurrentLimit(Amps.of(ModuleConstants.Neo550.kCurrentLimit));
+			.withCurrentLimit(Amps.of(MotorConstants.Neo550.kCurrentLimit));
 
 		drivectl.setOutputRange(PIDConstants.DriveMotor.kMin, PIDConstants.DriveMotor.kMax);
 		turnctl.setOutputRange(PIDConstants.TurnMotor.kMin, PIDConstants.TurnMotor.kMax);

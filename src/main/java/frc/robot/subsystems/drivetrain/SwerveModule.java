@@ -28,6 +28,7 @@ import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PIDConstants;
 import frc.robot.constants.ModuleConstants.DriveEncoder;
 import frc.robot.constants.ModuleConstants.TurnEncoder;
+import frc.robot.constants.MotorConstants;
 import frc.robot.thread.SensorThread;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.SwerveIO;
@@ -137,10 +138,10 @@ public class SwerveModule extends SwerveIO {
 		);
 
 		// misc
-		driveConfig.idleMode(ModuleConstants.Neo.kIdleMode);
-		turnConfig.idleMode(ModuleConstants.Neo550.kIdleMode);
-		driveConfig.smartCurrentLimit((int) ModuleConstants.Neo.kCurrentLimit);
-		turnConfig.smartCurrentLimit((int) ModuleConstants.Neo550.kCurrentLimit);
+		driveConfig.idleMode(ModuleConstants.DriveMotor.kIdleMode);
+		turnConfig.idleMode(ModuleConstants.TurnMotor.kIdleMode);
+		driveConfig.smartCurrentLimit((int) MotorConstants.Neo.kCurrentLimit);
+		turnConfig.smartCurrentLimit((int) MotorConstants.Neo550.kCurrentLimit);
 
 		// apply and burn configs
 		driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -149,7 +150,7 @@ public class SwerveModule extends SwerveIO {
 		// initialize caches
 		driveHist = SensorThread.getInstance().register(() -> Radians.of(driveEncoder.getPosition()));
 		turnHist = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
-		timestamps = SensorThread.getInstance().addTimestamps();
+		timestamps = SensorThread.getInstance().makeTimestampQueue();
 	}
 
 	public void setDesiredState(SwerveModuleState desired) {

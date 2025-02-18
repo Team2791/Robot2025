@@ -24,6 +24,11 @@ public final class IOConstants {
 		public static final NavXComType kGyroPort = NavXComType.kMXP_SPI;
 	}
 
+	public static final class Elevator {
+		public static final int kLeader = 50;
+		public static final int kFollower = 55;
+	}
+
 	public static final class Controller {
 		public static final int kDriver = 0;
 		public static final int kOperator = 1;

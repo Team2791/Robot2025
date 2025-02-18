@@ -2,27 +2,11 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.constants.MathConstants.kTau;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public final class ModuleConstants {
-	public static final class Neo {
-		/** https://www.revrobotics.com/rev-21-1650/#:~:text=empirical%20free%20speed%3A%205676%20rpm */
-		public static final double kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0).in(RadiansPerSecond);
-		public static final IdleMode kIdleMode = IdleMode.kBrake;
-		public static final double kCurrentLimit = 60;
-	}
-
-	public static final class Neo550 {
-		/** https://www.revrobotics.com/rev-21-1651/#:~:text=free%20speed%3A%2011000%20rpm */
-		public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
-		public static final IdleMode kIdleMode = IdleMode.kBrake;
-		public static final double kCurrentLimit = 20;
-	}
-
 	public static final class AngularOffsets {
 		public static final double kFrontLeft = -Math.PI / 2;
 		public static final double kFrontRight = 0;
@@ -51,6 +35,10 @@ public final class ModuleConstants {
 
 		/** The minumum amount of voltage that can turn the drive motor */
 		public static final double kStaticFriction = 0.1;
+
+		/** Idle mode, can be brake or coast */
+		public static final IdleMode kIdleMode = IdleMode.kBrake;
+
 	}
 
 	public static final class TurnMotor {
@@ -62,6 +50,9 @@ public final class ModuleConstants {
 
 		/** The minumum amount of voltage that can turn the turn motor */
 		public static final double kStaticFriction = 0.1;
+
+		/** Idle mode, can be brake or coast */
+		public static final IdleMode kIdleMode = IdleMode.kBrake;
 	}
 
 	public static final class DriveEncoder {
@@ -90,7 +81,7 @@ public final class ModuleConstants {
 		public static final double kRadius = Inches.of(1.5).in(Meters);
 		public static final double kDiameter = 2 * kRadius;
 		public static final double kCircumference = kDiameter * Math.PI;
-		public static final double kFreeSpeedAngular = Neo.kFreeSpeed / DriveMotor.kReduction;
+		public static final double kFreeSpeedAngular = MotorConstants.Neo.kFreeSpeed / DriveMotor.kReduction;
 		public static final double kFreeSpeedLinear = kFreeSpeedAngular * kCircumference;
 		public static final double kFrictionCoefficient = 1.3;
 	}
