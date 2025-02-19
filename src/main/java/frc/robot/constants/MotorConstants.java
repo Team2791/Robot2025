@@ -4,15 +4,21 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public final class MotorConstants {
-	public static final class Neo {
-		/** https://www.revrobotics.com/rev-21-1650/#:~:text=empirical%20free%20speed%3A%205676%20rpm */
-		public static final double kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0).in(RadiansPerSecond);
-		public static final double kCurrentLimit = 60;
-	}
+    public static final class Neo {
+        /** https://www.revrobotics.com/rev-21-1650/#:~:text=empirical%20free%20speed%3A%205676%20rpm */
+        public static final double kFreeSpeed = RotationsPerSecond.of(5676.0 / 60.0).in(RadiansPerSecond);
+        public static final double kCurrentLimit = 40;
+    }
 
-	public static final class Neo550 {
-		/** https://www.revrobotics.com/rev-21-1651/#:~:text=free%20speed%3A%2011000%20rpm */
-		public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
-		public static final double kCurrentLimit = 20;
-	}
+    public static final class NeoVortex {
+        /** https://www.revrobotics.com/rev-21-1652/#:~:text=free%20speed%3A%206784%20rpm */
+        public static final double kFreeSpeed = RotationsPerSecond.of(6784.0 / 60.0).in(RadiansPerSecond);
+        public static final double kCurrentLimit = 120; // TODO: check with controls + mechanical
+    }
+
+    public static final class Neo550 {
+        /** https://www.revrobotics.com/rev-21-1651/#:~:text=free%20speed%3A%2011000%20rpm */
+        public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
+        public static final double kCurrentLimit = 20;
+    }
 }

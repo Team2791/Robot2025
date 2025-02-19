@@ -17,7 +17,7 @@ import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PhysicalConstants;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robotsim.drivetrain.GyroSim;
-import frc.robotsim.drivetrain.SwerveSim;
+import frc.robotsim.drivetrain.ModuleSim;
 
 public class MapleSim {
 	final SwerveDriveSimulation drivetrain;
@@ -66,12 +66,12 @@ public class MapleSim {
 		return instance;
 	}
 
-	public SwerveSim makeModule(int id) {
+	public ModuleSim makeModule(int id) {
 		if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
 			return null;
 		}
 
-		return new SwerveSim(drivetrain.getModules()[id]);
+		return new ModuleSim(drivetrain.getModules()[id]);
 	}
 
 	public GyroSim makeGyro() {

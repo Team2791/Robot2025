@@ -1,5 +1,9 @@
 package frc.robot.thread;
 
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.constants.SignalConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -8,63 +12,60 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
-
-import frc.robot.constants.SignalConstants;
-
+@SuppressWarnings("rawtypes")
 public class SensorThread {
-	@SuppressWarnings("rawtypes")
-	private final List<SignalEntry> entries;
-	private final ArrayList<Queue<Double>> timestamps;
+    private static SensorThread instance;
+    private final Notifier scheduler;
 
-	/** ArrayList is not threadsafe. Need to lock on read-write */
-	private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final List<SignalEntry> entries;
+    private final ArrayList<Queue<Double>> timestamps;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-	private static SensorThread instance;
-	private Notifier scheduler;
+    private SensorThread() {
+        this.entries = new ArrayList<>();
+        this.timestamps = new ArrayList<>();
+        this.scheduler = new Notifier(this::run);
 
-	public static SensorThread getInstance() {
-		if (instance == null) {
-			instance = new SensorThread();
-		}
-		return instance;
-	}
+        scheduler.setName("SensorThread");
+        scheduler.startPeriodic(SignalConstants.kDelay);
+    }
 
-	private SensorThread() {
-		this.entries = new ArrayList<>();
-		this.timestamps = new ArrayList<>(20);
-		this.scheduler = new Notifier(this::run);
+    public static SensorThread getInstance() {
+        if (instance == null) {
+            instance = new SensorThread();
+        }
+        return instance;
+    }
 
-		scheduler.setName("SensorThread");
-		scheduler.startPeriodic(SignalConstants.kDelay);
-	}
+    public <T> Queue<T> register(Supplier<T> signal) {
+        SignalEntry<T> entry = new SignalEntry<>(signal);
 
-	public <T> Queue<T> register(Supplier<T> signal) {
-		SignalEntry<T> entry = new SignalEntry<>(signal);
+        lock.writeLock().lock(); // prevent reads while we write
+        entries.add(entry);
+        lock.writeLock().lock();
 
-		lock.writeLock().lock(); // prevent reads while we write
-		entries.add(entry);
-		lock.writeLock().lock();
+        return entry.cache;
+    }
 
-		return entry.cache;
-	}
+    public Queue<Double> makeTimestampQueue() {
+        Queue<Double> timestamps = new ArrayBlockingQueue<>(SignalConstants.kCacheSize);
+        this.timestamps.add(timestamps);
+        return timestamps;
+    }
 
-	public Queue<Double> makeTimestampQueue() {
-		Queue<Double> timestamps = new ArrayBlockingQueue<>(20);
-		this.timestamps.add(timestamps);
-		return timestamps;
-	}
+    private void run() {
+        double ts = RobotController.getFPGATime() / 1e6;
 
-	private void run() {
-		double ts = RobotController.getFPGATime() / 1e6;
+        lock.readLock().lock(); // prevent writes while we read
+        for (int i = 0; i < entries.size(); i++) {
+            entries.get(i).update();
 
-		lock.readLock().lock(); // prevent writes while we read
-		for (int i = 0; i < entries.size(); i++) {
-			entries.get(i).update();
+            if (i < timestamps.size()) timestamps.get(i).offer(ts);
+        }
+        lock.readLock().unlock();
+    }
 
-			if (i < timestamps.size()) timestamps.get(i).offer(ts);
-		}
-		lock.readLock().unlock();
-	}
+    public void stop() {
+        scheduler.stop();
+    }
 }

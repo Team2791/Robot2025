@@ -1,12 +1,5 @@
 package frc.robotio.drivetrain;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -15,47 +8,51 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.ModuleConstants;
+import org.littletonrobotics.junction.AutoLog;
+
+import static edu.wpi.first.units.Units.*;
 
 public abstract class SwerveIO {
-	@AutoLog
-	public static class SwerveData {
-		public boolean driveConnected = false;
-		public Angle drivePosition = Radians.of(0); // wheel position
-		public AngularVelocity driveVelocity = RadiansPerSecond.of(0); // wheel velocity
-		public Voltage driveVoltage = Volts.of(0);
-		public Current driveCurrent = Amps.of(0);
+    @AutoLog
+    public static class SwerveData {
+        public boolean driveConnected = false;
+        public Angle drivePosition = Radians.of(0); // wheel position
+        public AngularVelocity driveVelocity = RadiansPerSecond.of(0); // wheel velocity
+        public Voltage driveVoltage = Volts.of(0);
+        public Current driveCurrent = Amps.of(0);
 
-		public boolean turnConnected = false;
-		public Angle turnPosition = Radians.of(0);
-		public AngularVelocity turnVelocity = RadiansPerSecond.of(0);
-		public Voltage turnVoltage = Volts.of(0);
-		public Current turnCurrent = Amps.of(0);
+        public boolean turnConnected = false;
+        public Angle turnPosition = Radians.of(0);
+        public AngularVelocity turnVelocity = RadiansPerSecond.of(0);
+        public Voltage turnVoltage = Volts.of(0);
+        public Current turnCurrent = Amps.of(0);
 
-		public SwerveModuleState desired = new SwerveModuleState();
-		public SwerveModuleState corrected = new SwerveModuleState();
+        public SwerveModuleState desired = new SwerveModuleState();
+        public SwerveModuleState corrected = new SwerveModuleState();
+        public AngularVelocity commanded = RadiansPerSecond.of(0);
 
-		public double[] timestamps = new double[0];
-		public double[] drivePositions = new double[0];
-		public double[] turnPositions = new double[0];
-	}
+        public double[] timestamps = new double[0];
+        public double[] drivePositions = new double[0];
+        public double[] turnPositions = new double[0];
+    }
 
-	public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
+    public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
 
-	public abstract void update();
+    public abstract void update();
 
-	public abstract void setDesiredState(SwerveModuleState desired);
+    public abstract void setDesiredState(SwerveModuleState desired);
 
-	public SwerveModulePosition getPosition() {
-		return new SwerveModulePosition(
-			data.drivePosition.in(Radians) * ModuleConstants.Wheel.kRadius,
-			new Rotation2d(data.turnPosition)
-		);
-	}
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(
+            data.drivePosition.in(Radians) * ModuleConstants.Wheel.kRadius,
+            new Rotation2d(data.turnPosition)
+        );
+    }
 
-	public SwerveModuleState getState() {
-		return new SwerveModuleState(
-			data.driveVelocity.in(RadiansPerSecond) * ModuleConstants.Wheel.kRadius,
-			new Rotation2d(data.turnPosition)
-		);
-	}
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(
+            data.driveVelocity.in(RadiansPerSecond) * ModuleConstants.Wheel.kRadius,
+            new Rotation2d(data.turnPosition)
+        );
+    }
 }

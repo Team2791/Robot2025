@@ -108,12 +108,8 @@ public class Drivetrain extends SubsystemBase {
 			this
 		);
 
-		PathPlannerLogging.setLogActivePathCallback(
-			(path) -> Logger.recordOutput("Autos/Path", path.toArray(Pose2d[]::new))
-		);
-		PathPlannerLogging.setLogTargetPoseCallback(
-			(pose) -> Logger.recordOutput("Autos/TargetPose", pose)
-		);
+		PathPlannerLogging.setLogActivePathCallback((path) -> Logger.recordOutput("Autos/Path", path.toArray(Pose2d[]::new)));
+		PathPlannerLogging.setLogTargetPoseCallback((pose) -> Logger.recordOutput("Autos/TargetPose", pose));
 
 		AutoLogOutputManager.addObject(this);
 	}
@@ -151,11 +147,11 @@ public class Drivetrain extends SubsystemBase {
 	 * @param speeds The desired speeds for the robot to move at.
 	 */
 	public void setDesiredSpeeds(ChassisSpeeds speeds) {
-		ChassisSpeeds descrete = ChassisSpeeds.discretize(speeds, 0.02);
-		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(descrete);
+		ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
+		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(discrete);
 		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MaxSpeed.kLinear);
 
-		// set the desired states of all modules. i miss kotlin :(
+		// set the desired states of all modules. I miss kotlin :(
 		IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
 	}
 
@@ -230,7 +226,7 @@ public class Drivetrain extends SubsystemBase {
 		final double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
 
 		// do a rate limit
-		// SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
+		// SlewWrapper.SlewOutputs outputs = slew.update(xspeed, yspeed, rot);
 
 		// multiply by max speed
 		double xvel = DriveConstants.MaxSpeed.kLinear * xspeed;
@@ -252,7 +248,7 @@ public class Drivetrain extends SubsystemBase {
 		odometry.update(gyro.heading(), modulePositions());
 		field.setRobotPose(getPose());
 
-		// log to advantagekit
+		// log to akit
 		IterUtil.enumerateThen(Arrays.stream(modules()), (idx, module) -> {
 			final double driveCan = (40 - (idx * 10));
 			final String path = "Drivetrain/SwerveModule/" + driveCan;
