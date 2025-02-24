@@ -9,7 +9,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
-import frc.robot.thread.SensorThread;
+import frc.robot.logging.Alerter;
+import frc.robot.logging.threads.SensorThread;
 import frc.robot.util.IterUtil;
 import frc.robotio.scoring.ElevatorIO;
 
@@ -18,8 +19,8 @@ import java.util.Queue;
 import static edu.wpi.first.units.Units.*;
 
 public class Elevator extends ElevatorIO {
-    protected final SparkFlex leader;
-    protected final SparkFlex follower;
+    final SparkFlex follower;
+    final SparkFlex leader;
 
     final RelativeEncoder encoder;
     final SparkClosedLoopController controller;
@@ -53,8 +54,14 @@ public class Elevator extends ElevatorIO {
         // register sensors
         positionHist = SensorThread.getInstance().register(() -> Radians.of(encoder.getPosition()));
         timestamps = SensorThread.getInstance().makeTimestampQueue();
+
+        // register sparks
+        Alerter.getInstance().registerSpark("ElevatorLeader", leader);
+        Alerter.getInstance().registerSpark("ElevatorFollower", follower);
     }
 
+    @Override
+    @SuppressWarnings("DuplicatedCode")
     public void update() {
         this.data.leaderConnected = leader.getLastError() != REVLibError.kOk;
         this.data.leaderVoltage = Volts.of(leader.getBusVoltage() * leader.getAppliedOutput());
@@ -71,6 +78,7 @@ public class Elevator extends ElevatorIO {
         this.data.positions = IterUtil.toDoubleArray(positionHist.stream(), Radians);
     }
 
+    @Override
     public void setDesiredPosition(Angle position) {
         controller.setReference(position.in(Radians), ControlType.kPosition);
     }

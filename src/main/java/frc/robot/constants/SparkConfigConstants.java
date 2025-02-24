@@ -2,7 +2,9 @@ package frc.robot.constants;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class SparkConfigConstants {
     public static final class Elevator {
@@ -52,6 +54,60 @@ public class SparkConfigConstants {
             kLeader.idleMode(ElevatorConstants.Motor.kIdleMode);
             kFollower.idleMode(ElevatorConstants.Motor.kIdleMode);
             kFollower.follow(IOConstants.Elevator.kLeader, ElevatorConstants.Motor.kInvertFollower);
+        }
+    }
+
+    public static final class Dispenser {
+        public static final SparkMaxConfig kLeader;
+        public static final SparkMaxConfig kFollower;
+
+        static {
+            kLeader = new SparkMaxConfig();
+            kFollower = new SparkMaxConfig();
+
+            // current limits
+            kLeader.smartCurrentLimit((int) MotorConstants.NeoVortex.kCurrentLimit);
+            kFollower.smartCurrentLimit((int) MotorConstants.NeoVortex.kCurrentLimit);
+
+            // position and velocity factors
+            kLeader.encoder.positionConversionFactor(DispenserConstants.Encoder.kPositionFactor);
+            kFollower.encoder.positionConversionFactor(DispenserConstants.Encoder.kPositionFactor);
+            kLeader.encoder.velocityConversionFactor(DispenserConstants.Encoder.kVelocityFactor);
+            kFollower.encoder.velocityConversionFactor(DispenserConstants.Encoder.kVelocityFactor);
+
+            // pid constants
+            kLeader.closedLoop.pidf(
+                PIDConstants.Dispenser.kP,
+                PIDConstants.Dispenser.kI,
+                PIDConstants.Dispenser.kD,
+                PIDConstants.Dispenser.kF
+            );
+
+            kLeader.closedLoop.outputRange(
+                PIDConstants.Dispenser.kMin,
+                PIDConstants.Dispenser.kMax
+            );
+
+            kFollower.closedLoop.pidf(
+                PIDConstants.Dispenser.kP,
+                PIDConstants.Dispenser.kI,
+                PIDConstants.Dispenser.kD,
+                PIDConstants.Dispenser.kF
+            );
+
+            kFollower.closedLoop.outputRange(
+                PIDConstants.Dispenser.kMin,
+                PIDConstants.Dispenser.kMax
+            );
+
+            // misc
+            kLeader.idleMode(DispenserConstants.Motor.kIdleMode);
+            kFollower.idleMode(DispenserConstants.Motor.kIdleMode);
+            kFollower.follow(IOConstants.Dispenser.kLeader, DispenserConstants.Motor.kInvertFollower);
+
+            // beam brake
+            kLeader.limitSwitch.reverseLimitSwitchEnabled(true);
+            kLeader.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyClosed);
         }
     }
 

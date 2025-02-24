@@ -17,8 +17,6 @@ public final class PIDConstants {
         public static final double kF = 0.0;
         public static final double kMin = -1.0;
         public static final double kMax = 1.0;
-
-        public static final double kTolerance = 0.01;
     }
 
     public static final class Autos {

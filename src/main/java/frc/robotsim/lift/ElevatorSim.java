@@ -47,7 +47,7 @@ public class ElevatorSim extends ElevatorIO {
             LinearSystemId.createElevatorSystem(
                 gearbox,
                 ElevatorConstants.Carriage.kMass,
-                ElevatorConstants.Drum.kRadius,
+                ElevatorConstants.Sprocket.kRadius,
                 ElevatorConstants.Motor.kReduction
             ),
             gearbox,
@@ -66,7 +66,7 @@ public class ElevatorSim extends ElevatorIO {
 
         // update the motor sim to make it move
         motorSim.iterate(
-            elevatorSim.getVelocityMetersPerSecond() / ElevatorConstants.Drum.kRadius,
+            elevatorSim.getVelocityMetersPerSecond() / ElevatorConstants.Sprocket.kRadius,
             RoboRioSim.getVInVoltage(),
             0.02
         );

@@ -1,8 +1,8 @@
-package frc.robot.thread;
+package frc.robot.logging.threads;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.constants.SignalConstants;
+import frc.robot.constants.ThreadConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class SensorThread {
         this.scheduler = new Notifier(this::run);
 
         scheduler.setName("SensorThread");
-        scheduler.startPeriodic(SignalConstants.kDelay);
+        scheduler.startPeriodic(ThreadConstants.kDelay);
     }
 
     public static SensorThread getInstance() {
@@ -48,7 +48,7 @@ public class SensorThread {
     }
 
     public Queue<Double> makeTimestampQueue() {
-        Queue<Double> timestamps = new ArrayBlockingQueue<>(SignalConstants.kCacheSize);
+        Queue<Double> timestamps = new ArrayBlockingQueue<>(ThreadConstants.kCacheSize);
         this.timestamps.add(timestamps);
         return timestamps;
     }

@@ -13,15 +13,17 @@ public abstract class ElevatorIO {
         public Voltage leaderVoltage = Volts.of(0);
         public Current leaderCurrent = Amps.of(0);
 
-        public boolean followerConnected;
+        public boolean followerConnected = false;
         public Voltage followerVoltage = Volts.of(0);
         public Current followerCurrent = Amps.of(0);
 
-        public Angle position;
-        public AngularVelocity velocity;
+        public Angle position = Radians.of(0);
+        public AngularVelocity velocity = RadiansPerSecond.of(0);
 
         public double[] timestamps = new double[0];
         public double[] positions = new double[0];
+
+        public Angle desired = Radians.of(0);
     }
 
     public final ElevatorDataAutoLogged data = new ElevatorDataAutoLogged();
@@ -32,7 +34,9 @@ public abstract class ElevatorIO {
 
     public final void setDesiredPosition(Distance position) {
         double height = position.in(Meters);
-        double angle = height / ElevatorConstants.Drum.kRadius;
+        double angle = height / ElevatorConstants.Sprocket.kRadius;
+
+        data.desired = Radians.of(angle);
         setDesiredPosition(Radians.of(angle));
     }
 }

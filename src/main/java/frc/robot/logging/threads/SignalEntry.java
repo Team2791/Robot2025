@@ -1,6 +1,6 @@
-package frc.robot.thread;
+package frc.robot.logging.threads;
 
-import frc.robot.constants.SignalConstants;
+import frc.robot.constants.ThreadConstants;
 
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -12,7 +12,7 @@ public class SignalEntry<T> {
 
     SignalEntry(Supplier<T> signal) {
         this.signal = signal;
-        this.cache = new ArrayBlockingQueue<>(SignalConstants.kCacheSize);
+        this.cache = new ArrayBlockingQueue<>(ThreadConstants.kCacheSize);
     }
 
     void update() {
