@@ -25,8 +25,8 @@ public class SlewWrapper {
 	double prevDir;
 	double prevMag;
 
-	SlewRateLimiter slewMag;
-	SlewRateLimiter slewRot;
+	final SlewRateLimiter slewMag;
+	final SlewRateLimiter slewRot;
 	final double dirSlewRate;
 
 	double lastUpdate;

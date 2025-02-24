@@ -4,9 +4,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robotio.drivetrain.SwerveIO;
 
 public class SwerveReplay extends SwerveIO {
-	public SwerveReplay(int driveId, int turnId, double angularOffset) {
-		super(driveId, turnId, angularOffset);
-	}
+	/** Keep constructors the same so I can use fn pointers without java screaming */
+	public SwerveReplay(int _id) {}
 
 	public void update() {}
 

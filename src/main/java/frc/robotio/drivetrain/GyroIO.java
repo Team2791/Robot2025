@@ -8,15 +8,16 @@ import org.littletonrobotics.junction.AutoLog;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.constants.DriveConstants;
 
 public abstract class GyroIO {
-	// @SuppressWarnings("unchecked")
 	@AutoLog
 	public static class GyroData {
 		public boolean connected = false;
 		public Angle heading = Radians.of(0);
 		public AngularVelocity velocity = RadiansPerSecond.of(0);
+
+		public double[] timestamps = new double[0];
+		public double[] headings = new double[0];
 	}
 
 
@@ -30,13 +31,14 @@ public abstract class GyroIO {
 	 */
 	public abstract void update();
 
+
 	/**
 	 * Resets the gyro.
 	 */
 	public abstract void reset();
 
 	public Rotation2d heading() {
-		return new Rotation2d(data.heading.times(DriveConstants.kGyroFactor));
+		return new Rotation2d(this.data.heading);
 	}
 }
 

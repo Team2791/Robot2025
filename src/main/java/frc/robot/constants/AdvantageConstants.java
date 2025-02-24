@@ -7,9 +7,6 @@ public class AdvantageConstants {
 		Real, Sim, Replay,
 	}
 
-	public static final class Modes {
-		public static final AdvantageMode kSim = AdvantageMode.Sim;
-		public static final AdvantageMode kReal = AdvantageMode.Real;
-		public static final AdvantageMode kCurrent = RobotBase.isReal() ? kReal : kSim;
-	}
+
+	public static final AdvantageMode kCurrentMode = RobotBase.isReal() ? AdvantageMode.Real : AdvantageMode.Sim;
 }

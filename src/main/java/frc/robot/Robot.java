@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -12,11 +16,13 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import frc.robot.autos.ADStar;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
 
@@ -25,7 +31,7 @@ public class Robot extends LoggedRobot {
 
 	Command autoCommand;
 
-	public Robot() {
+	public Robot() throws IOException, ParseException {
 		// setup logger constants
 		Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
 		Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -46,7 +52,7 @@ public class Robot extends LoggedRobot {
 		}
 
 		// setup logger data receivers
-		switch (AdvantageConstants.Modes.kCurrent) {
+		switch (AdvantageConstants.kCurrentMode) {
 			case Real:
 				Logger.addDataReceiver(new WPILOGWriter("/var/log/akit"));
 				Logger.addDataReceiver(new NT4Publisher());
@@ -60,7 +66,7 @@ public class Robot extends LoggedRobot {
 
 				setUseTiming(false);
 				Logger.setReplaySource(new WPILOGReader(logfile));
-				Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logfile, "sim")));
+				Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logfile, ".sim")));
 				break;
 		}
 
@@ -70,11 +76,18 @@ public class Robot extends LoggedRobot {
 		// start logger
 		Logger.start();
 
-		// allow autologging in frc.robotio and robotsim
+		// allow autologging in frc.robotio, frc.robotsim, and frc.robotreplay
 		AutoLogOutputManager.addPackage("frc.robotio");
 		AutoLogOutputManager.addPackage("frc.robotsim");
+		AutoLogOutputManager.addPackage("frc.robotreplay");
 
 		this.container = new RobotContainer();
+	}
+
+	@Override
+	public void robotInit() {
+		Pathfinding.setPathfinder(new ADStar());
+		//FollowPathCommand.warmupCommand().schedule();
 	}
 
 	@Override
@@ -126,8 +139,12 @@ public class Robot extends LoggedRobot {
 	public void testPeriodic() {}
 
 	@Override
-	public void simulationInit() {}
+	public void simulationInit() {
+
+	}
 
 	@Override
-	public void simulationPeriodic() {}
+	public void simulationPeriodic() {
+		SimulatedArena.getInstance().simulationPeriodic();
+	}
 }
