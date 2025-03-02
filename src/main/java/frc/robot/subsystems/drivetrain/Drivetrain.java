@@ -27,6 +27,7 @@ import frc.robot.event.Emitter;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
+import org.dyn4j.geometry.Vector2;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -121,7 +122,8 @@ public class Drivetrain extends SubsystemBase {
 
         // Elastic SwerveDrive widget
         SmartDashboard.putData(
-            "SwerveDrive", new Sendable() {
+            "SwerveDrive",
+            new Sendable() {
                 @Override
                 public void initSendable(SendableBuilder builder) {
                     builder.setSmartDashboardType("SwerveDrive");
@@ -185,14 +187,17 @@ public class Drivetrain extends SubsystemBase {
     /**
      * @param speeds The desired speeds for the robot to move at.
      */
-    public void setDesiredSpeeds(ChassisSpeeds speeds) {
+    private void setDesiredSpeeds(ChassisSpeeds speeds) {
+        // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(discrete);
+
+        // this probably doesn't need to happen again but just in case we get bad parameters somehow
         SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
 
+        // TODO: remove, debug
         System.out.println(Arrays.stream(states).map(SwerveModuleState::toString).collect(Collectors.joining()));
 
-        // set the desired states of all modules. I miss kotlin :(
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
     }
 
@@ -261,10 +266,13 @@ public class Drivetrain extends SubsystemBase {
         // do a rate limit
         // SlewWrapper.SlewOutputs outputs = slew.update(xspeed, yspeed, rot);
 
-        // multiply by max speed
-        double xvel = ModuleConstants.MaxSpeed.kLinear * xspeed;
-        double yvel = ModuleConstants.MaxSpeed.kLinear * yspeed;
-        double rvel = ModuleConstants.MaxSpeed.kAngular * rot;
+        // build into a vector with max mag 1 to enforce max speeds correctly
+        Vector2 velocity = new Vector2(xspeed, yspeed);
+        if (velocity.getMagnitude() > 1) velocity.normalize();
+
+        double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
+        double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
+        double rvel = rot * ModuleConstants.MaxSpeed.kAngular;
 
         drive(xvel, yvel, rvel);
     }
