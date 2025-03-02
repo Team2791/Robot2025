@@ -28,8 +28,13 @@ public final class IOConstants {
     }
 
     public static final class Dispenser {
-        public static final int kLeader = 60;
-        public static final int kFollower = 61;
+        public static final int kLeader = 51;
+        public static final int kFollower = 52;
+    }
+
+    public static final class Roller {
+        public static final int kLeft = 60;
+        public static final int kRight = 61;
     }
 
     public static final class Controller {

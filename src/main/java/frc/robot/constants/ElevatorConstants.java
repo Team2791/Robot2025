@@ -19,11 +19,11 @@ public final class ElevatorConstants {
     }
 
     public static class Encoder {
-        /** Through-bore encoder is mounted directly on the elevator's drum. Convert from rev to radians */
-        public static final double kPositionFactor = kTau / Motor.kReduction;
+        /** Through-bore encoder is mounted directly on the elevator's drum. Just convert from rev to rad */
+        public static final double kPositionFactor = kTau * Motor.kReduction;
 
-        /** Per second rather than per minute */
-        public static final double kVelocityFactor = kPositionFactor / 60;
+        /** Default is per minute */
+        public static final double kVelocityFactor = kPositionFactor / 60.0;
     }
 
     public static class Sprocket {
@@ -34,15 +34,23 @@ public final class ElevatorConstants {
     /** If the height of the elevator at its lowest point is 0, what would the height be to score at each position? */
     public static class Heights {
         public static final double kIntake = 0.0;
-        public static final double kL1 = Inches.of(0).in(Meters);
-        public static final double kL2 = Inches.of(0).in(Meters);
-        public static final double kL3 = Inches.of(0).in(Meters);
-        public static final double kL4 = Inches.of(0).in(Meters);
+        public static final double kL1 = 0.13275;
+        public static final double kL2 = 0.36968;
+        public static final double kL3 = 0.74311;
+        public static final double kL4 = 1.40113;
         public static final double[] kLevels = { kIntake, kL1, kL2, kL3, kL4 };
         public static final double kTolerance = Inches.of(0.125).in(Meters);
     }
 
     public static final class Carriage {
-        public static final double kMass = 1; // TODO: Find the actual mass
+        public static final double kMass = 60; // TODO: Find the actual mass
+
+        /** For every 1 meter the elevator moves, the carriage moves two meters */
+        public static final double kFactor = 2.0;
+    }
+
+    public static final class Range {
+        /** The maximum distance between the robot and reef center to keep the elevator up */
+        public static final double kRetract = 1.375;
     }
 }

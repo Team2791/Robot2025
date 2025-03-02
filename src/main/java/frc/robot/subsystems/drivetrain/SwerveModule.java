@@ -14,12 +14,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.ModuleConstants.DriveEncoder;
 import frc.robot.constants.ModuleConstants.TurnEncoder;
 import frc.robot.constants.MotorConstants;
-import frc.robot.constants.PIDConstants;
 import frc.robot.logging.Alerter;
 import frc.robot.logging.threads.SensorThread;
 import frc.robot.util.IterUtil;
@@ -50,7 +50,7 @@ public class SwerveModule extends SwerveIO {
     /**
      * Constructs a new SwerveModule
      *
-     * @param id the module's id. [0..=3] corresponds to [fl, fr, bl, br]
+     * @param id the module's id. [0, 3] corresponds to [fl, fr, bl, br]
      */
     public SwerveModule(int id) {
         int driveId = switch (id) {
@@ -110,27 +110,27 @@ public class SwerveModule extends SwerveIO {
 
         // pid constants
         driveConfig.closedLoop.pidf(
-            PIDConstants.DriveMotor.kP,
-            PIDConstants.DriveMotor.kI,
-            PIDConstants.DriveMotor.kD,
-            PIDConstants.DriveMotor.kF
+            ControlConstants.DriveMotor.kP,
+            ControlConstants.DriveMotor.kI,
+            ControlConstants.DriveMotor.kD,
+            ControlConstants.DriveMotor.kF
         );
 
         driveConfig.closedLoop.outputRange(
-            PIDConstants.DriveMotor.kMin,
-            PIDConstants.DriveMotor.kMax
+            ControlConstants.DriveMotor.kMin,
+            ControlConstants.DriveMotor.kMax
         );
 
         turnConfig.closedLoop.pidf(
-            PIDConstants.TurnMotor.kP,
-            PIDConstants.TurnMotor.kI,
-            PIDConstants.TurnMotor.kD,
-            PIDConstants.TurnMotor.kF
+            ControlConstants.TurnMotor.kP,
+            ControlConstants.TurnMotor.kI,
+            ControlConstants.TurnMotor.kD,
+            ControlConstants.TurnMotor.kF
         );
 
         turnConfig.closedLoop.outputRange(
-            PIDConstants.TurnMotor.kMin,
-            PIDConstants.TurnMotor.kMax
+            ControlConstants.TurnMotor.kMin,
+            ControlConstants.TurnMotor.kMax
         );
 
         // misc
@@ -183,10 +183,12 @@ public class SwerveModule extends SwerveIO {
 
         corrected.optimize(new Rotation2d(turnEncoder.getPosition()));
 
-        driveController.setReference(corrected.speedMetersPerSecond, ControlType.kVelocity);
+        double angular = corrected.speedMetersPerSecond / ModuleConstants.Wheel.kRadius;
+        driveController.setReference(angular, ControlType.kVelocity);
         turnController.setReference(corrected.angle.getRadians(), ControlType.kPosition);
 
         this.data.desired = corrected;
+        this.data.commanded = RadiansPerSecond.of(angular);
     }
 }
 

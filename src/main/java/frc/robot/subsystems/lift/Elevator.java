@@ -12,7 +12,7 @@ import frc.robot.constants.SparkConfigConstants;
 import frc.robot.logging.Alerter;
 import frc.robot.logging.threads.SensorThread;
 import frc.robot.util.IterUtil;
-import frc.robotio.scoring.ElevatorIO;
+import frc.robotio.lift.ElevatorIO;
 
 import java.util.Queue;
 
@@ -32,9 +32,6 @@ public class Elevator extends ElevatorIO {
         leader = new SparkFlex(IOConstants.Elevator.kLeader, MotorType.kBrushless);
         follower = new SparkFlex(IOConstants.Elevator.kFollower, MotorType.kBrushless);
 
-        encoder = leader.getEncoder();
-        controller = leader.getClosedLoopController();
-
         // apply configs
         leader.configure(
             SparkConfigConstants.Elevator.kLeader,
@@ -46,6 +43,9 @@ public class Elevator extends ElevatorIO {
             SparkConfigConstants.kResetMode,
             SparkConfigConstants.kPersistMode
         );
+
+        encoder = leader.getEncoder();
+        controller = leader.getClosedLoopController();
 
         // clear sticky faults
         leader.clearFaults();
@@ -71,11 +71,14 @@ public class Elevator extends ElevatorIO {
         this.data.followerVoltage = Volts.of(follower.getBusVoltage() * follower.getAppliedOutput());
         this.data.followerCurrent = Amps.of(follower.getOutputCurrent());
 
-        this.data.position = Radians.of(encoder.getPosition());
         this.data.velocity = RadiansPerSecond.of(encoder.getVelocity());
+        this.data.position = Radians.of(encoder.getPosition());
 
         this.data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
         this.data.positions = IterUtil.toDoubleArray(positionHist.stream(), Radians);
+
+        positionHist.clear();
+        timestamps.clear();
     }
 
     @Override

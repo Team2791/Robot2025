@@ -1,8 +1,9 @@
-package frc.robotio.scoring;
+package frc.robotio.lift;
 
 import edu.wpi.first.units.measure.*;
 import frc.robot.constants.ElevatorConstants;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -24,6 +25,15 @@ public abstract class ElevatorIO {
         public double[] positions = new double[0];
 
         public Angle desired = Radians.of(0);
+
+        @AutoLogOutput(key = "Lift/Elevator/Height")
+        public Distance height() {
+            double angle = position.in(Radians);
+            double elevatorHeight = angle * ElevatorConstants.Sprocket.kRadius;
+            double carriageHeight = elevatorHeight * 2.0;
+
+            return Meters.of(carriageHeight);
+        }
     }
 
     public final ElevatorDataAutoLogged data = new ElevatorDataAutoLogged();
@@ -33,8 +43,9 @@ public abstract class ElevatorIO {
     protected abstract void setDesiredPosition(Angle position);
 
     public final void setDesiredPosition(Distance position) {
-        double height = position.in(Meters);
-        double angle = height / ElevatorConstants.Sprocket.kRadius;
+        double carriageHeight = position.in(Meters);
+        double elevatorHeight = carriageHeight / 2.0;
+        double angle = elevatorHeight / ElevatorConstants.Sprocket.kRadius;
 
         data.desired = Radians.of(angle);
         setDesiredPosition(Radians.of(angle));

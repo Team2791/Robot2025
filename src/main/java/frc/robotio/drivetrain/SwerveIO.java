@@ -3,10 +3,7 @@ package frc.robotio.drivetrain;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.measure.*;
 import frc.robot.constants.ModuleConstants;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -28,8 +25,19 @@ public abstract class SwerveIO {
         public Current turnCurrent = Amps.of(0);
 
         public SwerveModuleState desired = new SwerveModuleState();
-        public SwerveModuleState corrected = new SwerveModuleState();
         public AngularVelocity commanded = RadiansPerSecond.of(0);
+
+        public LinearVelocity linearVelocity() {
+            double angular = driveVelocity.in(RadiansPerSecond);
+            double linear = angular * ModuleConstants.Wheel.kRadius;
+            return MetersPerSecond.of(linear);
+        }
+
+        public Distance linearPosition() {
+            double angular = drivePosition.in(Radians);
+            double linear = angular * ModuleConstants.Wheel.kRadius;
+            return Meters.of(linear);
+        }
 
         public double[] timestamps = new double[0];
         public double[] drivePositions = new double[0];
@@ -44,14 +52,14 @@ public abstract class SwerveIO {
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            data.drivePosition.in(Radians) * ModuleConstants.Wheel.kRadius,
+            data.linearPosition(),
             new Rotation2d(data.turnPosition)
         );
     }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-            data.driveVelocity.in(RadiansPerSecond) * ModuleConstants.Wheel.kRadius,
+            data.linearVelocity(),
             new Rotation2d(data.turnPosition)
         );
     }

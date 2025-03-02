@@ -5,9 +5,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.MotorConstants;
-import frc.robot.constants.PIDConstants;
 import frc.robot.util.PIDFController;
 import frc.robotio.drivetrain.SwerveIO;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
@@ -20,22 +20,22 @@ public class ModuleSim extends SwerveIO {
     final SimulatedMotorController.GenericMotorController driveSim;
     final SimulatedMotorController.GenericMotorController turnSim;
 
-    final PIDFController drivectl;
-    final PIDFController turnctl;
+    final PIDFController driveController;
+    final PIDFController turnController;
 
     public ModuleSim(SwerveModuleSimulation moduleSim) {
-        drivectl = new PIDFController(
-            PIDConstants.DriveMotor.kP,
-            PIDConstants.DriveMotor.kI,
-            PIDConstants.DriveMotor.kD,
-            PIDConstants.DriveMotor.kF
+        driveController = new PIDFController(
+            ControlConstants.DriveMotor.kP,
+            ControlConstants.DriveMotor.kI,
+            ControlConstants.DriveMotor.kD,
+            ControlConstants.DriveMotor.kF
         );
 
-        turnctl = new PIDFController(
-            PIDConstants.TurnMotor.kP,
-            PIDConstants.TurnMotor.kI,
-            PIDConstants.TurnMotor.kD,
-            PIDConstants.TurnMotor.kF
+        turnController = new PIDFController(
+            ControlConstants.TurnMotor.kP,
+            ControlConstants.TurnMotor.kI,
+            ControlConstants.TurnMotor.kD,
+            ControlConstants.TurnMotor.kF
         );
 
         this.moduleSim = moduleSim;
@@ -48,15 +48,15 @@ public class ModuleSim extends SwerveIO {
             .useGenericControllerForSteer()
             .withCurrentLimit(Amps.of(MotorConstants.Neo550.kCurrentLimit));
 
-        drivectl.setOutputRange(PIDConstants.DriveMotor.kMin, PIDConstants.DriveMotor.kMax);
-        turnctl.setOutputRange(PIDConstants.TurnMotor.kMin, PIDConstants.TurnMotor.kMax);
-        turnctl.enableContinuousInput(-Math.PI, Math.PI);
+        driveController.setOutputRange(ControlConstants.DriveMotor.kMin, ControlConstants.DriveMotor.kMax);
+        turnController.setOutputRange(ControlConstants.TurnMotor.kMin, ControlConstants.TurnMotor.kMax);
+        turnController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     @Override
     public void update() {
-        final double drivePow = drivectl.calculate(this.data.driveVelocity.in(RadiansPerSecond));
-        final double turnPow = turnctl.calculate(this.data.turnPosition.in(Radians));
+        final double drivePow = driveController.calculate(this.data.driveVelocity.in(RadiansPerSecond));
+        final double turnPow = turnController.calculate(this.data.turnPosition.in(Radians));
 
         // https://www.chiefdelphi.com/t/sparkmax-set-vs-setvoltage/415059/2
         // correct for differing voltages cuz battery won't always be 12V
@@ -89,11 +89,10 @@ public class ModuleSim extends SwerveIO {
     public void setDesiredState(SwerveModuleState desired) {
         desired.optimize(new Rotation2d(moduleSim.getSteerAbsoluteAngle()));
 
-        drivectl.setSetpoint(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
-        turnctl.setSetpoint(desired.angle.getRadians());
+        driveController.setSetpoint(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
+        turnController.setSetpoint(desired.angle.getRadians());
 
         this.data.desired = desired;
-        this.data.corrected = desired;
         this.data.commanded = RadiansPerSecond.of(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
     }
 }

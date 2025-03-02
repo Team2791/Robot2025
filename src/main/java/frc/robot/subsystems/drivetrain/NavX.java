@@ -42,6 +42,7 @@ public class NavX extends GyroIO {
 
     @Override
     public void reset() {
+        System.out.println("Resetting gyro");
         gyro.reset();
     }
 }

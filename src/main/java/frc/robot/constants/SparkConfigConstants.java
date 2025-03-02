@@ -21,33 +21,19 @@ public class SparkConfigConstants {
 
             // position and velocity factors
             kLeader.encoder.positionConversionFactor(ElevatorConstants.Encoder.kPositionFactor);
-            kFollower.encoder.positionConversionFactor(ElevatorConstants.Encoder.kPositionFactor);
             kLeader.encoder.velocityConversionFactor(ElevatorConstants.Encoder.kVelocityFactor);
-            kFollower.encoder.velocityConversionFactor(ElevatorConstants.Encoder.kVelocityFactor);
 
             // pid constants
             kLeader.closedLoop.pidf(
-                PIDConstants.Elevator.kP,
-                PIDConstants.Elevator.kI,
-                PIDConstants.Elevator.kD,
-                PIDConstants.Elevator.kF
+                ControlConstants.Elevator.kP,
+                ControlConstants.Elevator.kI,
+                ControlConstants.Elevator.kD,
+                ControlConstants.Elevator.kF
             );
 
             kLeader.closedLoop.outputRange(
-                PIDConstants.Elevator.kMin,
-                PIDConstants.Elevator.kMax
-            );
-
-            kFollower.closedLoop.pidf(
-                PIDConstants.Elevator.kP,
-                PIDConstants.Elevator.kI,
-                PIDConstants.Elevator.kD,
-                PIDConstants.Elevator.kF
-            );
-
-            kFollower.closedLoop.outputRange(
-                PIDConstants.Elevator.kMin,
-                PIDConstants.Elevator.kMax
+                ControlConstants.Elevator.kMin,
+                ControlConstants.Elevator.kMax
             );
 
             // misc
@@ -77,27 +63,27 @@ public class SparkConfigConstants {
 
             // pid constants
             kLeader.closedLoop.pidf(
-                PIDConstants.Dispenser.kP,
-                PIDConstants.Dispenser.kI,
-                PIDConstants.Dispenser.kD,
-                PIDConstants.Dispenser.kF
+                ControlConstants.Dispenser.kP,
+                ControlConstants.Dispenser.kI,
+                ControlConstants.Dispenser.kD,
+                ControlConstants.Dispenser.kF
             );
 
             kLeader.closedLoop.outputRange(
-                PIDConstants.Dispenser.kMin,
-                PIDConstants.Dispenser.kMax
+                ControlConstants.Dispenser.kMin,
+                ControlConstants.Dispenser.kMax
             );
 
             kFollower.closedLoop.pidf(
-                PIDConstants.Dispenser.kP,
-                PIDConstants.Dispenser.kI,
-                PIDConstants.Dispenser.kD,
-                PIDConstants.Dispenser.kF
+                ControlConstants.Dispenser.kP,
+                ControlConstants.Dispenser.kI,
+                ControlConstants.Dispenser.kD,
+                ControlConstants.Dispenser.kF
             );
 
             kFollower.closedLoop.outputRange(
-                PIDConstants.Dispenser.kMin,
-                PIDConstants.Dispenser.kMax
+                ControlConstants.Dispenser.kMin,
+                ControlConstants.Dispenser.kMax
             );
 
             // misc
@@ -108,6 +94,34 @@ public class SparkConfigConstants {
             // beam brake
             kLeader.limitSwitch.reverseLimitSwitchEnabled(true);
             kLeader.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyClosed);
+        }
+    }
+
+    public static final class Roller {
+        public static final SparkMaxConfig kLeft;
+        public static final SparkMaxConfig kRight;
+
+        static {
+            kLeft = new SparkMaxConfig();
+            kRight = new SparkMaxConfig();
+
+            // current limits
+            kLeft.smartCurrentLimit((int) MotorConstants.Neo.kCurrentLimit);
+            kRight.smartCurrentLimit((int) MotorConstants.Neo.kCurrentLimit);
+
+            // position and velocity factors
+            kLeft.encoder.positionConversionFactor(IntakeConstants.Encoder.kPositionFactor);
+            kRight.encoder.positionConversionFactor(IntakeConstants.Encoder.kPositionFactor);
+            kLeft.encoder.velocityConversionFactor(IntakeConstants.Encoder.kVelocityFactor);
+            kRight.encoder.velocityConversionFactor(IntakeConstants.Encoder.kVelocityFactor);
+
+            // misc
+            kLeft.idleMode(IntakeConstants.Motor.kIdleMode);
+            kRight.idleMode(IntakeConstants.Motor.kIdleMode);
+
+            // beam brake
+            kLeft.limitSwitch.reverseLimitSwitchEnabled(true);
+            kLeft.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyClosed);
         }
     }
 

@@ -1,6 +1,6 @@
 package frc.robotreplay.lift;
 
-import frc.robotio.scoring.DispenserIO;
+import frc.robotio.lift.DispenserIO;
 
 public class DispenserReplay extends DispenserIO {
     @Override

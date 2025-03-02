@@ -12,9 +12,12 @@ public class DispenserConstants {
 
         /** Invert the follower motor */
         public static final boolean kInvertFollower = true;
+
+        /** Moment of Inertia */
+        public static final double kMoI = 0.01;
     }
 
-    public static class Encoder {
+    public static final class Encoder {
         public static final double kPositionFactor = MathConstants.kTau / Motor.kReduction;
         public static final double kVelocityFactor = kPositionFactor / 60;
     }

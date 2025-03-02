@@ -7,6 +7,8 @@ import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.PhysicalConstants;
+import frc.robot.event.Emitter;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robotsim.drivetrain.GyroSim;
 import frc.robotsim.drivetrain.ModuleSim;
 import org.ironmaple.simulation.SimulatedArena;
@@ -53,7 +55,9 @@ public class MapleSim {
             .withRobotMass(Kilogram.of(PhysicalConstants.kMass));
 
         drivetrain = new SwerveDriveSimulation(config, new Pose2d(7.5, 5, new Rotation2d()));
+
         SimulatedArena.getInstance().addDriveTrainSimulation(drivetrain);
+        Emitter.on(new Drivetrain.PoseResetEvent(), this::resetPose);
     }
 
     public static MapleSim getInstance() {
@@ -77,14 +81,6 @@ public class MapleSim {
         }
 
         return new GyroSim(drivetrain.getGyroSimulation());
-    }
-
-    public Pose2d getPose() {
-        if (AdvantageConstants.kCurrentMode != AdvantageMode.Sim) {
-            return null;
-        }
-
-        return drivetrain.getSimulatedDriveTrainPose();
     }
 
     public void resetPose(Pose2d pose) {

@@ -19,13 +19,14 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
-import frc.robot.constants.PIDConstants;
+import frc.robot.constants.ModuleConstants;
+import frc.robot.event.Emitter;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
-import frc.robotsim.maple.MapleSim;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -34,9 +35,19 @@ import org.littletonrobotics.junction.Logger;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Drivetrain extends SubsystemBase {
+    public static class PoseUpdateEvent extends Emitter.Event<Pose2d> {
+        @Override
+        public Emitter.Dependency<Pose2d, Pose2d> runAfter() {
+            return new Emitter.Dependency<>(new PoseResetEvent(), Function.identity());
+        }
+    }
+
+    public static class PoseResetEvent extends Emitter.Event<Pose2d> { }
+
     final SwerveIO frontLeft;
     final SwerveIO frontRight;
     final SwerveIO rearLeft;
@@ -68,9 +79,9 @@ public class Drivetrain extends SubsystemBase {
         );
 
         slew = new SlewWrapper(
-            DriveConstants.Slew.kMagnitude,
-            DriveConstants.Slew.kRotation,
-            DriveConstants.Slew.kDirection
+            ControlConstants.SlewRateLimit.kMagnitude,
+            ControlConstants.SlewRateLimit.kRotation,
+            ControlConstants.SlewRateLimit.kDirection
         );
 
         field = new Field2d();
@@ -79,19 +90,19 @@ public class Drivetrain extends SubsystemBase {
 
         AutoBuilder.configure(
             this::getPose,
-            this::resetOdometry,
+            (pose) -> Emitter.emit(new PoseResetEvent(), pose),
             this::getChassisSpeeds,
             s -> this.drive(s, false),
             new PPHolonomicDriveController(
                 new com.pathplanner.lib.config.PIDConstants(
-                    PIDConstants.Autos.kOrthoP,
-                    PIDConstants.Autos.kOrthoI,
-                    PIDConstants.Autos.kOrthoD
+                    ControlConstants.Autos.kOrthoP,
+                    ControlConstants.Autos.kOrthoI,
+                    ControlConstants.Autos.kOrthoD
                 ),
                 new com.pathplanner.lib.config.PIDConstants(
-                    PIDConstants.Autos.kTurnP,
-                    PIDConstants.Autos.kTurnI,
-                    PIDConstants.Autos.kTurnD
+                    ControlConstants.Autos.kTurnP,
+                    ControlConstants.Autos.kTurnI,
+                    ControlConstants.Autos.kTurnD
                 )
             ),
             RobotConfig.fromGUISettings(),
@@ -108,31 +119,38 @@ public class Drivetrain extends SubsystemBase {
             field.getObject("Autos/TargetPose").setPose(pose);
         });
 
-
         // Elastic SwerveDrive widget
-        SmartDashboard.putData("SwerveDrive", new Sendable() {
-            @Override
-            public void initSendable(SendableBuilder builder) {
-                builder.setSmartDashboardType("SwerveDrive");
+        SmartDashboard.putData(
+            "SwerveDrive", new Sendable() {
+                @Override
+                public void initSendable(SendableBuilder builder) {
+                    builder.setSmartDashboardType("SwerveDrive");
 
-                IterUtil.zipThen(
-                    Arrays.stream(modules()),
-                    Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
-                    (module, label) -> {
-                        builder.addDoubleProperty(label + " Angle", () -> module.getState().angle.getRadians(), null);
-                        builder.addDoubleProperty(
-                            label + " Velocity",
-                            () -> module.getState().speedMetersPerSecond,
-                            null
-                        );
-                    }
-                );
+                    IterUtil.zipThen(
+                        Arrays.stream(modules()),
+                        Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
+                        (module, label) -> {
+                            builder.addDoubleProperty(
+                                label + " Angle",
+                                () -> module.getState().angle.getRadians(),
+                                null
+                            );
+                            builder.addDoubleProperty(
+                                label + " Velocity",
+                                () -> module.getState().speedMetersPerSecond,
+                                null
+                            );
+                        }
+                    );
 
-                builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
+                    builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
+                }
             }
-        });
+        );
 
         AutoLogOutputManager.addObject(this);
+        Emitter.on(new PoseUpdateEvent(), field::setRobotPose);
+        Emitter.on(new PoseResetEvent(), pose -> odometry.resetPosition(gyro.heading(), modulePositions(), pose));
     }
 
     /**
@@ -170,7 +188,9 @@ public class Drivetrain extends SubsystemBase {
     public void setDesiredSpeeds(ChassisSpeeds speeds) {
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(discrete);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MaxSpeed.kLinear);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
+
+        System.out.println(Arrays.stream(states).map(SwerveModuleState::toString).collect(Collectors.joining()));
 
         // set the desired states of all modules. I miss kotlin :(
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
@@ -183,14 +203,6 @@ public class Drivetrain extends SubsystemBase {
     public Pose2d getPose() { return odometry.getEstimatedPosition(); }
 
     public Rotation2d getHeading() { return getPose().getRotation(); }
-
-    /**
-     * @param pose The new pose of the robot.
-     */
-    public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(gyro.heading(), modulePositions(), pose);
-        MapleSim.getInstance().resetPose(pose);
-    }
 
     /**
      * Swerve drive control
@@ -250,11 +262,18 @@ public class Drivetrain extends SubsystemBase {
         // SlewWrapper.SlewOutputs outputs = slew.update(xspeed, yspeed, rot);
 
         // multiply by max speed
-        double xvel = DriveConstants.MaxSpeed.kLinear * xspeed;
-        double yvel = DriveConstants.MaxSpeed.kLinear * yspeed;
-        double rvel = DriveConstants.MaxSpeed.kAngular * rot;
+        double xvel = ModuleConstants.MaxSpeed.kLinear * xspeed;
+        double yvel = ModuleConstants.MaxSpeed.kLinear * yspeed;
+        double rvel = ModuleConstants.MaxSpeed.kAngular * rot;
 
         drive(xvel, yvel, rvel);
+    }
+
+    /**
+     * Reset the gyro
+     */
+    public void resetGyro() {
+        gyro.reset();
     }
 
     @Override
@@ -267,14 +286,16 @@ public class Drivetrain extends SubsystemBase {
 
         // update odometry
         odometry.update(gyro.heading(), modulePositions());
-        field.setRobotPose(getPose());
+        Emitter.emit(new PoseUpdateEvent(), getPose());
 
         // log to akit
-        IterUtil.enumerateThen(Arrays.stream(modules()), (idx, module) -> {
-            final double driveCan = (40 - (idx * 10));
-            final String path = "Drivetrain/SwerveModule/" + driveCan;
-            Logger.processInputs(path, module.data);
-        });
+        IterUtil.enumerateThen(
+            Arrays.stream(modules()), (idx, module) -> {
+                final double driveCan = (40 - (idx * 10));
+                final String path = "Drivetrain/SwerveModule/" + driveCan;
+                Logger.processInputs(path, module.data);
+            }
+        );
 
         Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
         Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());

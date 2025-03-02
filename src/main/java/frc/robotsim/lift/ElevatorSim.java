@@ -1,6 +1,6 @@
 package frc.robotsim.lift;
 
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.sim.SparkAbsoluteEncoderSim;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
-import frc.robotio.scoring.ElevatorIO;
+import frc.robotio.lift.ElevatorIO;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -22,18 +22,15 @@ public class ElevatorSim extends ElevatorIO {
     final SparkFlex motor;
     final SparkFlexSim motorSim;
 
-    final RelativeEncoder encoder;
+    final SparkAbsoluteEncoderSim encoder;
     final SparkClosedLoopController controller;
 
     final edu.wpi.first.wpilibj.simulation.ElevatorSim elevatorSim;
 
     public ElevatorSim() {
-        super();
-
         DCMotor gearbox = DCMotor.getNeoVortex(2);
 
         motor = new SparkFlex(IOConstants.Elevator.kLeader, MotorType.kBrushless);
-        encoder = motor.getEncoder();
         controller = motor.getClosedLoopController();
 
         motor.configure(
@@ -43,12 +40,14 @@ public class ElevatorSim extends ElevatorIO {
         );
 
         motorSim = new SparkFlexSim(motor, gearbox);
+        encoder = motorSim.getAbsoluteEncoderSim();
+
         elevatorSim = new edu.wpi.first.wpilibj.simulation.ElevatorSim(
             LinearSystemId.createElevatorSystem(
                 gearbox,
                 ElevatorConstants.Carriage.kMass,
                 ElevatorConstants.Sprocket.kRadius,
-                ElevatorConstants.Motor.kReduction
+                ElevatorConstants.Motor.kReduction * ElevatorConstants.Carriage.kFactor
             ),
             gearbox,
             0.0,
@@ -64,9 +63,17 @@ public class ElevatorSim extends ElevatorIO {
         elevatorSim.setInput(motorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
         elevatorSim.update(0.02);
 
+        double carriageVelocity = elevatorSim.getVelocityMetersPerSecond();
+        double elevatorVelocity = carriageVelocity / ElevatorConstants.Carriage.kFactor;
+        double encoderVelocity = elevatorVelocity / ElevatorConstants.Sprocket.kRadius;
+        double motorVelocity = encoderVelocity / ElevatorConstants.Motor.kReduction;
+
+        // iterate the encoder sim, mounted after the gearbox
+        encoder.iterate(encoderVelocity, 0.02);
+
         // update the motor sim to make it move
         motorSim.iterate(
-            elevatorSim.getVelocityMetersPerSecond() / ElevatorConstants.Sprocket.kRadius,
+            motorVelocity,
             RoboRioSim.getVInVoltage(),
             0.02
         );
