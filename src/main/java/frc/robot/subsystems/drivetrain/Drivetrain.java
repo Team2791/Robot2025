@@ -232,9 +232,9 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Manual swerve drive control
      *
-     * @param xspeed        The desired speed for the robot to move in the x direction.
-     * @param yspeed        The desired speed for the robot to move in the y direction.
-     * @param rot           The desired rotational speed
+     * @param xspeed        The desired speed for the robot to move in the x direction. +X is forward.
+     * @param yspeed        The desired speed for the robot to move in the y direction. +Y is left.
+     * @param rot           The desired rotational speed. +R is ccw.
      * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
      */
     public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
@@ -242,11 +242,11 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Field-relative manual swerve drive control
+     * Field-relative manual swerve drive control.
      *
-     * @param xspeed The desired speed for the robot to move in the x direction.
-     * @param yspeed The desired speed for the robot to move in the y direction.
-     * @param rot    The desired rotational speed
+     * @param xspeed The desired speed for the robot to move in the x direction. +X is forward.
+     * @param yspeed The desired speed for the robot to move in the y direction. +Y is left.
+     * @param rot    The desired rotational speed. +R is ccw.
      */
     public void drive(double xspeed, double yspeed, double rot) {
         drive(xspeed, yspeed, rot, true);
@@ -274,7 +274,17 @@ public class Drivetrain extends SubsystemBase {
         double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
         double rvel = rot * ModuleConstants.MaxSpeed.kAngular;
 
-        drive(xvel, yvel, rvel);
+        /*
+         * Time to explain some wpilib strangeness
+         *
+         * xvel, given from the controller, *should* be interpreted as the left-right speed of the robot
+         * yvel, given from the controller, *should* be interpreted as the forward-backward speed of the robot
+         * however, the WPI coordinate system is such that +Xw is forward, and +Yw is left (using w for WPI)
+         * additionally, the controller coordinate system is such that +Xc is right, and +Yc is down (using c for controller)
+         * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
+         * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
+         */
+        drive(-yvel, -xvel, -rvel);
     }
 
     /**
