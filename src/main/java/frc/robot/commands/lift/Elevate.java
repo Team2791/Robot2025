@@ -44,11 +44,11 @@ public class Elevate extends FunctionWrapper {
         this.auto = auto;
     }
 
-    @Override
-    public InterruptionBehavior getInterruptionBehavior() {
-        if (auto) return InterruptionBehavior.kCancelSelf;
-        else return InterruptionBehavior.kCancelIncoming;
-    }
+    //    @Override
+    //    public InterruptionBehavior getInterruptionBehavior() {
+    //        if (auto) return InterruptionBehavior.kCancelSelf;
+    //        else return InterruptionBehavior.kCancelIncoming;
+    //    }
 
     public static void registerRetract(Lift lift) {
         final Elevate instance = new Elevate(lift, 0, true);

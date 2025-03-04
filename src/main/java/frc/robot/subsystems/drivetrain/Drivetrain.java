@@ -36,7 +36,6 @@ import org.littletonrobotics.junction.Logger;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Drivetrain extends SubsystemBase {
@@ -59,7 +58,7 @@ public class Drivetrain extends SubsystemBase {
     final SwerveDrivePoseEstimator odometry;
     final Field2d field;
 
-    final SlewWrapper slew;
+    final RateLimiter slew;
 
     public Drivetrain(
         GyroIO gyro,
@@ -79,10 +78,10 @@ public class Drivetrain extends SubsystemBase {
             new Pose2d(7.5, 5, new Rotation2d())
         );
 
-        slew = new SlewWrapper(
-            ControlConstants.SlewRateLimit.kMagnitude,
-            ControlConstants.SlewRateLimit.kRotation,
-            ControlConstants.SlewRateLimit.kDirection
+        slew = new RateLimiter(
+            ControlConstants.SlewRateLimit.kOrthogonal,
+            ControlConstants.SlewRateLimit.kOrthogonal,
+            ControlConstants.SlewRateLimit.kRotation
         );
 
         field = new Field2d();
@@ -195,9 +194,6 @@ public class Drivetrain extends SubsystemBase {
         // this probably doesn't need to happen again but just in case we get bad parameters somehow
         SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
 
-        // TODO: remove, debug
-        System.out.println(Arrays.stream(states).map(SwerveModuleState::toString).collect(Collectors.joining()));
-
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
     }
 
@@ -264,15 +260,15 @@ public class Drivetrain extends SubsystemBase {
         final double rot = MathUtil.applyDeadband(controller.getRightX(), IOConstants.Controller.kDeadband);
 
         // do a rate limit
-        // SlewWrapper.SlewOutputs outputs = slew.update(xspeed, yspeed, rot);
+        RateLimiter.Outputs outputs = slew.calculate(xspeed, yspeed, rot);
 
         // build into a vector with max mag 1 to enforce max speeds correctly
-        Vector2 velocity = new Vector2(xspeed, yspeed);
+        Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
         if (velocity.getMagnitude() > 1) velocity.normalize();
 
         double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
         double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
-        double rvel = rot * ModuleConstants.MaxSpeed.kAngular;
+        double rvel = outputs.rot() * ModuleConstants.MaxSpeed.kAngular;
 
         /*
          * Time to explain some wpilib strangeness
@@ -280,7 +276,7 @@ public class Drivetrain extends SubsystemBase {
          * xvel, given from the controller, *should* be interpreted as the left-right speed of the robot
          * yvel, given from the controller, *should* be interpreted as the forward-backward speed of the robot
          * however, the WPI coordinate system is such that +Xw is forward, and +Yw is left (using w for WPI)
-         * additionally, the controller coordinate system is such that +Xc is right, and +Yc is down (using c for controller)
+         * and the controller coordinate system is such that +Xc is right, and +Yc is down (using c for controller)
          * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
          * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
          */

@@ -30,10 +30,10 @@ public final class ControlConstants {
     }
 
     public static final class Elevator {
-        public static final double kP = 0.115;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
-        public static final double kF = 0.0;
+        public static final double kP = 0.9; // 0.225
+        public static final double kI = 0.0000; // 0.000
+        public static final double kD = 0.625; // 0.004
+        public static final double kF = 0.0027; // 0.0027
         public static final double kMin = -1.0;
         public static final double kMax = 1.0;
     }
@@ -48,8 +48,7 @@ public final class ControlConstants {
     }
 
     public static final class SlewRateLimit {
-        public static final double kMagnitude = 1.0;
-        public static final double kRotation = 1.0;
-        public static final double kDirection = 1.0;
+        public static final double kOrthogonal = 3.0;
+        public static final double kRotation = 3.0;
     }
 }

@@ -73,7 +73,7 @@ public class Lift extends SubsystemBase {
 
     /** Return whether we are >= L1 (within tolerance) */
     public boolean canDispense() {
-        return getLevel() >= 1 - ElevatorConstants.Heights.kTolerance;
+        return getLevel() >= 1 - ElevatorConstants.Heights.kLevelTolerance;
     }
 
     /** Outputs [0, 4], where 0 is intake, and decimals are in-between */

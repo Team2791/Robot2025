@@ -12,7 +12,7 @@ public class DispenseOut extends FunctionWrapper {
     public DispenseOut(Lift lift) {
         super(
             lift::dispense,
-            () -> !lift.getDispenser().broken || !lift.canDispense(), // if we can't dispense, return asap
+            () -> !lift.canDispense(), // if we can't dispense, return asap
             () -> lift.dispense(0),
             lift
         );

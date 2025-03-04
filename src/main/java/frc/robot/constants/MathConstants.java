@@ -5,5 +5,5 @@ public final class MathConstants {
     public static final double kTau = 2 * Math.PI;
 
     /** Epsilon: an arbitrarily small decimal. Can be used to prevent division-by-zero or near zero */
-    public static final double kEpsilon = 1e-6;
+    public static final double kEpsilon = 1e-5;
 }

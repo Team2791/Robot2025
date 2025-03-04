@@ -22,5 +22,5 @@ public class DispenserConstants {
         public static final double kVelocityFactor = kPositionFactor / 60;
     }
 
-    public static final double kDispense = 0.1;
+    public static final double kDispense = 0.25;
 }

@@ -27,7 +27,7 @@ public class SensorThread {
         this.scheduler = new Notifier(this::run);
 
         scheduler.setName("SensorThread");
-        scheduler.startPeriodic(ThreadConstants.kDelay);
+        // scheduler.startPeriodic(ThreadConstants.kDelay);
     }
 
     public static SensorThread getInstance() {

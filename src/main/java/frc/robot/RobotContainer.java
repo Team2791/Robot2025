@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.auto.FullIntake;
+import frc.robot.commands.lift.DispenseOut;
 import frc.robot.commands.lift.Elevate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
@@ -68,7 +69,7 @@ public class RobotContainer {
     private void configureBindings() {
         // automatically start the intake if near the coral station
         FullIntake.registerNearby(intake, lift);
-        Elevate.registerRetract(lift);
+        // Elevate.registerRetract(lift);
 
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
@@ -76,6 +77,8 @@ public class RobotContainer {
         driverctl.y().onTrue(new Elevate(lift, 2));
         driverctl.a().onTrue(new Elevate(lift, 3));
         driverctl.b().onTrue(new Elevate(lift, 4));
+        driverctl.rightBumper().onTrue(new Elevate(lift, 0));
+        driverctl.leftBumper().toggleOnTrue(new DispenseOut(lift));
 
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
