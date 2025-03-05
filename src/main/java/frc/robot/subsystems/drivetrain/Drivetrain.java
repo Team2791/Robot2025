@@ -1,19 +1,9 @@
 package frc.robot.subsystems.drivetrain;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.function.Function;
-
-import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.AutoLogOutputManager;
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.PathPlannerLogging;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,245 +12,309 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
-import frc.robot.constants.ControllerConstants;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.DriveConstants;
-import frc.robot.constants.PIDConstants;
-import frc.robot.maple.MapleSim;
+import frc.robot.constants.IOConstants;
+import frc.robot.constants.ModuleConstants;
+import frc.robot.event.Emitter;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
+import org.dyn4j.geometry.Vector2;
+import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.AutoLogOutputManager;
+import org.littletonrobotics.junction.Logger;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class Drivetrain extends SubsystemBase {
-	final SwerveIO frontLeft;
-	final SwerveIO frontRight;
-	final SwerveIO rearLeft;
-	final SwerveIO rearRight;
+    public static class PoseUpdateEvent extends Emitter.Event<Pose2d> {
+        @Override
+        public Emitter.Dependency<Pose2d, Pose2d> runAfter() {
+            return new Emitter.Dependency<>(new PoseResetEvent(), Function.identity());
+        }
+    }
 
-	final GyroIO gyro;
+    public static class PoseResetEvent extends Emitter.Event<Pose2d> { }
 
-	final SwerveDrivePoseEstimator odometry;
-	final Field2d field;
+    final SwerveIO frontLeft;
+    final SwerveIO frontRight;
+    final SwerveIO rearLeft;
+    final SwerveIO rearRight;
 
-	final SlewWrapper slew;
+    final GyroIO gyro;
 
-	public Drivetrain(
-		GyroIO gyro,
-		Function<Integer, SwerveIO> moduleConstructor
-	) throws IOException, ParseException {
-		this.gyro = gyro;
+    final SwerveDrivePoseEstimator odometry;
+    final Field2d field;
 
-		frontLeft = moduleConstructor.apply(0);
-		frontRight = moduleConstructor.apply(1);
-		rearLeft = moduleConstructor.apply(2);
-		rearRight = moduleConstructor.apply(3);
+    final RateLimiter slew;
 
-		odometry = new SwerveDrivePoseEstimator(
-			DriveConstants.kKinematics,
-			gyro.heading(),
-			modulePositions(),
-			new Pose2d(7.5, 5, new Rotation2d())
-		);
+    public Drivetrain(
+        GyroIO gyro,
+        Function<Integer, SwerveIO> moduleConstructor
+    ) throws IOException, ParseException {
+        this.gyro = gyro;
 
-		slew = new SlewWrapper(
-			DriveConstants.Slew.kMagnitude,
-			DriveConstants.Slew.kRotation,
-			DriveConstants.Slew.kDirection
-		);
+        frontLeft = moduleConstructor.apply(0);
+        frontRight = moduleConstructor.apply(1);
+        rearLeft = moduleConstructor.apply(2);
+        rearRight = moduleConstructor.apply(3);
 
-		field = new Field2d();
+        odometry = new SwerveDrivePoseEstimator(
+            DriveConstants.kKinematics,
+            gyro.heading(),
+            modulePositions(),
+            new Pose2d(7.5, 5, new Rotation2d())
+        );
 
-		this.gyro.reset();
+        slew = new RateLimiter(
+            ControlConstants.SlewRateLimit.kOrthogonal,
+            ControlConstants.SlewRateLimit.kOrthogonal,
+            ControlConstants.SlewRateLimit.kRotation
+        );
 
-		ShuffleboardTab drive = Shuffleboard.getTab("Drivetrain");
+        field = new Field2d();
 
-		drive.addNumber("Heading (degrees)", () -> getHeading().getDegrees());
-		drive.addNumber("X Speed", () -> getChassisSpeeds().vxMetersPerSecond);
-		drive.addNumber("Y Speed", () -> getChassisSpeeds().vyMetersPerSecond);
-		drive.addNumber("Angular Speed", () -> getChassisSpeeds().omegaRadiansPerSecond);
-		drive.add("Field", field);
+        this.gyro.reset();
 
-		AutoBuilder.configure(
-			this::getPose,
-			this::resetOdometry,
-			this::getChassisSpeeds,
-			s -> this.drive(s, false),
-			new PPHolonomicDriveController(
-				new com.pathplanner.lib.config.PIDConstants(
-					PIDConstants.Autos.kOrthoP,
-					PIDConstants.Autos.kOrthoI,
-					PIDConstants.Autos.kOrthoD
-				),
-				new com.pathplanner.lib.config.PIDConstants(
-					PIDConstants.Autos.kTurnP,
-					PIDConstants.Autos.kTurnI,
-					PIDConstants.Autos.kTurnD
-				)
-			),
-			RobotConfig.fromGUISettings(),
-			() -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
-			this
-		);
+        AutoBuilder.configure(
+            this::getPose,
+            (pose) -> Emitter.emit(new PoseResetEvent(), pose),
+            this::getChassisSpeeds,
+            s -> this.drive(s, false),
+            new PPHolonomicDriveController(
+                new com.pathplanner.lib.config.PIDConstants(
+                    ControlConstants.Autos.kOrthoP,
+                    ControlConstants.Autos.kOrthoI,
+                    ControlConstants.Autos.kOrthoD
+                ),
+                new com.pathplanner.lib.config.PIDConstants(
+                    ControlConstants.Autos.kTurnP,
+                    ControlConstants.Autos.kTurnI,
+                    ControlConstants.Autos.kTurnD
+                )
+            ),
+            RobotConfig.fromGUISettings(),
+            () -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
+            this
+        );
 
-		PathPlannerLogging.setLogActivePathCallback(
-			(path) -> Logger.recordOutput("Autos/Path", path.toArray(Pose2d[]::new))
-		);
-		PathPlannerLogging.setLogTargetPoseCallback(
-			(pose) -> Logger.recordOutput("Autos/TargetPose", pose)
-		);
+        PathPlannerLogging.setLogActivePathCallback((path) -> {
+            Logger.recordOutput("Autos/Path", path.toArray(Pose2d[]::new));
+            field.getObject("Autos/Path").setPoses(path);
+        });
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            Logger.recordOutput("Autos/TargetPose", pose);
+            field.getObject("Autos/TargetPose").setPose(pose);
+        });
 
-		AutoLogOutputManager.addObject(this);
-	}
+        // Elastic SwerveDrive widget
+        SmartDashboard.putData(
+            "SwerveDrive",
+            new Sendable() {
+                @Override
+                public void initSendable(SendableBuilder builder) {
+                    builder.setSmartDashboardType("SwerveDrive");
 
-	/**
-	 * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
-	 */
-	public SwerveIO[] modules() {
-		return new SwerveIO[]{
-			frontLeft, frontRight, rearLeft, rearRight
-		};
-	}
+                    IterUtil.zipThen(
+                        Arrays.stream(modules()),
+                        Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
+                        (module, label) -> {
+                            builder.addDoubleProperty(
+                                label + " Angle",
+                                () -> module.getState().angle.getRadians(),
+                                null
+                            );
+                            builder.addDoubleProperty(
+                                label + " Velocity",
+                                () -> module.getState().speedMetersPerSecond,
+                                null
+                            );
+                        }
+                    );
 
-	/**
-	 * @return A list of all swerve module positions on the robot. In the same order as {@link #modules()}.
-	 */
-	@AutoLogOutput
-	public SwerveModulePosition[] modulePositions() {
-		return Arrays.stream(modules()).map(SwerveIO::getPosition).toArray(SwerveModulePosition[]::new);
-	}
+                    builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
+                }
+            }
+        );
 
-	/**
-	 * @return A list of all swerve module states on the robot. In the same order as {@link #modules()}.
-	 */
-	public SwerveModuleState[] moduleStates() {
-		return Arrays.stream(modules()).map(SwerveIO::getState).toArray(SwerveModuleState[]::new);
-	}
+        AutoLogOutputManager.addObject(this);
+        Emitter.on(new PoseUpdateEvent(), field::setRobotPose);
+        Emitter.on(new PoseResetEvent(), pose -> odometry.resetPosition(gyro.heading(), modulePositions(), pose));
+    }
 
-	/**
-	 * @return The speeds of the entire chassis
-	 */
-	public ChassisSpeeds getChassisSpeeds() { return DriveConstants.kKinematics.toChassisSpeeds(moduleStates()); }
+    /**
+     * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
+     */
+    public SwerveIO[] modules() {
+        return new SwerveIO[]{
+            frontLeft, frontRight, rearLeft, rearRight
+        };
+    }
 
-	/**
-	 * @param speeds The desired speeds for the robot to move at.
-	 */
-	public void setDesiredSpeeds(ChassisSpeeds speeds) {
-		ChassisSpeeds descrete = ChassisSpeeds.discretize(speeds, 0.02);
-		SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(descrete);
-		SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MaxSpeed.kLinear);
+    /**
+     * @return A list of all swerve module positions on the robot. In the same order as {@link #modules()}.
+     */
+    @AutoLogOutput
+    public SwerveModulePosition[] modulePositions() {
+        return Arrays.stream(modules()).map(SwerveIO::getPosition).toArray(SwerveModulePosition[]::new);
+    }
 
-		// set the desired states of all modules. i miss kotlin :(
-		IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
-	}
+    /**
+     * @return A list of all swerve module states on the robot. In the same order as {@link #modules()}.
+     */
+    public SwerveModuleState[] moduleStates() {
+        return Arrays.stream(modules()).map(SwerveIO::getState).toArray(SwerveModuleState[]::new);
+    }
 
-	/**
-	 * @return The estimated pose of the robot.
-	 */
-	@AutoLogOutput
-	public Pose2d getPose() { return odometry.getEstimatedPosition(); }
+    /**
+     * @return The speeds of the entire chassis
+     */
+    public ChassisSpeeds getChassisSpeeds() { return DriveConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
-	public Rotation2d getHeading() { return getPose().getRotation(); }
+    /**
+     * @param speeds The desired speeds for the robot to move at.
+     */
+    private void setDesiredSpeeds(ChassisSpeeds speeds) {
+        // according to delphi, this should remove some skew
+        ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
+        SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(discrete);
 
-	/**
-	 * @param pose The new pose of the robot.
-	 */
-	public void resetOdometry(Pose2d pose) {
-		odometry.resetPosition(gyro.heading(), modulePositions(), pose);
-		MapleSim.getInstance().resetPose(pose);
-	}
+        // this probably doesn't need to happen again but just in case we get bad parameters somehow
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
 
-	/**
-	 * Swerve drive control
-	 * 
-	 * @param speeds        The desired speeds for the robot to move at.
-	 * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
-	 */
-	public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-		if (fieldRelative) setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
-		else setDesiredSpeeds(speeds);
-	}
+        IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), SwerveIO::setDesiredState);
+    }
 
-	/**
-	 * Field-relative swerve drive control
-	 * 
-	 * @param speeds The desired speeds for the robot to move at.
-	 */
-	public void drive(ChassisSpeeds speeds) {
-		drive(speeds, true);
-	}
+    /**
+     * @return The estimated pose of the robot.
+     */
+    @AutoLogOutput
+    public Pose2d getPose() { return odometry.getEstimatedPosition(); }
 
-	/**
-	 * Manual swerve drive control
-	 * 
-	 * @param xspeed        The desired speed for the robot to move in the x direction.
-	 * @param yspeed        The desired speed for the robot to move in the y direction.
-	 * @param rot           The desired rotational speed
-	 * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
-	 */
-	public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
-		drive(new ChassisSpeeds(xspeed, yspeed, rot), fieldRelative);
-	}
+    public Rotation2d getHeading() { return getPose().getRotation(); }
 
-	/**
-	 * Field-relative manual swerve drive control
-	 * 
-	 * @param xspeed The desired speed for the robot to move in the x direction.
-	 * @param yspeed The desired speed for the robot to move in the y direction.
-	 * @param rot    The desired rotational speed
-	 */
-	public void drive(double xspeed, double yspeed, double rot) {
-		drive(xspeed, yspeed, rot, true);
-	}
+    /**
+     * Swerve drive control
+     *
+     * @param speeds        The desired speeds for the robot to move at.
+     * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
+     */
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
+        if (fieldRelative) setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
+        else setDesiredSpeeds(speeds);
+    }
 
-	/**
-	 * Controller-based swerve drive control
-	 * 
-	 * @param controller The controller to get input from.
-	 */
-	public void drive(CommandXboxController controller) {
-		// [-1..1] inputs w/ deadband
-		final double xspeed = MathUtil.applyDeadband(controller.getLeftX(), ControllerConstants.kDeadband);
-		final double yspeed = MathUtil.applyDeadband(controller.getLeftY(), ControllerConstants.kDeadband);
-		final double rot = MathUtil.applyDeadband(controller.getRightX(), ControllerConstants.kDeadband);
+    /**
+     * Field-relative swerve drive control
+     *
+     * @param speeds The desired speeds for the robot to move at.
+     */
+    public void drive(ChassisSpeeds speeds) {
+        drive(speeds, true);
+    }
 
-		// do a rate limit
-		// SlewWrapper.SlewOutputs slewOutputs = slew.update(xspeed, yspeed, rot);
+    /**
+     * Manual swerve drive control
+     *
+     * @param xspeed        The desired speed for the robot to move in the x direction. +X is forward.
+     * @param yspeed        The desired speed for the robot to move in the y direction. +Y is left.
+     * @param rot           The desired rotational speed. +R is ccw.
+     * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
+     */
+    public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
+        drive(new ChassisSpeeds(xspeed, yspeed, rot), fieldRelative);
+    }
 
-		// multiply by max speed
-		double xvel = DriveConstants.MaxSpeed.kLinear * xspeed;
-		double yvel = DriveConstants.MaxSpeed.kLinear * yspeed;
-		double rvel = DriveConstants.MaxSpeed.kAngular * rot;
+    /**
+     * Field-relative manual swerve drive control.
+     *
+     * @param xspeed The desired speed for the robot to move in the x direction. +X is forward.
+     * @param yspeed The desired speed for the robot to move in the y direction. +Y is left.
+     * @param rot    The desired rotational speed. +R is ccw.
+     */
+    public void drive(double xspeed, double yspeed, double rot) {
+        drive(xspeed, yspeed, rot, true);
+    }
 
-		drive(xvel, yvel, rvel);
-	}
+    /**
+     * Controller-based swerve drive control
+     *
+     * @param controller The controller to get input from.
+     */
+    public void drive(CommandXboxController controller) {
+        // [-1..1] inputs w/ deadband
+        final double xspeed = MathUtil.applyDeadband(controller.getLeftX(), IOConstants.Controller.kDeadband);
+        final double yspeed = MathUtil.applyDeadband(controller.getLeftY(), IOConstants.Controller.kDeadband);
+        final double rot = MathUtil.applyDeadband(controller.getRightX(), IOConstants.Controller.kDeadband);
 
-	@Override
-	public void periodic() {
-		// update gyro data
-		gyro.update();
+        // do a rate limit
+        RateLimiter.Outputs outputs = slew.calculate(xspeed, yspeed, rot);
 
-		// update all modules
-		Arrays.stream(modules()).forEach(SwerveIO::update);
+        // build into a vector with max mag 1 to enforce max speeds correctly
+        Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
+        if (velocity.getMagnitude() > 1) velocity.normalize();
 
-		// update odometry
-		odometry.update(gyro.heading(), modulePositions());
-		field.setRobotPose(getPose());
+        double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
+        double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
+        double rvel = outputs.rot() * ModuleConstants.MaxSpeed.kAngular;
 
-		// log to advantagekit
-		IterUtil.enumerateThen(Arrays.stream(modules()), (idx, module) -> {
-			final double driveCan = (40 - (idx * 10));
-			final String path = "Drivetrain/SwerveModule/" + driveCan;
-			Logger.processInputs(path, module.data);
-		});
+        /*
+         * Time to explain some wpilib strangeness
+         *
+         * xvel, given from the controller, *should* be interpreted as the left-right speed of the robot
+         * yvel, given from the controller, *should* be interpreted as the forward-backward speed of the robot
+         * however, the WPI coordinate system is such that +Xw is forward, and +Yw is left (using w for WPI)
+         * and the controller coordinate system is such that +Xc is right, and +Yc is down (using c for controller)
+         * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
+         * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
+         */
+        drive(-yvel, -xvel, -rvel);
+    }
 
-		Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
-		Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());
-		Logger.processInputs("Drivetrain/Gyro", gyro.data);
-	}
+    /**
+     * Reset the gyro
+     */
+    public void resetGyro() {
+        gyro.reset();
+    }
+
+    @Override
+    public void periodic() {
+        // update gyro data
+        gyro.update();
+
+        // update all modules
+        Arrays.stream(modules()).forEach(SwerveIO::update);
+
+        // update odometry
+        odometry.update(gyro.heading(), modulePositions());
+        Emitter.emit(new PoseUpdateEvent(), getPose());
+
+        // log to akit
+        IterUtil.enumerateThen(
+            Arrays.stream(modules()), (idx, module) -> {
+                final double driveCan = (40 - (idx * 10));
+                final String path = "Drivetrain/SwerveModule/" + driveCan;
+                Logger.processInputs(path, module.data);
+            }
+        );
+
+        Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
+        Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());
+        Logger.processInputs("Drivetrain/Gyro", gyro.data);
+
+        SmartDashboard.putData("Field", field);
+    }
 }
