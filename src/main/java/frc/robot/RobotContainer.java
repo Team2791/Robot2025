@@ -20,6 +20,7 @@ import frc.robot.subsystems.intake.Roller;
 import frc.robot.subsystems.lift.Dispenser;
 import frc.robot.subsystems.lift.Elevator;
 import frc.robot.subsystems.lift.Lift;
+import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
 import frc.robotreplay.drivetrain.GyroReplay;
 import frc.robotreplay.drivetrain.ModuleReplay;
@@ -51,6 +52,7 @@ public class RobotContainer {
     final Intake intake = new Intake(
         AdvantageUtil.matchReal(Roller::new, RollerSim::new, RollerReplay::new)
     );
+    final Photon photon = new Photon(drivetrain);
 
     // autos
     final SendableChooser<Command> autoChooser;

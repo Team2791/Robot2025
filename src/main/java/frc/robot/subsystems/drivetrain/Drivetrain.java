@@ -12,8 +12,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -122,30 +120,27 @@ public class Drivetrain extends SubsystemBase {
         // Elastic SwerveDrive widget
         SmartDashboard.putData(
             "SwerveDrive",
-            new Sendable() {
-                @Override
-                public void initSendable(SendableBuilder builder) {
-                    builder.setSmartDashboardType("SwerveDrive");
+            builder -> {
+                builder.setSmartDashboardType("SwerveDrive");
 
-                    IterUtil.zipThen(
-                        Arrays.stream(modules()),
-                        Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
-                        (module, label) -> {
-                            builder.addDoubleProperty(
-                                label + " Angle",
-                                () -> module.getState().angle.getRadians(),
-                                null
-                            );
-                            builder.addDoubleProperty(
-                                label + " Velocity",
-                                () -> module.getState().speedMetersPerSecond,
-                                null
-                            );
-                        }
-                    );
+                IterUtil.zipThen(
+                    Arrays.stream(modules()),
+                    Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
+                    (module, label) -> {
+                        builder.addDoubleProperty(
+                            label + " Angle",
+                            () -> module.getState().angle.getRadians(),
+                            null
+                        );
+                        builder.addDoubleProperty(
+                            label + " Velocity",
+                            () -> module.getState().speedMetersPerSecond,
+                            null
+                        );
+                    }
+                );
 
-                    builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
-                }
+                builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
             }
         );
 
@@ -288,6 +283,16 @@ public class Drivetrain extends SubsystemBase {
      */
     public void resetGyro() {
         gyro.reset();
+    }
+
+    /**
+     * Add vision measurement
+     *
+     * @param robot     The robot's pose
+     * @param timestamp The timestamp of the measurement, in seconds
+     */
+    public void addVisionMeasurement(Pose2d robot, double timestamp) {
+        odometry.addVisionMeasurement(robot, timestamp);
     }
 
     @Override
