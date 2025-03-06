@@ -7,7 +7,6 @@ import frc.robot.event.Emitter;
 import frc.robot.subsystems.lift.Lift;
 
 public class Elevate extends FunctionWrapper {
-    private final boolean auto;
     private static Emitter.Key<Double, Lift.ReefRange> retract;
 
     /**
@@ -23,32 +22,13 @@ public class Elevate extends FunctionWrapper {
     /**
      * Elevate to a certain height. Decides whether to block or not.
      *
-     * @param lift   The lift subsystem
-     * @param height The height to elevate to
-     */
-    public Elevate(Lift lift, int height, boolean blocking) {
-        this(lift, height, blocking, false);
-    }
-
-    /**
-     * Elevate to a certain height. Decides whether to block or not. If this command is managed by
-     * registerRetract, it will allow, rather than block, incoming commands.
-     *
      * @param lift     The lift subsystem
      * @param height   The height to elevate to
      * @param blocking Whether to block until the lift is at the desired height
-     * @param auto     Whether this command is managed by registerRetract
      */
-    private Elevate(Lift lift, int height, boolean blocking, boolean auto) {
+    public Elevate(Lift lift, int height, boolean blocking) {
         super(() -> lift.elevate(height), () -> lift.atLevel(height) || !blocking, lift);
-        this.auto = auto;
     }
-
-    //    @Override
-    //    public InterruptionBehavior getInterruptionBehavior() {
-    //        if (auto) return InterruptionBehavior.kCancelSelf;
-    //        else return InterruptionBehavior.kCancelIncoming;
-    //    }
 
     public static void registerRetract(Lift lift) {
         final Elevate instance = new Elevate(lift, 0, true);

@@ -48,12 +48,12 @@ public class RobotContainer {
         AdvantageUtil.matchReal(NavX::new, WorldSimulator.getInstance()::makeGyro, GyroReplay::new),
         AdvantageUtil.matchReal(SwerveModule::new, WorldSimulator.getInstance()::makeModule, ModuleReplay::new)
     );
+    final Intake intake = new Intake(
+        AdvantageUtil.matchReal(Roller::new, RollerSim::new, RollerReplay::new)
+    );
     final Lift lift = new Lift(
         AdvantageUtil.matchReal(Dispenser::new, DispenserSim::new, DispenserReplay::new),
         AdvantageUtil.matchReal(Elevator::new, ElevatorSim::new, ElevatorReplay::new)
-    );
-    final Intake intake = new Intake(
-        AdvantageUtil.matchReal(Roller::new, RollerSim::new, RollerReplay::new)
     );
     final Photon photon = new Photon(
         drivetrain,

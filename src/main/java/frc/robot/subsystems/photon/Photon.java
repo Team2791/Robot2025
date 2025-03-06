@@ -1,73 +1,44 @@
 package frc.robot.subsystems.photon;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
+import frc.robot.event.Emitter;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robotio.photon.CameraIO;
-import org.photonvision.targeting.MultiTargetPNPResult;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
-import java.util.Optional;
+import java.util.Arrays;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
-public class Photon extends SubsystemBase {
+/**
+ * Photon camera subsystem, owns cameras and handles pose estimation.
+ * Does not extend SubsystemBase because this should not be used as a command requirement!
+ */
+public class Photon {
     final Drivetrain drivetrain;
-
     final CameraIO front;
 
     public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
         this.drivetrain = drivetrain;
         this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
+        
+        Emitter.on(new Robot.PeriodicEvent(), _mode -> this.periodic());
     }
 
-    public CameraIO.CameraData getFrontData() {
-        return front.data;
+    public PhotonPipelineResult frontResult() {
+        return front.getLatestResult();
     }
 
-    void processResults(CameraIO camera) {
-        final PhotonPipelineResult[] results = camera.data.results;
-        final Transform3d bot2cam = camera.bot2cam;
-
-        final AprilTagFieldLayout field = VisionConstants.kField;
-
-        for (PhotonPipelineResult result : results) {
-            if (!result.hasTargets()) continue;
-
-            Pose3d bot;
-            Optional<MultiTargetPNPResult> multiTagResult = result.getMultiTagResult();
-
-            if (multiTagResult.isEmpty()) {
-                // result has at least one target
-                Stream<PhotonTrackedTarget> withTags = result.getTargets().stream().filter(t -> t.fiducialId != -1);
-                Optional<PhotonTrackedTarget> target = withTags.findFirst();
-                Optional<Pose3d> targetPose = target.flatMap(t -> field.getTagPose(t.fiducialId));
-
-                if (target.isEmpty() || targetPose.isEmpty()) continue;
-
-                Transform3d cam2target = target.get().bestCameraToTarget;
-                Transform3d bot2target = bot2cam.plus(cam2target);
-                bot = targetPose.get().transformBy(bot2target.inverse());
-            } else {
-                Transform3d field2cam = multiTagResult.get().estimatedPose.best;
-                Transform3d field2bot = field2cam.plus(bot2cam.inverse());
-                bot = new Pose3d(field2bot.getTranslation(), field2bot.getRotation());
-            }
-
-            drivetrain.addVisionMeasurement(bot.toPose2d(), result.getTimestampSeconds());
-        }
-    }
-
-    @Override
     public void periodic() {
         // update cameras
         front.update();
 
+        // add to logger
+        Logger.processInputs("Photon/Front", front.data);
+
         // make vision odometry measurements
-        processResults(front);
+        Arrays.stream(front.data.measurements).forEach(drivetrain::addVisionMeasurement);
     }
 }

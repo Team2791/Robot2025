@@ -25,6 +25,7 @@ import frc.robot.event.Emitter;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
+import frc.robotio.photon.CameraIO;
 import org.dyn4j.geometry.Vector2;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -288,11 +289,10 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Add vision measurement
      *
-     * @param robot     The robot's pose
-     * @param timestamp The timestamp of the measurement, in seconds
+     * @param measurement The vision measurement to add.
      */
-    public void addVisionMeasurement(Pose2d robot, double timestamp) {
-        odometry.addVisionMeasurement(robot, timestamp);
+    public void addVisionMeasurement(CameraIO.VisionMeasurement measurement) {
+        odometry.addVisionMeasurement(measurement.estimate2(), measurement.timestamp());
     }
 
     @Override

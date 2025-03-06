@@ -38,7 +38,7 @@ public class Emitter {
     // java complains about Class<? extends Event<?>> idk why
     private static final HashMap<Class<? extends Event>, HashSet<Consumer<?>>> listeners = new HashMap<>();
 
-    // manage active jobs for paralleling/concurrency
+    // manage active jobs for paralleling/concurrency/whatever
     private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     @SuppressWarnings("unchecked")
@@ -82,5 +82,10 @@ public class Emitter {
         if (eventListeners != null) {
             eventListeners.remove(key.listener);
         }
+    }
+
+    public static <T, E extends Event<T>> boolean exists(Key<T, E> key) {
+        HashSet<Consumer<?>> eventListeners = listeners.get(key.key);
+        return eventListeners != null && eventListeners.contains(key.listener);
     }
 }

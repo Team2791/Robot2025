@@ -1,11 +1,14 @@
 package frc.robotsim.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.constants.VisionConstants;
 import frc.robotio.photon.CameraIO;
 import frc.robotsim.globals.WorldSimulator;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+import java.util.List;
 
 public class CameraSim extends CameraIO {
     final PhotonCamera camera;
@@ -15,7 +18,7 @@ public class CameraSim extends CameraIO {
         super(name, bot2cam);
 
         camera = new PhotonCamera(name);
-        cameraSim = new PhotonCameraSim(camera);
+        cameraSim = new PhotonCameraSim(camera, VisionConstants.kSimCameraProps);
 
         WorldSimulator.getInstance().addCamera(cameraSim, bot2cam);
 
@@ -23,7 +26,7 @@ public class CameraSim extends CameraIO {
     }
 
     @Override
-    public void update() {
-        this.data.results = cameraSim.getCamera().getAllUnreadResults().toArray(PhotonPipelineResult[]::new);
+    protected List<PhotonPipelineResult> results() {
+        return camera.getAllUnreadResults();
     }
 }

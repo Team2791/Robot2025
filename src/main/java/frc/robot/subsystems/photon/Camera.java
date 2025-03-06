@@ -5,6 +5,8 @@ import frc.robotio.photon.CameraIO;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import java.util.List;
+
 public class Camera extends CameraIO {
     final PhotonCamera camera;
 
@@ -14,7 +16,7 @@ public class Camera extends CameraIO {
     }
 
     @Override
-    public void update() {
-        this.data.results = camera.getAllUnreadResults().toArray(PhotonPipelineResult[]::new);
+    protected List<PhotonPipelineResult> results() {
+        return camera.getAllUnreadResults();
     }
 }
