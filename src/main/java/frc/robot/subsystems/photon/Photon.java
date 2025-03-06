@@ -7,12 +7,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robotio.photon.CameraIO;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class Photon extends SubsystemBase {
@@ -20,16 +20,19 @@ public class Photon extends SubsystemBase {
 
     final CameraIO front;
 
-    public Photon(Drivetrain drivetrain) {
+    public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
         this.drivetrain = drivetrain;
-        this.front = new Camera(VisionConstants.Names.kFront);
+        this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
     }
 
     public CameraIO.CameraData getFrontData() {
-        return front.data.clone();
+        return front.data;
     }
 
-    void processResults(PhotonPipelineResult[] results, Transform3d bot2cam) {
+    void processResults(CameraIO camera) {
+        final PhotonPipelineResult[] results = camera.data.results;
+        final Transform3d bot2cam = camera.bot2cam;
+
         final AprilTagFieldLayout field = VisionConstants.kField;
 
         for (PhotonPipelineResult result : results) {
@@ -64,10 +67,7 @@ public class Photon extends SubsystemBase {
         // update cameras
         front.update();
 
-        // output to logger
-        Logger.processInputs("Photon/Front", front.data);
-
         // make vision odometry measurements
-        processResults(front.data.results, VisionConstants.Transforms.kBotToFront);
+        processResults(front);
     }
 }

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.autos.ADStar;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
+import frc.robot.event.Emitter;
 import frc.robot.util.Elastic;
 import org.ironmaple.simulation.SimulatedArena;
 import org.json.simple.parser.ParseException;
@@ -24,6 +25,14 @@ import org.littletonrobotics.urcl.URCL;
 import java.io.IOException;
 
 public class Robot extends LoggedRobot {
+    public static final class PeriodicEvent extends Emitter.Event<PeriodicEvent.CurrentMode> {
+        public enum CurrentMode {
+            kDisabled,
+            kTeleop,
+            kAutonomous,
+        }
+    }
+
     final RobotContainer container;
 
     Command autoCommand;
@@ -103,7 +112,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledPeriodic() { }
+    public void disabledPeriodic() {
+        Emitter.emit(new PeriodicEvent(), PeriodicEvent.CurrentMode.kDisabled);
+    }
 
     @Override
     public void autonomousInit() {
@@ -116,7 +127,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() { }
+    public void autonomousPeriodic() {
+        Emitter.emit(new PeriodicEvent(), PeriodicEvent.CurrentMode.kAutonomous);
+    }
 
     @Override
     public void teleopInit() {
@@ -127,7 +140,9 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void teleopPeriodic() { }
+    public void teleopPeriodic() {
+        Emitter.emit(new PeriodicEvent(), PeriodicEvent.CurrentMode.kTeleop);
+    }
 
     @Override
     public void testInit() {

@@ -63,7 +63,7 @@ public class Emitter {
 
             if (dep != null) {
                 listeners.computeIfAbsent(dep.other.getClass(), k -> new HashSet<>())
-                    .add(k -> Emitter.emit(dep.other, dep.transform.apply(k)));
+                    .add(k -> Emitter.emit(event, dep.transform.apply(k)));
             }
         }
 

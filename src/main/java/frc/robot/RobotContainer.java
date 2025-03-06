@@ -20,6 +20,7 @@ import frc.robot.subsystems.intake.Roller;
 import frc.robot.subsystems.lift.Dispenser;
 import frc.robot.subsystems.lift.Elevator;
 import frc.robot.subsystems.lift.Lift;
+import frc.robot.subsystems.photon.Camera;
 import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
 import frc.robotreplay.drivetrain.GyroReplay;
@@ -27,10 +28,12 @@ import frc.robotreplay.drivetrain.ModuleReplay;
 import frc.robotreplay.intake.RollerReplay;
 import frc.robotreplay.lift.DispenserReplay;
 import frc.robotreplay.lift.ElevatorReplay;
+import frc.robotreplay.photon.CameraReplay;
+import frc.robotsim.globals.WorldSimulator;
 import frc.robotsim.intake.RollerSim;
 import frc.robotsim.lift.DispenserSim;
 import frc.robotsim.lift.ElevatorSim;
-import frc.robotsim.maple.MapleSim;
+import frc.robotsim.photon.CameraSim;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -42,8 +45,8 @@ public class RobotContainer {
 
     // subsystems
     final Drivetrain drivetrain = new Drivetrain(
-        AdvantageUtil.matchReal(NavX::new, MapleSim.getInstance()::makeGyro, GyroReplay::new),
-        AdvantageUtil.matchReal(SwerveModule::new, MapleSim.getInstance()::makeModule, ModuleReplay::new)
+        AdvantageUtil.matchReal(NavX::new, WorldSimulator.getInstance()::makeGyro, GyroReplay::new),
+        AdvantageUtil.matchReal(SwerveModule::new, WorldSimulator.getInstance()::makeModule, ModuleReplay::new)
     );
     final Lift lift = new Lift(
         AdvantageUtil.matchReal(Dispenser::new, DispenserSim::new, DispenserReplay::new),
@@ -52,7 +55,10 @@ public class RobotContainer {
     final Intake intake = new Intake(
         AdvantageUtil.matchReal(Roller::new, RollerSim::new, RollerReplay::new)
     );
-    final Photon photon = new Photon(drivetrain);
+    final Photon photon = new Photon(
+        drivetrain,
+        AdvantageUtil.matchReal(Camera::new, CameraSim::new, CameraReplay::new)
+    );
 
     // autos
     final SendableChooser<Command> autoChooser;
