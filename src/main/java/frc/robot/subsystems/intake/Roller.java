@@ -4,15 +4,10 @@ import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.logging.Alerter;
-import frc.robot.logging.threads.SensorThread;
-import frc.robot.util.IterUtil;
 import frc.robotio.intake.RollerIO;
-
-import java.util.Queue;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -24,10 +19,6 @@ public class Roller extends RollerIO {
     final RelativeEncoder rightEncoder;
 
     final SparkLimitSwitch beam;
-
-    final Queue<Double> timestamps;
-    final Queue<AngularVelocity> leftVelocityHist;
-    final Queue<AngularVelocity> rightVelocityHist;
 
     public Roller() {
         leftMotor = new SparkMax(IOConstants.Roller.kLeft, SparkMax.MotorType.kBrushless);
@@ -52,10 +43,6 @@ public class Roller extends RollerIO {
             SparkConfigConstants.kPersistMode
         );
 
-        timestamps = SensorThread.getInstance().makeTimestampQueue();
-        leftVelocityHist = SensorThread.getInstance().register(() -> RadiansPerSecond.of(leftEncoder.getVelocity()));
-        rightVelocityHist = SensorThread.getInstance().register(() -> RadiansPerSecond.of(rightEncoder.getVelocity()));
-
         Alerter.getInstance().registerSpark("RollerLeft", leftMotor);
         Alerter.getInstance().registerSpark("RollerRight", rightMotor);
     }
@@ -73,10 +60,6 @@ public class Roller extends RollerIO {
         this.data.rightCurrent = Amps.of(rightMotor.getOutputCurrent());
 
         this.data.broken = beam.isPressed();
-
-        this.data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
-        this.data.leftVelocities = IterUtil.toDoubleArray(leftVelocityHist.stream(), RadiansPerSecond);
-        this.data.rightVelocities = IterUtil.toDoubleArray(rightVelocityHist.stream(), RadiansPerSecond);
     }
 
     @Override

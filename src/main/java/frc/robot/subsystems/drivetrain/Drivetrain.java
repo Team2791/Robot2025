@@ -224,24 +224,31 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Manual swerve drive control
      *
-     * @param xspeed        The desired speed for the robot to move in the x direction. +X is forward.
-     * @param yspeed        The desired speed for the robot to move in the y direction. +Y is left.
-     * @param rot           The desired rotational speed. +R is ccw.
+     * @param xPower        The desired x-direction power. +X is forward, must be [-1, 1]
+     * @param yPower        The desired y-direction power. +Y is left, must be [-1, 1]
+     * @param rotPower      The desired rotational power. +R is ccw, must be [-1, 1]
      * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
      */
-    public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
-        drive(new ChassisSpeeds(xspeed, yspeed, rot), fieldRelative);
+    public void drive(double xPower, double yPower, double rotPower, boolean fieldRelative) {
+        Vector2 velocity = new Vector2(xPower, yPower);
+        if (velocity.getMagnitude() > 1) velocity.normalize();
+
+        double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
+        double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
+        double rvel = rotPower * ModuleConstants.MaxSpeed.kAngular;
+
+        drive(new ChassisSpeeds(xvel, yvel, rvel), fieldRelative);
     }
 
     /**
      * Field-relative manual swerve drive control.
      *
-     * @param xspeed The desired speed for the robot to move in the x direction. +X is forward.
-     * @param yspeed The desired speed for the robot to move in the y direction. +Y is left.
-     * @param rot    The desired rotational speed. +R is ccw.
+     * @param xPower   The desired x-direction power. +X is forward, must be [-1, 1]
+     * @param yPower   The desired y-direction power. +Y is left, must be [-1, 1]
+     * @param rotPower The desired rotational power. +R is ccw, must be [-1, 1]
      */
-    public void drive(double xspeed, double yspeed, double rot) {
-        drive(xspeed, yspeed, rot, true);
+    public void drive(double xPower, double yPower, double rotPower) {
+        drive(xPower, yPower, rotPower, true);
     }
 
     /**
@@ -262,10 +269,6 @@ public class Drivetrain extends SubsystemBase {
         Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
         if (velocity.getMagnitude() > 1) velocity.normalize();
 
-        double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
-        double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
-        double rvel = outputs.rot() * ModuleConstants.MaxSpeed.kAngular;
-
         /*
          * Time to explain some wpilib strangeness
          *
@@ -276,7 +279,7 @@ public class Drivetrain extends SubsystemBase {
          * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
          * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
          */
-        drive(-yvel, -xvel, -rvel);
+        drive(-velocity.y, -velocity.x, -outputs.rot());
     }
 
     /**

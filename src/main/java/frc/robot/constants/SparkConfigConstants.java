@@ -92,8 +92,7 @@ public class SparkConfigConstants {
             kFollower.follow(IOConstants.Dispenser.kLeader, DispenserConstants.Motor.kInvertFollower);
 
             // beam brake
-            kLeader.limitSwitch.reverseLimitSwitchEnabled(true);
-            kLeader.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyClosed);
+            kLeader.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
         }
     }
 
@@ -120,8 +119,7 @@ public class SparkConfigConstants {
             kRight.idleMode(IntakeConstants.Motor.kIdleMode);
 
             // beam brake
-            kLeft.limitSwitch.reverseLimitSwitchEnabled(true);
-            kLeft.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyClosed);
+            kLeft.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
         }
     }
 

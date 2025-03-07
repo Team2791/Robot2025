@@ -1,6 +1,7 @@
 package frc.robot.commands.intake;
 
 import frc.robot.commands.util.FunctionWrapper;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.lift.Lift;
 
@@ -14,8 +15,9 @@ public class ToDispenser extends FunctionWrapper {
      */
     public ToDispenser(Intake intake, Lift lift) {
         super(
-            intake::run,
+            () -> intake.set(IntakeConstants.Power.kIntake),
             () -> !intake.getRoller().broken || !lift.atLevel(0), // if not L0, don't do this
+            intake::stop,
             intake
         );
     }

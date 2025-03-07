@@ -13,7 +13,6 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
@@ -21,11 +20,7 @@ import frc.robot.constants.ModuleConstants.DriveEncoder;
 import frc.robot.constants.ModuleConstants.TurnEncoder;
 import frc.robot.constants.MotorConstants;
 import frc.robot.logging.Alerter;
-import frc.robot.logging.threads.SensorThread;
-import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.SwerveIO;
-
-import java.util.Queue;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -38,10 +33,6 @@ public class SwerveModule extends SwerveIO {
 
     final SparkClosedLoopController driveController;
     final SparkClosedLoopController turnController;
-
-    final Queue<Angle> driveHist;
-    final Queue<Angle> turnHist;
-    final Queue<Double> timestamps;
 
     final double angularOffset;
 
@@ -143,11 +134,6 @@ public class SwerveModule extends SwerveIO {
         driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // initialize caches
-        driveHist = SensorThread.getInstance().register(() -> Radians.of(driveEncoder.getPosition()));
-        turnHist = SensorThread.getInstance().register(() -> Radians.of(turnEncoder.getPosition()));
-        timestamps = SensorThread.getInstance().makeTimestampQueue();
-
         // register with notifier
         Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Drive", driveMotor);
         Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Turn", turnMotor);
@@ -166,13 +152,6 @@ public class SwerveModule extends SwerveIO {
         this.data.turnVelocity = RadiansPerSecond.of(turnEncoder.getVelocity());
         this.data.turnVoltage = Volts.of(turnMotor.getBusVoltage() * turnMotor.getAppliedOutput());
         this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
-
-        this.data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
-        this.data.drivePositions = IterUtil.toDoubleArray(driveHist.stream(), Radians);
-        this.data.turnPositions = IterUtil.toDoubleArray(turnHist.stream(), Radians);
-
-        driveHist.clear();
-        turnHist.clear();
     }
 
     public void setDesiredState(SwerveModuleState desired) {

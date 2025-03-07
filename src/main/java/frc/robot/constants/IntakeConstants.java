@@ -22,15 +22,11 @@ public class IntakeConstants {
     }
 
     public static final class Power {
-        public static final double kIntakeLeft = 0.1;
-        public static final double kIntakeRight = -0.1;
+        public static final double kIntake = 0.4;
     }
 
     public static final class Range {
         /** The distance, in meters, between robot and coral station before intake runs */
         public static final double kRunIntake = 1.0;
-
-        /** The distance before assuming the robot has a coral in sim mode */
-        public static final double kAssumeCoral = 0.25;
     }
 }

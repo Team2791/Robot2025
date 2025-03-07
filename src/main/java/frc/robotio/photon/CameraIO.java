@@ -27,7 +27,7 @@ public abstract class CameraIO {
     public CameraIO(String name, Transform3d bot2cam) {
         this.name = name;
         this.estimator = new PhotonPoseEstimator(
-            VisionConstants.kField,
+            VisionConstants.AprilTag.kLayout,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             bot2cam
         );

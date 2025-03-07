@@ -8,7 +8,7 @@ import frc.robot.Robot;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robot.constants.ModuleConstants;
-import frc.robot.constants.PhysicalConstants;
+import frc.robot.constants.RobotConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -46,8 +46,8 @@ public class WorldSimulator {
         DriveTrainSimulationConfig config = DriveTrainSimulationConfig.Default()
             .withGyro(COTS.ofNav2X())
             .withTrackLengthTrackWidth(
-                Meters.of(PhysicalConstants.Drivetrain.kTrackWidth),
-                Meters.of(PhysicalConstants.Drivetrain.kWheelBase)
+                Meters.of(RobotConstants.Drivetrain.kTrackWidth),
+                Meters.of(RobotConstants.Drivetrain.kWheelBase)
             )
             .withSwerveModule(
                 COTS.ofMAXSwerve(
@@ -63,15 +63,15 @@ public class WorldSimulator {
                 )
             )
             .withBumperSize(
-                Meters.of(PhysicalConstants.Drivetrain.kBumperLength),
-                Meters.of(PhysicalConstants.Drivetrain.kBumperWidth)
+                Meters.of(RobotConstants.Drivetrain.kBumperLength),
+                Meters.of(RobotConstants.Drivetrain.kBumperWidth)
             )
-            .withRobotMass(Kilogram.of(PhysicalConstants.kMass));
+            .withRobotMass(Kilogram.of(RobotConstants.kMass));
 
         drivetrain = new SwerveDriveSimulation(config, new Pose2d(7.5, 5, new Rotation2d()));
         vision = new VisionSystemSim("caspian");
 
-        vision.addAprilTags(VisionConstants.kField);
+        vision.addAprilTags(VisionConstants.AprilTag.kLayout);
 
         SimulatedArena.getInstance().addDriveTrainSimulation(drivetrain);
 

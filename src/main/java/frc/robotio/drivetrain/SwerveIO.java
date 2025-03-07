@@ -38,10 +38,6 @@ public abstract class SwerveIO {
             double linear = angular * ModuleConstants.Wheel.kRadius;
             return Meters.of(linear);
         }
-
-        public double[] timestamps = new double[0];
-        public double[] drivePositions = new double[0];
-        public double[] turnPositions = new double[0];
     }
 
     public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();

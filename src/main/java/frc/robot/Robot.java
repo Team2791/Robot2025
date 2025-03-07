@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -67,7 +68,7 @@ public class Robot extends LoggedRobot {
             case Sim:
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
-            default:
+            case Replay:
                 String logfile = LogFileUtil.findReplayLog();
 
                 setUseTiming(false);
@@ -96,7 +97,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         Pathfinding.setPathfinder(new ADStar());
-        //FollowPathCommand.warmupCommand().schedule();
+        FollowPathCommand.warmupCommand().schedule();
     }
 
     @Override

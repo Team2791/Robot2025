@@ -12,7 +12,7 @@ public final class ElevatorConstants {
         public static final double kReduction = 1.0 / 20.0;
 
         /** Either Brake or Coast */
-        public static final IdleMode kIdleMode = IdleMode.kCoast;
+        public static final IdleMode kIdleMode = IdleMode.kBrake;
 
         /** Invert the follower motor */
         public static final boolean kInvertFollower = true;

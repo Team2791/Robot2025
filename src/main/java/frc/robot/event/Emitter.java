@@ -72,7 +72,7 @@ public class Emitter {
         return new Key<>(event.getClass(), listener);
     }
 
-    public static <E extends Event<Void>> Key<Void, E> on(E event, Runnable listener) {
+    public static <T, E extends Event<T>> Key<T, E> on(E event, Runnable listener) {
         return on(event, _v -> listener.run());
     }
 

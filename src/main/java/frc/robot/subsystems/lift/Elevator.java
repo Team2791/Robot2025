@@ -10,11 +10,7 @@ import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.logging.Alerter;
-import frc.robot.logging.threads.SensorThread;
-import frc.robot.util.IterUtil;
 import frc.robotio.lift.ElevatorIO;
-
-import java.util.Queue;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -24,9 +20,6 @@ public class Elevator extends ElevatorIO {
 
     final RelativeEncoder encoder;
     final SparkClosedLoopController controller;
-
-    final Queue<Angle> positionHist;
-    final Queue<Double> timestamps;
 
     public Elevator() {
         leader = new SparkFlex(IOConstants.Elevator.kLeader, MotorType.kBrushless);
@@ -51,10 +44,6 @@ public class Elevator extends ElevatorIO {
         leader.clearFaults();
         follower.clearFaults();
 
-        // register sensors
-        positionHist = SensorThread.getInstance().register(() -> Radians.of(encoder.getPosition()));
-        timestamps = SensorThread.getInstance().makeTimestampQueue();
-
         // register sparks
         Alerter.getInstance().registerSpark("ElevatorLeader", leader);
         Alerter.getInstance().registerSpark("ElevatorFollower", follower);
@@ -73,12 +62,6 @@ public class Elevator extends ElevatorIO {
 
         this.data.velocity = RadiansPerSecond.of(encoder.getVelocity());
         this.data.position = Radians.of(encoder.getPosition());
-
-        this.data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
-        this.data.positions = IterUtil.toDoubleArray(positionHist.stream(), Radians);
-
-        positionHist.clear();
-        timestamps.clear();
     }
 
     @Override
