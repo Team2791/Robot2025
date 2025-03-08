@@ -1,7 +1,6 @@
 package frc.robotsim.globals;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.Robot;
@@ -68,7 +67,7 @@ public class WorldSimulator {
             )
             .withRobotMass(Kilogram.of(RobotConstants.kMass));
 
-        drivetrain = new SwerveDriveSimulation(config, new Pose2d(7.5, 5, new Rotation2d()));
+        drivetrain = new SwerveDriveSimulation(config, RobotConstants.kInitialPose);
         vision = new VisionSystemSim("caspian");
 
         vision.addAprilTags(VisionConstants.AprilTag.kLayout);

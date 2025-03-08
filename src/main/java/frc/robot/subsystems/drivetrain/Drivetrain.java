@@ -17,10 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.constants.ControlConstants;
-import frc.robot.constants.DriveConstants;
-import frc.robot.constants.IOConstants;
-import frc.robot.constants.ModuleConstants;
+import frc.robot.constants.*;
 import frc.robot.event.Emitter;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
@@ -74,7 +71,7 @@ public class Drivetrain extends SubsystemBase {
             DriveConstants.kKinematics,
             gyro.heading(),
             modulePositions(),
-            new Pose2d(7.5, 5, new Rotation2d())
+            RobotConstants.kInitialPose
         );
 
         slew = new RateLimiter(

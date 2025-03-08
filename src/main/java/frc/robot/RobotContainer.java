@@ -101,7 +101,7 @@ public class RobotContainer {
         driverctl.leftTrigger().onTrue(new FullIntake(intake, lift));
 
         driverctl.rightStick().onTrue(new Elevate(lift, 0));
-        
+
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
     }
