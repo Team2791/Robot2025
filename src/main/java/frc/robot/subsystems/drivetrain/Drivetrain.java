@@ -284,6 +284,13 @@ public class Drivetrain extends SubsystemBase {
      */
     public void resetGyro() {
         gyro.reset();
+        Emitter.emit(
+            new PoseResetEvent(),
+            new Pose2d(
+                getPose().getTranslation(),
+                new Rotation2d()
+            )
+        );
     }
 
     /**

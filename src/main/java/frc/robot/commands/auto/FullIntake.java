@@ -2,13 +2,12 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.intake.TakeIn;
 import frc.robot.commands.intake.ToDispenser;
 import frc.robot.commands.lift.DispenseIn;
 import frc.robot.commands.lift.Elevate;
-import frc.robot.commands.util.FunctionWrapper;
+import frc.robot.commands.lift.SlowBack;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.intake.Intake;
@@ -16,7 +15,7 @@ import frc.robot.subsystems.lift.Lift;
 
 
 public class FullIntake extends SequentialCommandGroup {
-    private int stage = 0;
+    private final int stage = 0;
     private static Emitter.Key<Double, Intake.IntakeRange> key;
 
     /**
@@ -30,17 +29,12 @@ public class FullIntake extends SequentialCommandGroup {
      */
     public FullIntake(Intake intake, Lift lift) {
         addCommands(
-            // reset stage
-            new FunctionWrapper(() -> stage = 0),
-            new ParallelCommandGroup(new Elevate(lift, 0, false), new TakeIn(intake)),
-            //            new FunctionWrapper(() -> stage++), // increment stage, so we know whether we should cancel when far
-            new ParallelRaceGroup(new DispenseIn(lift), new ToDispenser(intake, lift))
+            new Elevate(lift, 0),
+            new ParallelCommandGroup(
+                new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, lift)),
+                new SequentialCommandGroup(new DispenseIn(lift), new SlowBack(lift))
+            )
         );
-    }
-
-    @Override
-    public InterruptionBehavior getInterruptionBehavior() {
-        return InterruptionBehavior.kCancelIncoming; // FullIntake will never stop unless explicit
     }
 
     /**
@@ -69,6 +63,7 @@ public class FullIntake extends SequentialCommandGroup {
      * Unregister the full intake command from running when the robot is near the coral dispenser.
      */
     public static void disableNearby() {
+        if (key == null) return;
         Emitter.off(key);
     }
 }

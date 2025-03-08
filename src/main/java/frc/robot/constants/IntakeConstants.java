@@ -22,7 +22,8 @@ public class IntakeConstants {
     }
 
     public static final class Power {
-        public static final double kIntake = 0.4;
+        public static final double kIntake = 0.3;
+        public static final double kDislodge = -0.1;
     }
 
     public static final class Range {

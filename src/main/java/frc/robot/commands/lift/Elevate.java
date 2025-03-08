@@ -47,6 +47,7 @@ public class Elevate extends FunctionWrapper {
     }
 
     public static void disableRetract() {
+        if (retract == null) return;
         Emitter.off(retract);
     }
 }

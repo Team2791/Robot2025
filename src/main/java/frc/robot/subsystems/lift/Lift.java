@@ -1,6 +1,7 @@
 package frc.robot.subsystems.lift;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,6 +58,25 @@ public class Lift extends SubsystemBase {
         elevator.setDesiredPosition(Meters.of(height));
     }
 
+    /** Elevate but add an offset to prevent manual slamming */
+    public void manualElevate(boolean up) {
+        double height = ElevatorConstants.Heights.kLevels[up ? 4 : 0];
+        double offset = height + 0.02 * (up ? -1 : 1);
+        elevator.setDesiredPosition(Meters.of(offset));
+    }
+
+    /** Manual controls: hold elevator */
+    public void hold(double offset) {
+        double current = elevator.data.height().in(Meters);
+        double setpoint = MathUtil.clamp(
+            current + offset,
+            ElevatorConstants.Heights.kIntake,
+            ElevatorConstants.Heights.kL4
+        );
+
+        elevator.setDesiredPosition(Meters.of(setpoint));
+    }
+
     /** Return whether we are >= L1 (within tolerance) */
     public boolean canDispense() {
         return getLevel() >= 1 - ElevatorConstants.Heights.kLevelTolerance;
@@ -87,7 +107,7 @@ public class Lift extends SubsystemBase {
 
     /** Run the dispenser */
     public void dispense() {
-        dispense(DispenserConstants.kDispense);
+        dispense(DispenserConstants.Power.kDispense);
     }
 
     /** Run the dispenser (with power) */

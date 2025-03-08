@@ -40,7 +40,7 @@ public final class ControlConstants {
     }
 
     public static final class Elevator {
-        public static final double kP = 0.30;
+        public static final double kP = 0.25;
         public static final double kI = 0.00;
         public static final double kD = 0.00;
         public static final double kF = 0.0;

@@ -5,11 +5,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.auto.FullIntake;
+import frc.robot.commands.intake.Dislodge;
 import frc.robot.commands.lift.DispenseOut;
 import frc.robot.commands.lift.Elevate;
+import frc.robot.commands.lift.ManualElevate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.logging.Alerter;
@@ -94,16 +96,29 @@ public class RobotContainer {
         driverctl.a().onTrue(new Elevate(lift, 1));
         driverctl.b().onTrue(new Elevate(lift, 2));
 
-        driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
-        driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
+        // driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
+        // driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
 
         driverctl.rightTrigger().onTrue(new DispenseOut(lift));
-        driverctl.leftTrigger().onTrue(new FullIntake(intake, lift));
+        driverctl.leftTrigger().toggleOnTrue(new FullIntake(intake, lift));
 
         driverctl.rightStick().onTrue(new Elevate(lift, 0));
 
+        operctl.axisLessThan(1, -0.1)
+            .whileTrue(new SequentialCommandGroup(
+                new FunctionWrapper(Elevate::disableRetract),
+                new ManualElevate(lift, true)
+            ));
+
+        operctl.axisGreaterThan(1, 0.1)
+            .whileTrue(new SequentialCommandGroup(
+                new FunctionWrapper(Elevate::disableRetract),
+                new ManualElevate(lift, false)
+            ));
+
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
+        operctl.x().whileTrue(new Dislodge(intake, lift));
     }
 
     public Command getAutonomousCommand() { return autoChooser.getSelected(); }
