@@ -1,6 +1,6 @@
 package frc.robotsim.lift;
 
-import com.revrobotics.sim.SparkAbsoluteEncoderSim;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -22,7 +22,7 @@ public class ElevatorSim extends ElevatorIO {
     final SparkFlex motor;
     final SparkFlexSim motorSim;
 
-    final SparkAbsoluteEncoderSim encoder;
+    final RelativeEncoder encoder;
     final SparkClosedLoopController controller;
 
     final edu.wpi.first.wpilibj.simulation.ElevatorSim elevatorSim;
@@ -40,7 +40,7 @@ public class ElevatorSim extends ElevatorIO {
         );
 
         motorSim = new SparkFlexSim(motor, gearbox);
-        encoder = motorSim.getAbsoluteEncoderSim();
+        encoder = motor.getEncoder();
 
         elevatorSim = new edu.wpi.first.wpilibj.simulation.ElevatorSim(
             LinearSystemId.createElevatorSystem(
@@ -67,9 +67,6 @@ public class ElevatorSim extends ElevatorIO {
         double elevatorVelocity = carriageVelocity / ElevatorConstants.Carriage.kFactor;
         double encoderVelocity = elevatorVelocity / ElevatorConstants.Sprocket.kRadius;
         double motorVelocity = encoderVelocity / ElevatorConstants.Motor.kReduction;
-
-        // iterate the encoder sim, mounted after the gearbox
-        encoder.iterate(encoderVelocity, 0.02);
 
         // update the motor sim to make it move
         motorSim.iterate(

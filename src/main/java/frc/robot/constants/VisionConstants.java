@@ -28,6 +28,7 @@ public final class VisionConstants {
 
     public static final class Align {
         public static final double kReefOffset = Inches.of(12.9375).div(2).in(Meters);
+        public static final double kMaxDistance = 2.0;
     }
 
     public static final class AprilTag {
