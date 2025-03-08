@@ -21,10 +21,6 @@ public abstract class RollerIO {
         public Current rightCurrent = Amps.of(0);
 
         public boolean broken = false;
-
-        public double[] timestamps = new double[0];
-        public double[] leftVelocities = new double[0];
-        public double[] rightVelocities = new double[0];
     }
 
     public final RollerDataAutoLogged data = new RollerDataAutoLogged();

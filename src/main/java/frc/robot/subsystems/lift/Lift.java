@@ -1,6 +1,5 @@
 package frc.robot.subsystems.lift;
 
-import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,8 +16,7 @@ import frc.robotio.lift.ElevatorIO.ElevatorData;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -26,32 +24,20 @@ public class Lift extends SubsystemBase {
     public static class ReefRange extends Emitter.Event<Double> {
         @Override
         public Emitter.Dependency<Double, Pose2d> runAfter() {
-            final AprilTagFieldLayout layout = VisionConstants.kField;
+            final AprilTagFieldLayout layout = VisionConstants.AprilTag.kLayout;
 
-            final List<Integer> blue = List.of(17, 18, 19, 20, 21, 22);
-            final Stream<AprilTag> blueTags = layout.getTags().stream().filter(tag -> blue.contains(tag.ID));
-            final Stream<Translation2d> blueSides = blueTags.map(tag -> tag.pose.toPose2d().getTranslation());
-            final Translation2d blueAvg = blueSides.reduce(Translation2d::plus).orElse(new Translation2d()).div(6);
-
-            final List<Integer> red = List.of(6, 7, 8, 9, 10, 11);
-            final Stream<AprilTag> redTags = layout.getTags().stream().filter(tag -> red.contains(tag.ID));
-            final Stream<Translation2d> redSides = redTags.map(tag -> tag.pose.toPose2d().getTranslation());
-            final Translation2d redAvg = redSides.reduce(Translation2d::plus).orElse(new Translation2d()).div(6);
+            final Translation2d avg = VisionConstants.AprilTag.reef() // get current-alliance reef
+                .stream()
+                .map(layout::getTagPose) // map tag id to pose
+                .filter(Optional::isPresent)
+                .map(p -> p.get().toPose2d().getTranslation()) // get translation and average
+                .reduce(Translation2d::plus)
+                .orElse(new Translation2d())
+                .div(6);
 
             return new Emitter.Dependency<>(
-                new Drivetrain.PoseResetEvent(),
-                (pose) -> {
-                    Translation2d robot = pose.getTranslation();
-                    double dx2 = Math.pow(blueAvg.getX() - robot.getX(), 2);
-                    double dy2 = Math.pow(blueAvg.getY() - robot.getY(), 2);
-                    double blueDist2 = dx2 + dy2;
-
-                    dx2 = Math.pow(redAvg.getX() - robot.getX(), 2);
-                    dy2 = Math.pow(redAvg.getY() - robot.getY(), 2);
-                    double redDist2 = dx2 + dy2;
-
-                    return Math.sqrt(Math.min(blueDist2, redDist2));
-                }
+                new Drivetrain.PoseUpdateEvent(),
+                pose -> pose.getTranslation().getDistance(avg)
             );
         }
     }

@@ -5,6 +5,8 @@ import com.revrobotics.spark.SparkBase;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Robot;
+import frc.robot.event.Emitter;
 import frc.robot.util.Elastic;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 
@@ -24,6 +26,7 @@ public class Alerter {
 
     private Alerter() {
         vibrateStop.setName("VibrateStop");
+        Emitter.on(new Robot.PeriodicEvent(), this::update);
     }
 
     public static Alerter getInstance() {

@@ -4,24 +4,16 @@ import com.studica.frc.AHRS;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
-import frc.robot.constants.ThreadConstants;
-import frc.robot.logging.threads.SensorThread;
-import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 
-import java.util.Queue;
-
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 
 public class NavX extends GyroIO {
     final AHRS gyro;
-    final Queue<Angle> headings;
-    final Queue<Double> timestamps;
 
     public NavX() {
-        this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (int) (1. / ThreadConstants.kDelay));
-        this.headings = SensorThread.getInstance().register(this::measure);
-        this.timestamps = SensorThread.getInstance().makeTimestampQueue();
+        this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort);
     }
 
     Angle measure() {
@@ -33,11 +25,6 @@ public class NavX extends GyroIO {
         data.connected = gyro.isConnected();
         data.heading = this.measure();
         data.velocity = DegreesPerSecond.of(gyro.getRate() * DriveConstants.kGyroFactor);
-
-        data.timestamps = IterUtil.toDoubleArray(timestamps.stream());
-        data.headings = IterUtil.toDoubleArray(headings.stream(), Radians);
-
-        headings.clear();
     }
 
     @Override

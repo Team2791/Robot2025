@@ -2,6 +2,7 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.intake.TakeIn;
 import frc.robot.commands.intake.ToDispenser;
@@ -29,10 +30,11 @@ public class FullIntake extends SequentialCommandGroup {
      */
     public FullIntake(Intake intake, Lift lift) {
         addCommands(
-            new FunctionWrapper(() -> stage = 0), // reset stage
-            new ParallelCommandGroup(new Elevate(lift, 0), new TakeIn(intake)),
-            new FunctionWrapper(() -> stage++), // increment stage, so we know whether we should cancel when far
-            new ParallelCommandGroup(new DispenseIn(lift), new ToDispenser(intake, lift))
+            // reset stage
+            new FunctionWrapper(() -> stage = 0),
+            new ParallelCommandGroup(new Elevate(lift, 0, false), new TakeIn(intake)),
+            //            new FunctionWrapper(() -> stage++), // increment stage, so we know whether we should cancel when far
+            new ParallelRaceGroup(new DispenseIn(lift), new ToDispenser(intake, lift))
         );
     }
 

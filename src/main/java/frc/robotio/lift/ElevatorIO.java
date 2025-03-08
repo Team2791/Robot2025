@@ -20,10 +20,7 @@ public abstract class ElevatorIO {
 
         public Angle position = Radians.of(0);
         public AngularVelocity velocity = RadiansPerSecond.of(0);
-
-        public double[] timestamps = new double[0];
-        public double[] positions = new double[0];
-
+        
         public Angle desired = Radians.of(0);
 
         @AutoLogOutput(key = "Lift/Elevator/Height")

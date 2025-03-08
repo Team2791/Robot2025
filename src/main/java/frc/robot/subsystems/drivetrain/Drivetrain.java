@@ -12,21 +12,17 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.constants.ControlConstants;
-import frc.robot.constants.DriveConstants;
-import frc.robot.constants.IOConstants;
-import frc.robot.constants.ModuleConstants;
+import frc.robot.constants.*;
 import frc.robot.event.Emitter;
 import frc.robot.util.IterUtil;
 import frc.robotio.drivetrain.GyroIO;
 import frc.robotio.drivetrain.SwerveIO;
+import frc.robotio.photon.CameraIO;
 import org.dyn4j.geometry.Vector2;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -75,7 +71,7 @@ public class Drivetrain extends SubsystemBase {
             DriveConstants.kKinematics,
             gyro.heading(),
             modulePositions(),
-            new Pose2d(7.5, 5, new Rotation2d())
+            RobotConstants.kInitialPose
         );
 
         slew = new RateLimiter(
@@ -122,30 +118,27 @@ public class Drivetrain extends SubsystemBase {
         // Elastic SwerveDrive widget
         SmartDashboard.putData(
             "SwerveDrive",
-            new Sendable() {
-                @Override
-                public void initSendable(SendableBuilder builder) {
-                    builder.setSmartDashboardType("SwerveDrive");
+            builder -> {
+                builder.setSmartDashboardType("SwerveDrive");
 
-                    IterUtil.zipThen(
-                        Arrays.stream(modules()),
-                        Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
-                        (module, label) -> {
-                            builder.addDoubleProperty(
-                                label + " Angle",
-                                () -> module.getState().angle.getRadians(),
-                                null
-                            );
-                            builder.addDoubleProperty(
-                                label + " Velocity",
-                                () -> module.getState().speedMetersPerSecond,
-                                null
-                            );
-                        }
-                    );
+                IterUtil.zipThen(
+                    Arrays.stream(modules()),
+                    Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
+                    (module, label) -> {
+                        builder.addDoubleProperty(
+                            label + " Angle",
+                            () -> module.getState().angle.getRadians(),
+                            null
+                        );
+                        builder.addDoubleProperty(
+                            label + " Velocity",
+                            () -> module.getState().speedMetersPerSecond,
+                            null
+                        );
+                    }
+                );
 
-                    builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
-                }
+                builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
             }
         );
 
@@ -228,24 +221,31 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Manual swerve drive control
      *
-     * @param xspeed        The desired speed for the robot to move in the x direction. +X is forward.
-     * @param yspeed        The desired speed for the robot to move in the y direction. +Y is left.
-     * @param rot           The desired rotational speed. +R is ccw.
+     * @param xPower        The desired x-direction power. +X is forward, must be [-1, 1]
+     * @param yPower        The desired y-direction power. +Y is left, must be [-1, 1]
+     * @param rotPower      The desired rotational power. +R is ccw, must be [-1, 1]
      * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
      */
-    public void drive(double xspeed, double yspeed, double rot, boolean fieldRelative) {
-        drive(new ChassisSpeeds(xspeed, yspeed, rot), fieldRelative);
+    public void drive(double xPower, double yPower, double rotPower, boolean fieldRelative) {
+        Vector2 velocity = new Vector2(xPower, yPower);
+        if (velocity.getMagnitude() > 1) velocity.normalize();
+
+        double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
+        double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
+        double rvel = rotPower * ModuleConstants.MaxSpeed.kAngular;
+
+        drive(new ChassisSpeeds(xvel, yvel, rvel), fieldRelative);
     }
 
     /**
      * Field-relative manual swerve drive control.
      *
-     * @param xspeed The desired speed for the robot to move in the x direction. +X is forward.
-     * @param yspeed The desired speed for the robot to move in the y direction. +Y is left.
-     * @param rot    The desired rotational speed. +R is ccw.
+     * @param xPower   The desired x-direction power. +X is forward, must be [-1, 1]
+     * @param yPower   The desired y-direction power. +Y is left, must be [-1, 1]
+     * @param rotPower The desired rotational power. +R is ccw, must be [-1, 1]
      */
-    public void drive(double xspeed, double yspeed, double rot) {
-        drive(xspeed, yspeed, rot, true);
+    public void drive(double xPower, double yPower, double rotPower) {
+        drive(xPower, yPower, rotPower, true);
     }
 
     /**
@@ -266,10 +266,6 @@ public class Drivetrain extends SubsystemBase {
         Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
         if (velocity.getMagnitude() > 1) velocity.normalize();
 
-        double xvel = velocity.x * ModuleConstants.MaxSpeed.kLinear;
-        double yvel = velocity.y * ModuleConstants.MaxSpeed.kLinear;
-        double rvel = outputs.rot() * ModuleConstants.MaxSpeed.kAngular;
-
         /*
          * Time to explain some wpilib strangeness
          *
@@ -280,7 +276,7 @@ public class Drivetrain extends SubsystemBase {
          * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
          * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
          */
-        drive(-yvel, -xvel, -rvel);
+        drive(-velocity.y, -velocity.x, -outputs.rot());
     }
 
     /**
@@ -288,6 +284,15 @@ public class Drivetrain extends SubsystemBase {
      */
     public void resetGyro() {
         gyro.reset();
+    }
+
+    /**
+     * Add vision measurement
+     *
+     * @param measurement The vision measurement to add.
+     */
+    public void addVisionMeasurement(CameraIO.VisionMeasurement measurement) {
+        odometry.addVisionMeasurement(measurement.estimate2(), measurement.timestamp());
     }
 
     @Override
