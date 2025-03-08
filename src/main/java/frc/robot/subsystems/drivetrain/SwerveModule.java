@@ -20,7 +20,7 @@ import frc.robot.constants.ModuleConstants.DriveEncoder;
 import frc.robot.constants.ModuleConstants.TurnEncoder;
 import frc.robot.constants.MotorConstants;
 import frc.robot.logging.Alerter;
-import frc.robotio.drivetrain.SwerveIO;
+import frc.robotio.SwerveIO;
 
 import static edu.wpi.first.units.Units.*;
 

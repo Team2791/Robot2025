@@ -7,7 +7,7 @@ import com.revrobotics.spark.SparkMax;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.logging.Alerter;
-import frc.robotio.intake.RollerIO;
+import frc.robotio.RollerIO;
 
 import static edu.wpi.first.units.Units.*;
 

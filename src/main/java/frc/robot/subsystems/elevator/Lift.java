@@ -1,29 +1,29 @@
-package frc.robot.subsystems.lift;
+package frc.robot.subsystems.elevator;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.logging.Alerter;
-import frc.robotio.lift.ElevatorIO;
+import frc.robotio.ElevatorIO;
 
 import static edu.wpi.first.units.Units.*;
 
-public class Elevator extends ElevatorIO {
+public class Lift extends ElevatorIO {
     final SparkFlex follower;
     final SparkFlex leader;
 
     final RelativeEncoder encoder;
     final SparkClosedLoopController controller;
 
-    public Elevator() {
-        leader = new SparkFlex(IOConstants.Elevator.kLeader, MotorType.kBrushless);
-        follower = new SparkFlex(IOConstants.Elevator.kFollower, MotorType.kBrushless);
+    public Lift() {
+        leader = new SparkFlex(IOConstants.Elevator.kLeader, SparkLowLevel.MotorType.kBrushless);
+        follower = new SparkFlex(IOConstants.Elevator.kFollower, SparkLowLevel.MotorType.kBrushless);
 
         // apply configs
         leader.configure(
@@ -66,6 +66,6 @@ public class Elevator extends ElevatorIO {
 
     @Override
     public void setDesiredPosition(Angle position) {
-        controller.setReference(position.in(Radians), ControlType.kPosition);
+        controller.setReference(position.in(Radians), SparkBase.ControlType.kPosition);
     }
 }

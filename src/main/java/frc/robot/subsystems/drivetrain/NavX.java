@@ -4,7 +4,7 @@ import com.studica.frc.AHRS;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.IOConstants;
-import frc.robotio.drivetrain.GyroIO;
+import frc.robotio.GyroIO;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;

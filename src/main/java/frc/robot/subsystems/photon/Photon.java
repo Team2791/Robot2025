@@ -5,7 +5,7 @@ import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robotio.photon.CameraIO;
+import frc.robotio.CameraIO;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -23,7 +23,7 @@ public class Photon {
     public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
         this.drivetrain = drivetrain;
         this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
-        
+
         Emitter.on(new Robot.PeriodicEvent(), _mode -> this.periodic());
     }
 

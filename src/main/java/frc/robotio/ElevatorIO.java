@@ -1,4 +1,4 @@
-package frc.robotio.lift;
+package frc.robotio;
 
 import edu.wpi.first.units.measure.*;
 import frc.robot.constants.ElevatorConstants;
@@ -20,7 +20,7 @@ public abstract class ElevatorIO {
 
         public Angle position = Radians.of(0);
         public AngularVelocity velocity = RadiansPerSecond.of(0);
-        
+
         public Angle desired = Radians.of(0);
 
         @AutoLogOutput(key = "Lift/Elevator/Height")

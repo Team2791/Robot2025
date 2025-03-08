@@ -1,7 +1,7 @@
-package frc.robotreplay.photon;
+package frc.robotreplay;
 
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robotio.photon.CameraIO;
+import frc.robotio.CameraIO;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import java.util.List;

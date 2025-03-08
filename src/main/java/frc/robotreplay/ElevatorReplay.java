@@ -1,7 +1,7 @@
-package frc.robotreplay.lift;
+package frc.robotreplay;
 
 import edu.wpi.first.units.measure.Angle;
-import frc.robotio.lift.ElevatorIO;
+import frc.robotio.ElevatorIO;
 
 public class ElevatorReplay extends ElevatorIO {
     @Override

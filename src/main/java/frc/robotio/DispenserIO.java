@@ -1,4 +1,4 @@
-package frc.robotio.lift;
+package frc.robotio;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;

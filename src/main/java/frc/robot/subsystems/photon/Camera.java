@@ -1,7 +1,7 @@
 package frc.robot.subsystems.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robotio.photon.CameraIO;
+import frc.robotio.CameraIO;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 

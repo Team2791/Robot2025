@@ -1,4 +1,4 @@
-package frc.robotsim.lift;
+package frc.robotsim;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.constants.DispenserConstants.Motor;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
-import frc.robotio.lift.DispenserIO;
+import frc.robotio.DispenserIO;
 
 import static edu.wpi.first.units.Units.*;
 

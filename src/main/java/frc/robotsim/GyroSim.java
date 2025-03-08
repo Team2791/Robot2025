@@ -1,7 +1,7 @@
-package frc.robotsim.drivetrain;
+package frc.robotsim;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robotio.drivetrain.GyroIO;
+import frc.robotio.GyroIO;
 import org.ironmaple.simulation.drivesims.GyroSimulation;
 
 public class GyroSim extends GyroIO {

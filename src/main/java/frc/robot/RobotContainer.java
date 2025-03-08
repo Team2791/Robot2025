@@ -15,28 +15,20 @@ import frc.robot.commands.lift.ManualElevate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.logging.Alerter;
+import frc.robot.subsystems.dispenser.Dispenser;
+import frc.robot.subsystems.dispenser.Scoral;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.NavX;
 import frc.robot.subsystems.drivetrain.SwerveModule;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.Lift;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Roller;
-import frc.robot.subsystems.lift.Dispenser;
-import frc.robot.subsystems.lift.Elevator;
-import frc.robot.subsystems.lift.Lift;
 import frc.robot.subsystems.photon.Camera;
 import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
-import frc.robotreplay.drivetrain.GyroReplay;
-import frc.robotreplay.drivetrain.ModuleReplay;
-import frc.robotreplay.intake.RollerReplay;
-import frc.robotreplay.lift.DispenserReplay;
-import frc.robotreplay.lift.ElevatorReplay;
-import frc.robotreplay.photon.CameraReplay;
-import frc.robotsim.globals.WorldSimulator;
-import frc.robotsim.intake.RollerSim;
-import frc.robotsim.lift.DispenserSim;
-import frc.robotsim.lift.ElevatorSim;
-import frc.robotsim.photon.CameraSim;
+import frc.robotreplay.*;
+import frc.robotsim.*;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -58,9 +50,11 @@ public class RobotContainer {
     final Intake intake = new Intake(
         AdvantageUtil.matchReal(Roller::new, RollerSim::new, RollerReplay::new)
     );
-    final Lift lift = new Lift(
-        AdvantageUtil.matchReal(Dispenser::new, DispenserSim::new, DispenserReplay::new),
-        AdvantageUtil.matchReal(Elevator::new, ElevatorSim::new, ElevatorReplay::new)
+    final Dispenser dispenser = new Dispenser(
+        AdvantageUtil.matchReal(Scoral::new, DispenserSim::new, DispenserReplay::new)
+    );
+    final Elevator elevator = new Elevator(
+        AdvantageUtil.matchReal(Lift::new, ElevatorSim::new, ElevatorReplay::new)
     );
     final Photon photon = new Photon(
         drivetrain,
@@ -91,34 +85,34 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
 
-        driverctl.x().onTrue(new Elevate(lift, 3));
-        driverctl.y().onTrue(new Elevate(lift, 4));
-        driverctl.a().onTrue(new Elevate(lift, 1));
-        driverctl.b().onTrue(new Elevate(lift, 2));
+        driverctl.x().onTrue(new Elevate(elevator, 3));
+        driverctl.y().onTrue(new Elevate(elevator, 4));
+        driverctl.a().onTrue(new Elevate(elevator, 1));
+        driverctl.b().onTrue(new Elevate(elevator, 2));
 
         // driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
         // driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
 
-        driverctl.rightTrigger().onTrue(new DispenseOut(lift));
-        driverctl.leftTrigger().toggleOnTrue(new FullIntake(intake, lift));
+        driverctl.rightTrigger().onTrue(new DispenseOut(dispenser, elevator));
+        driverctl.leftTrigger().toggleOnTrue(new FullIntake(dispenser, elevator, intake));
 
-        driverctl.rightStick().onTrue(new Elevate(lift, 0));
+        driverctl.rightStick().onTrue(new Elevate(elevator, 0));
 
         operctl.axisLessThan(1, -0.1)
             .whileTrue(new SequentialCommandGroup(
                 new FunctionWrapper(Elevate::disableRetract),
-                new ManualElevate(lift, true)
+                new ManualElevate(elevator, true)
             ));
 
         operctl.axisGreaterThan(1, 0.1)
             .whileTrue(new SequentialCommandGroup(
                 new FunctionWrapper(Elevate::disableRetract),
-                new ManualElevate(lift, false)
+                new ManualElevate(elevator, false)
             ));
 
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
-        operctl.x().whileTrue(new Dislodge(intake, lift));
+        operctl.x().whileTrue(new Dislodge(intake, dispenser));
     }
 
     public Command getAutonomousCommand() { return autoChooser.getSelected(); }

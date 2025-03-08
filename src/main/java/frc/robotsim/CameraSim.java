@@ -1,9 +1,9 @@
-package frc.robotsim.photon;
+package frc.robotsim;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.VisionConstants;
-import frc.robotio.photon.CameraIO;
-import frc.robotsim.globals.WorldSimulator;
+import frc.robotio.CameraIO;
+import frc.robotsim.WorldSimulator;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.targeting.PhotonPipelineResult;

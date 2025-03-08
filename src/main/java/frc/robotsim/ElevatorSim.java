@@ -1,4 +1,4 @@
-package frc.robotsim.lift;
+package frc.robotsim;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkFlexSim;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
-import frc.robotio.lift.ElevatorIO;
+import frc.robotio.ElevatorIO;
 
 import static edu.wpi.first.units.Units.*;
 

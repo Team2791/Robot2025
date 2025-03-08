@@ -1,4 +1,4 @@
-package frc.robotsim.drivetrain;
+package frc.robotsim;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -9,7 +9,7 @@ import frc.robot.constants.ControlConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.MotorConstants;
 import frc.robot.util.PIDFController;
-import frc.robotio.drivetrain.SwerveIO;
+import frc.robotio.SwerveIO;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 

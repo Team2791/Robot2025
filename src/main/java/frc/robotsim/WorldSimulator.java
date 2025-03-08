@@ -1,4 +1,4 @@
-package frc.robotsim.globals;
+package frc.robotsim;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -11,8 +11,6 @@ import frc.robot.constants.RobotConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robotsim.drivetrain.GyroSim;
-import frc.robotsim.drivetrain.ModuleSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;

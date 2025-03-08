@@ -8,31 +8,36 @@ import frc.robot.commands.intake.ToDispenser;
 import frc.robot.commands.lift.DispenseIn;
 import frc.robot.commands.lift.Elevate;
 import frc.robot.commands.lift.SlowBack;
+import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.event.Emitter;
+import frc.robot.subsystems.dispenser.Dispenser;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.lift.Lift;
 
 
 public class FullIntake extends SequentialCommandGroup {
-    private final int stage = 0;
+    private int stage = 0;
     private static Emitter.Key<Double, Intake.IntakeRange> key;
 
     /**
      * Full intake command.
      * First, run the elevator to L0 and take coral into the intake simultaneously.
      * Then, move the coral from the intake to the dispenser by simultaneously running both motors.
-     * Both the lift and intake are used as command requirements.
+     * Both the elevator and intake are used as command requirements.
      *
-     * @param intake The intake subsystem
-     * @param lift   The lift subsystem
+     * @param dispenser the dispenser subsystem
+     * @param elevator  the elevator subsystem
+     * @param intake    the intake subsystem
      */
-    public FullIntake(Intake intake, Lift lift) {
+    public FullIntake(Dispenser dispenser, Elevator elevator, Intake intake) {
         addCommands(
-            new Elevate(lift, 0),
+            new FunctionWrapper(() -> stage = 0),
+            new Elevate(elevator, 0),
+            new FunctionWrapper(() -> stage = 1),
             new ParallelCommandGroup(
-                new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, lift)),
-                new SequentialCommandGroup(new DispenseIn(lift), new SlowBack(lift))
+                new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, elevator)),
+                new SequentialCommandGroup(new DispenseIn(dispenser, elevator), new SlowBack(dispenser))
             )
         );
     }
@@ -40,11 +45,12 @@ public class FullIntake extends SequentialCommandGroup {
     /**
      * Register the full intake command to run when the robot is near the coral dispenser.
      *
-     * @param intake The intake subsystem
-     * @param lift   The lift subsystem
+     * @param dispenser the dispenser subsystem
+     * @param elevator  the elevator subsystem
+     * @param intake    the intake subsystem
      */
-    public static void registerNearby(Intake intake, Lift lift) {
-        FullIntake instance = new FullIntake(intake, lift);
+    public static void registerNearby(Dispenser dispenser, Elevator elevator, Intake intake) {
+        FullIntake instance = new FullIntake(dispenser, elevator, intake);
         CommandScheduler scheduler = CommandScheduler.getInstance();
 
         key = Emitter.on(

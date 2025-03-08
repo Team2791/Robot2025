@@ -1,4 +1,4 @@
-package frc.robot.subsystems.lift;
+package frc.robot.subsystems.dispenser;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
@@ -8,18 +8,18 @@ import com.revrobotics.spark.SparkMax;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.logging.Alerter;
-import frc.robotio.lift.DispenserIO;
+import frc.robotio.DispenserIO;
 
 import static edu.wpi.first.units.Units.*;
 
-public class Dispenser extends DispenserIO {
+public class Scoral extends DispenserIO {
     final SparkMax leader;
     final SparkMax follower;
 
     final SparkLimitSwitch beam;
     final RelativeEncoder encoder;
 
-    public Dispenser() {
+    public Scoral() {
         leader = new SparkMax(IOConstants.Dispenser.kLeader, MotorType.kBrushless);
         follower = new SparkMax(IOConstants.Dispenser.kFollower, MotorType.kBrushless);
 
