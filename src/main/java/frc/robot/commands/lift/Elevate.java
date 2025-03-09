@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.event.Emitter;
+import frc.robot.event.Key;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class Elevate extends FunctionWrapper {
-    private static Emitter.Key<Double, Dispenser.ReefRange> retract;
+    private static Key<Double, Dispenser.ReefRange> retract;
 
     /**
      * Elevate to a certain height. This command will block until the lift is at the desired height.

@@ -11,6 +11,7 @@ import frc.robot.commands.lift.SlowBack;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.event.Emitter;
+import frc.robot.event.Key;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -18,7 +19,7 @@ import frc.robot.subsystems.intake.Intake;
 
 public class FullIntake extends SequentialCommandGroup {
     private int stage = 0;
-    private static Emitter.Key<Double, Intake.IntakeRange> key;
+    private static Key<Double, Intake.IntakeRange> key;
 
     /**
      * Full intake command.
