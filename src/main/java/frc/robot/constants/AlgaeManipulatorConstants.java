@@ -2,6 +2,8 @@ package frc.robot.constants;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import java.util.HashMap;
+
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
@@ -42,4 +44,22 @@ public class AlgaeManipulatorConstants {
         public static final double kEnabled = 0;
         public static final double kPower = 0.5;
     }
+
+    public static final HashMap<Integer, Integer> kTagHeights = new HashMap<>() {{
+        // red side
+        put(6, 2);
+        put(7, 3);
+        put(8, 2);
+        put(9, 3);
+        put(10, 2);
+        put(11, 3);
+
+        // blue side
+        put(17, 2);
+        put(18, 3);
+        put(19, 2);
+        put(20, 3);
+        put(21, 2);
+        put(22, 3);
+    }};
 }

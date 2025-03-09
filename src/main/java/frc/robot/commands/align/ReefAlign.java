@@ -11,7 +11,7 @@ public class ReefAlign extends AlignClosest {
      * Align to the reef using photon vision, positioning self to score on a particular branch
      *
      * @param drivetrain the drivetrain subsystem
-     * @param direction  the direction to align to, can be -1 for right or 1 for left
+     * @param direction  the direction to align to. 1 for left, 0 for center, -1 for right
      */
     public ReefAlign(Drivetrain drivetrain, int direction) {
         super(

@@ -1,4 +1,4 @@
-package frc.robot.commands.lift;
+package frc.robot.commands.dispenser;
 
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.subsystems.dispenser.Dispenser;
