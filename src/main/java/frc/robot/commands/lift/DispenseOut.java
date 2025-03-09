@@ -1,20 +1,22 @@
 package frc.robot.commands.lift;
 
 import frc.robot.commands.util.FunctionWrapper;
-import frc.robot.subsystems.lift.Lift;
+import frc.robot.subsystems.dispenser.Dispenser;
+import frc.robot.subsystems.elevator.Elevator;
 
 public class DispenseOut extends FunctionWrapper {
     /**
      * Dispense the coral if not at L0
      *
-     * @param lift the lift subsystem
+     * @param dispenser the dispenser subsystem
+     * @param elevator  the elevator subsystem
      */
-    public DispenseOut(Lift lift) {
+    public DispenseOut(Dispenser dispenser, Elevator elevator) {
         super(
-            lift::dispense,
-            () -> !lift.canDispense(), // if we can't dispense, return asap
-            () -> lift.dispense(0),
-            lift
+            dispenser::dispense,
+            () -> elevator.atLevel(0), // if at L0, return immediately
+            () -> dispenser.dispense(0),
+            dispenser
         );
     }
 }

@@ -12,7 +12,7 @@ public final class ElevatorConstants {
         public static final double kReduction = 1.0 / 20.0;
 
         /** Either Brake or Coast */
-        public static final IdleMode kIdleMode = IdleMode.kCoast;
+        public static final IdleMode kIdleMode = IdleMode.kBrake;
 
         /** Invert the follower motor */
         public static final boolean kInvertFollower = true;
@@ -39,7 +39,7 @@ public final class ElevatorConstants {
         public static final double kL3 = 0.74311;
         public static final double kL4 = 1.40113;
         public static final double[] kLevels = { kIntake, kL1, kL2, kL3, kL4 };
-        public static final double kTolerance = Inches.of(0.125).in(Meters);
+        public static final double kTolerance = Inches.of(0.75).in(Meters);
         public static final double kLevelTolerance = 0.25;
     }
 

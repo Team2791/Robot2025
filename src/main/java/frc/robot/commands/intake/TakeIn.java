@@ -1,6 +1,7 @@
 package frc.robot.commands.intake;
 
 import frc.robot.commands.util.FunctionWrapper;
+import frc.robot.constants.IntakeConstants;
 import frc.robot.subsystems.intake.Intake;
 
 public class TakeIn extends FunctionWrapper {
@@ -11,7 +12,7 @@ public class TakeIn extends FunctionWrapper {
      */
     public TakeIn(Intake intake) {
         super(
-            intake::run,
+            () -> intake.set(IntakeConstants.Power.kIntake),
             () -> intake.getRoller().broken,
             intake::stop,
             intake
