@@ -28,7 +28,7 @@ public class SlowBack extends Command {
 
     @Override
     public void execute() {
-        if (dispenser.getDispenser().broken) timer.restart();
+        if (dispenser.data().broken) timer.restart();
     }
 
     @Override

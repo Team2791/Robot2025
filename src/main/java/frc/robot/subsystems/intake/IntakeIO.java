@@ -9,7 +9,7 @@ import static edu.wpi.first.units.Units.*;
 
 public abstract class IntakeIO {
     @AutoLog
-    public static class RollerData {
+    public static class IntakeData {
         public boolean leftConnected = false;
         public AngularVelocity leftVelocity = RadiansPerSecond.of(0);
         public Voltage leftVoltage = Volts.of(0);
@@ -23,7 +23,7 @@ public abstract class IntakeIO {
         public boolean broken = false;
     }
 
-    public final RollerDataAutoLogged data = new RollerDataAutoLogged();
+    public final IntakeDataAutoLogged data = new IntakeDataAutoLogged();
 
     public abstract void update();
 

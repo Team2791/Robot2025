@@ -13,7 +13,7 @@ public class TakeIn extends FunctionWrapper {
     public TakeIn(Intake intake) {
         super(
             () -> intake.set(IntakeConstants.Power.kIntake),
-            () -> intake.getRoller().broken,
+            () -> intake.data().broken,
             intake::stop,
             intake
         );

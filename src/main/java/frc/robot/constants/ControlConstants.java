@@ -57,6 +57,15 @@ public final class ControlConstants {
         public static final double kMax = 1.0;
     }
 
+    public static final class AlgaeManipulator {
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kF = 0.0;
+        public static final double kMin = -1.0;
+        public static final double kMax = 1.0;
+    }
+
     public static final class SlewRateLimit {
         public static final double kOrthogonal = 9.5;
         public static final double kRotation = 4.5;

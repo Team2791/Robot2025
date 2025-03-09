@@ -20,8 +20,8 @@ public class IntakeSpark extends IntakeIO {
     final SparkLimitSwitch beam;
 
     public IntakeSpark() {
-        leftMotor = new SparkMax(IOConstants.Roller.kLeft, SparkMax.MotorType.kBrushless);
-        rightMotor = new SparkMax(IOConstants.Roller.kRight, SparkMax.MotorType.kBrushless);
+        leftMotor = new SparkMax(IOConstants.Intake.kLeft, SparkMax.MotorType.kBrushless);
+        rightMotor = new SparkMax(IOConstants.Intake.kRight, SparkMax.MotorType.kBrushless);
 
         leftEncoder = leftMotor.getEncoder();
         rightEncoder = rightMotor.getEncoder();
@@ -31,13 +31,13 @@ public class IntakeSpark extends IntakeIO {
         rightMotor.clearFaults();
 
         leftMotor.configure(
-            SparkConfigConstants.Roller.kLeft,
+            SparkConfigConstants.Intake.kLeft,
             SparkConfigConstants.kResetMode,
             SparkConfigConstants.kPersistMode
         );
 
         rightMotor.configure(
-            SparkConfigConstants.Roller.kRight,
+            SparkConfigConstants.Intake.kRight,
             SparkConfigConstants.kResetMode,
             SparkConfigConstants.kPersistMode
         );
