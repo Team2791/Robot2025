@@ -63,31 +63,6 @@ public class SparkConfigConstants {
             kLeader.encoder.velocityConversionFactor(DispenserConstants.Encoder.kVelocityFactor);
             kFollower.encoder.velocityConversionFactor(DispenserConstants.Encoder.kVelocityFactor);
 
-            // pid constants
-            kLeader.closedLoop.pidf(
-                ControlConstants.Dispenser.kP,
-                ControlConstants.Dispenser.kI,
-                ControlConstants.Dispenser.kD,
-                ControlConstants.Dispenser.kF
-            );
-
-            kLeader.closedLoop.outputRange(
-                ControlConstants.Dispenser.kMin,
-                ControlConstants.Dispenser.kMax
-            );
-
-            kFollower.closedLoop.pidf(
-                ControlConstants.Dispenser.kP,
-                ControlConstants.Dispenser.kI,
-                ControlConstants.Dispenser.kD,
-                ControlConstants.Dispenser.kF
-            );
-
-            kFollower.closedLoop.outputRange(
-                ControlConstants.Dispenser.kMin,
-                ControlConstants.Dispenser.kMax
-            );
-
             // idle mode
             kLeader.idleMode(DispenserConstants.Motor.kIdleMode);
             kFollower.idleMode(DispenserConstants.Motor.kIdleMode);
@@ -97,6 +72,8 @@ public class SparkConfigConstants {
 
             // beam brake
             kLeader.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
+            kLeader.limitSwitch.forwardLimitSwitchEnabled(false);
+            kLeader.limitSwitch.reverseLimitSwitchEnabled(false);
         }
     }
 
@@ -124,6 +101,8 @@ public class SparkConfigConstants {
 
             // beam brake
             kLeft.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
+            kLeft.limitSwitch.forwardLimitSwitchEnabled(false);
+            kLeft.limitSwitch.reverseLimitSwitchEnabled(false);
         }
     }
 

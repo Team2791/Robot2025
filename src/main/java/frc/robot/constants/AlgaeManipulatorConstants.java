@@ -40,8 +40,8 @@ public class AlgaeManipulatorConstants {
     }
 
     public static final class Setpoints {
-        public static final double kDisabled = Degrees.of(135).in(Radians);
-        public static final double kEnabled = 0;
+        public static final double kDisabled = Degrees.of(88.5).in(Radians);
+        public static final double kEnabled = Degrees.of(2.5).in(Radians);
         public static final double kPower = 0.5;
     }
 

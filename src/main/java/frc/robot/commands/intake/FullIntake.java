@@ -13,6 +13,7 @@ import frc.robot.event.Key;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.util.Alerter;
 
 
 public class FullIntake extends SequentialCommandGroup {
@@ -37,7 +38,8 @@ public class FullIntake extends SequentialCommandGroup {
             new ParallelCommandGroup(
                 new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, elevator)),
                 new SequentialCommandGroup(new DispenseIn(dispenser, elevator), new SlowBack(dispenser))
-            )
+            ),
+            new FunctionWrapper(Alerter.getInstance()::rumble)
         );
     }
 

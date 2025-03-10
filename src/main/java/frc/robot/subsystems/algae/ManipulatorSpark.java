@@ -40,6 +40,8 @@ public class ManipulatorSpark extends ManipulatorIO {
             SparkConfigConstants.kResetMode,
             SparkConfigConstants.kPersistMode
         );
+
+        turnEncoder.setPosition(AlgaeManipulatorConstants.Setpoints.kDisabled);
     }
 
     @Override

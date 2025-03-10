@@ -7,6 +7,7 @@ public class AlgaeManipulator extends SubsystemBase {
 
     public AlgaeManipulator(ManipulatorIO manipulator) {
         this.manipulator = manipulator;
+        this.toggle(false);
     }
 
     public void toggle(boolean enabled) {

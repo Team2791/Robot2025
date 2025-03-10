@@ -1,12 +1,14 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.elevator.ManualElevate;
@@ -81,6 +83,11 @@ public class RobotContainer {
     final SendableChooser<Command> autoChooser;
 
     public RobotContainer() throws IOException, ParseException {
+        NamedCommands.registerCommand("LeftAlign", new ReefAlign(drivetrain, -1));
+        NamedCommands.registerCommand("Elevate0", new Elevate(elevator, 0));
+        NamedCommands.registerCommand("Elevate4", new Elevate(elevator, 4));
+        NamedCommands.registerCommand("DispenseOut", new DispenseOut(dispenser, elevator));
+
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
         this.autoChooser = AutoBuilder.buildAutoChooser();
@@ -106,11 +113,14 @@ public class RobotContainer {
         driverctl.a().onTrue(new Elevate(elevator, 1));
         driverctl.b().onTrue(new Elevate(elevator, 2));
 
-        // driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
-        // driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
+        driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
+        driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
 
         driverctl.rightTrigger().onTrue(new DispenseOut(dispenser, elevator));
-        driverctl.leftTrigger().toggleOnTrue(new FullIntake(dispenser, elevator, intake));
+        driverctl.leftTrigger().toggleOnTrue(new SequentialCommandGroup(
+            new Dislodge(intake, dispenser),
+            new FullIntake(dispenser, elevator, intake)
+        ));
 
         driverctl.rightStick().onTrue(new Elevate(elevator, 0));
 

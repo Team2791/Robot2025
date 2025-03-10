@@ -13,6 +13,8 @@ import org.littletonrobotics.junction.Logger;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static frc.robot.constants.MathConstants.kTau;
+
 public abstract class AlignClosest extends Command {
     final Drivetrain drivetrain;
     final Supplier<List<Integer>> targetIds;
@@ -45,6 +47,10 @@ public abstract class AlignClosest extends Command {
         this.drivetrain = drivetrain;
         this.offset = offset;
         this.targetIds = targetIds;
+
+        rotController.enableContinuousInput(0, kTau);
+        xController.setTolerance(0.05);
+        yController.setTolerance(0.005);
 
         addRequirements(drivetrain);
     }
@@ -93,8 +99,8 @@ public abstract class AlignClosest extends Command {
         Pose2d currentPose = drivetrain.getPose();
 
         // pid
-        double xPower = xController.calculate(currentPose.getX());
-        double yPower = yController.calculate(currentPose.getY());
+        double xPower = -xController.calculate(currentPose.getX());
+        double yPower = -yController.calculate(currentPose.getY());
         double rotPower = rotController.calculate(currentPose.getRotation().getRadians());
 
         drivetrain.drive(xPower, yPower, rotPower);

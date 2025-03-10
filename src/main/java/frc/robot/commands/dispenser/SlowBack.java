@@ -41,6 +41,6 @@ public class SlowBack extends Command {
 
     @Override
     public boolean isFinished() {
-        return wasBroken && timer.get() >= 4.5;
+        return wasBroken && timer.get() >= 0.1;
     }
 }
