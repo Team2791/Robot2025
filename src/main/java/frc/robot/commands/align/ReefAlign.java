@@ -20,7 +20,7 @@ public class ReefAlign extends AlignClosest {
             drivetrain,
             VisionConstants.AprilTag::reef,
             new Transform2d(
-                0.5 * RobotConstants.Drivetrain.kBumperLength + 0.06,
+                0.5 * RobotConstants.DriveBase.kBumperLength + 0.06,
                 VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             )
@@ -30,17 +30,19 @@ public class ReefAlign extends AlignClosest {
     }
 
     /**
-     * Align to the reef using photon vision, positioning self to score on a particular branch
+     * Align to the reef using photon vision, positioning self to score on a particular branch,
+     * forcing the use of specific tags
      *
      * @param drivetrain the drivetrain subsystem
-     * @param direction  the direction to align to. 1 for left, 0 for center, -1 for right
+     * @param direction  the direction to align to. -1 for left, 0 for center, 1 for right
+     * @param tags       the valid apriltags
      */
-    public ReefAlign(Drivetrain drivetrain, int direction, int redId, int blueId) {
+    public ReefAlign(Drivetrain drivetrain, int direction, List<Integer> tags) {
         super(
             drivetrain,
-            () -> List.of(redId, blueId),
+            () -> tags,
             new Transform2d(
-                0.5 * RobotConstants.Drivetrain.kBumperLength + 0.06,
+                0.5 * RobotConstants.DriveBase.kBumperLength + 0.06,
                 VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             )

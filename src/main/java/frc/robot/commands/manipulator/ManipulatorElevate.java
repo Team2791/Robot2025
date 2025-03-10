@@ -20,7 +20,7 @@ public class ManipulatorElevate extends Command {
     @Override
     public void initialize() {
         // get (nullable) height without throwing an exception. prim int cannot be null.
-        Integer height = AlgaeManipulatorConstants.kTagHeights.get(align.tagId());
+        Integer height = AlgaeManipulatorConstants.kTagHeights.get(align.getTagId());
 
         if (height == null) {
             earlyExit = true;

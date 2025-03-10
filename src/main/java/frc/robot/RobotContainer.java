@@ -1,13 +1,13 @@
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import choreo.auto.AutoChooser;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.autos.AutoManager;
 import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
@@ -44,9 +44,6 @@ import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
 import frc.robot.util.WorldSimulator;
-import org.json.simple.parser.ParseException;
-
-import java.io.IOException;
 
 public class RobotContainer {
     // controllers
@@ -80,9 +77,10 @@ public class RobotContainer {
     );
 
     // autos
-    final SendableChooser<Command> autoChooser;
+    final AutoManager autoManager = new AutoManager(drivetrain);
+    final AutoChooser autoChooser;
 
-    public RobotContainer() throws IOException, ParseException {
+    public RobotContainer() {
         NamedCommands.registerCommand("LeftAlign", new ReefAlign(drivetrain, -1));
         NamedCommands.registerCommand("Elevate0", new Elevate(elevator, 0));
         NamedCommands.registerCommand("Elevate4", new Elevate(elevator, 4));
@@ -90,11 +88,13 @@ public class RobotContainer {
 
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
-        this.autoChooser = AutoBuilder.buildAutoChooser();
+        this.autoChooser = new AutoChooser();
+
+        this.autoChooser.addRoutine("Default Routine", () -> this.autoManager.routine(dispenser, elevator, intake));
 
         configureBindings();
 
-        SmartDashboard.putData(autoChooser);
+        SmartDashboard.putData("Chooser", autoChooser);
         Alerter.getInstance().provideControllers(driverctl, operctl);
     }
 
@@ -145,5 +145,5 @@ public class RobotContainer {
         operctl.x().whileTrue(new Dislodge(intake, dispenser));
     }
 
-    public Command getAutonomousCommand() { return autoChooser.getSelected(); }
+    public Command getAutonomousCommand() { return autoChooser.selectedCommand(); }
 }

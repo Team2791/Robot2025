@@ -1,9 +1,10 @@
 package frc.robot.subsystems.drivetrain;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,14 +29,11 @@ import frc.robot.subsystems.photon.CameraIO;
 import frc.robot.util.IterUtil;
 import frc.robot.util.RateLimiter;
 import org.dyn4j.geometry.Vector2;
-import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -48,6 +47,12 @@ public class Drivetrain extends SubsystemBase {
 
     public static class PoseResetEvent extends Event<Pose2d> { }
 
+    public enum FieldRelativeMode {
+        kOff,
+        kFixedOrigin,
+        kAllianceOrigin,
+    }
+
     final ModuleIO frontLeft;
     final ModuleIO frontRight;
     final ModuleIO rearLeft;
@@ -55,14 +60,14 @@ public class Drivetrain extends SubsystemBase {
     final GyroIO gyro;
 
     final SwerveDrivePoseEstimator odometry;
-    final Field2d field;
+    public final Field2d field;
 
     final RateLimiter slew;
 
     public Drivetrain(
         GyroIO gyro,
         Function<Integer, ModuleIO> moduleConstructor
-    ) throws IOException, ParseException {
+    ) {
         this.gyro = gyro;
 
         frontLeft = moduleConstructor.apply(0);
@@ -74,7 +79,7 @@ public class Drivetrain extends SubsystemBase {
             DriveConstants.kKinematics,
             gyro.heading(),
             modulePositions(),
-            RobotConstants.kInitialPose
+            GameConstants.kInitialPose
         );
 
         slew = new RateLimiter(
@@ -91,32 +96,36 @@ public class Drivetrain extends SubsystemBase {
             this::getPose,
             (pose) -> Emitter.emit(new PoseResetEvent(), pose),
             this::getChassisSpeeds,
-            s -> this.drive(s, false),
+            s -> this.drive(s, FieldRelativeMode.kOff),
             new PPHolonomicDriveController(
-                new com.pathplanner.lib.config.PIDConstants(
-                    ControlConstants.Autos.kOrthoP,
-                    ControlConstants.Autos.kOrthoI,
-                    ControlConstants.Autos.kOrthoD
+                new PIDConstants(
+                    ControlConstants.Auto.kOrthoP,
+                    ControlConstants.Auto.kOrthoI,
+                    ControlConstants.Auto.kOrthoD
                 ),
-                new com.pathplanner.lib.config.PIDConstants(
-                    ControlConstants.Autos.kTurnP,
-                    ControlConstants.Autos.kTurnI,
-                    ControlConstants.Autos.kTurnD
+                new PIDConstants(
+                    ControlConstants.Auto.kTurnP,
+                    ControlConstants.Auto.kTurnI,
+                    ControlConstants.Auto.kTurnD
                 )
             ),
-            RobotConfig.fromGUISettings(),
+            new RobotConfig(
+                RobotConstants.kMass,
+                RobotConstants.kMoI,
+                new ModuleConfig(
+                    ModuleConstants.Wheel.kRadius,
+                    ModuleConstants.MaxSpeed.kLinear,
+                    ModuleConstants.Wheel.kFrictionCoefficient,
+                    DCMotor.getNEO(1),
+                    ModuleConstants.DriveMotor.kReduction,
+                    MotorConstants.Neo.kCurrentLimit,
+                    1
+                ),
+                DriveConstants.kModuleTranslations
+            ),
             () -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
             this
         );
-
-        PathPlannerLogging.setLogActivePathCallback((path) -> {
-            Logger.recordOutput("Autos/Path", path.toArray(Pose2d[]::new));
-            field.getObject("Autos/Path").setPoses(path);
-        });
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-            Logger.recordOutput("Autos/TargetPose", pose);
-            field.getObject("Autos/TargetPose").setPose(pose);
-        });
 
         // Elastic SwerveDrive widget
         SmartDashboard.putData(
@@ -143,7 +152,17 @@ public class Drivetrain extends SubsystemBase {
                     }
                 );
 
-                builder.addDoubleProperty("Robot Angle", () -> getHeading().getRadians(), null);
+                builder.addDoubleProperty(
+                    "Robot Angle",
+                    () -> {
+                        if (GameConstants.kAllianceInvert.get()) {
+                            return getHeading().getRadians() + Math.PI;
+                        } else {
+                            return getHeading().getRadians();
+                        }
+                    },
+                    null
+                );
             }
         );
 
@@ -209,22 +228,20 @@ public class Drivetrain extends SubsystemBase {
      * @param speeds        The desired speeds for the robot to move at.
      * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
      */
-    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-        if (fieldRelative) {
-            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-
-            double invert = 1;
-            if (alliance.filter(a -> a == DriverStation.Alliance.Red).isPresent()) {
-                invert = -1;
+    public void drive(ChassisSpeeds speeds, FieldRelativeMode fieldRelative) {
+        switch (fieldRelative) {
+            case kFixedOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
+            case kAllianceOrigin -> {
+                double invert = GameConstants.kAllianceFactor.get();
+                setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
+                    speeds.vxMetersPerSecond * invert,
+                    speeds.vyMetersPerSecond * invert,
+                    speeds.omegaRadiansPerSecond,
+                    getHeading()
+                ));
             }
-
-            setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
-                speeds.vxMetersPerSecond * invert,
-                speeds.vyMetersPerSecond * invert,
-                speeds.omegaRadiansPerSecond,
-                getHeading()
-            ));
-        } else setDesiredSpeeds(speeds);
+            case kOff -> setDesiredSpeeds(speeds);
+        }
     }
 
     /**
@@ -233,7 +250,7 @@ public class Drivetrain extends SubsystemBase {
      * @param speeds The desired speeds for the robot to move at.
      */
     public void drive(ChassisSpeeds speeds) {
-        drive(speeds, true);
+        drive(speeds, FieldRelativeMode.kAllianceOrigin);
     }
 
     /**
@@ -244,7 +261,7 @@ public class Drivetrain extends SubsystemBase {
      * @param rotPower      The desired rotational power. +R is ccw, must be [-1, 1]
      * @param fieldRelative Whether the speeds are field-relative or robot-relative. Defaults to true.
      */
-    public void drive(double xPower, double yPower, double rotPower, boolean fieldRelative) {
+    public void drive(double xPower, double yPower, double rotPower, FieldRelativeMode fieldRelative) {
         Vector2 velocity = new Vector2(xPower, yPower);
         if (velocity.getMagnitude() > 1) velocity.normalize();
 
@@ -263,7 +280,7 @@ public class Drivetrain extends SubsystemBase {
      * @param rotPower The desired rotational power. +R is ccw, must be [-1, 1]
      */
     public void drive(double xPower, double yPower, double rotPower) {
-        drive(xPower, yPower, rotPower, true);
+        drive(xPower, yPower, rotPower, FieldRelativeMode.kAllianceOrigin);
     }
 
     /**

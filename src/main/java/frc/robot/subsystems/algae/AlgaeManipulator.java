@@ -1,6 +1,7 @@
 package frc.robot.subsystems.algae;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class AlgaeManipulator extends SubsystemBase {
     final ManipulatorIO manipulator;
@@ -16,5 +17,12 @@ public class AlgaeManipulator extends SubsystemBase {
 
     public ManipulatorIO.ManipulatorData data() {
         return manipulator.data;
+    }
+
+    @Override
+    public void periodic() {
+        manipulator.update();
+
+        Logger.processInputs("AlgaeManipulator", manipulator.data);
     }
 }

@@ -54,14 +54,14 @@ public final class VisionConstants {
         public static final List<Integer> kBlueReef = List.of(17, 18, 19, 20, 21, 22);
 
         public static List<Integer> stations() {
-            return switch (DriverStation.getAlliance().orElse(RobotConstants.kDefaultAlliance)) {
+            return switch (DriverStation.getAlliance().orElse(GameConstants.kDefaultAlliance)) {
                 case Blue -> kBlueStations;
                 case Red -> kRedStations;
             };
         }
 
         public static List<Integer> reef() {
-            return switch (DriverStation.getAlliance().orElse(RobotConstants.kDefaultAlliance)) {
+            return switch (DriverStation.getAlliance().orElse(GameConstants.kDefaultAlliance)) {
                 case Blue -> kBlueReef;
                 case Red -> kRedReef;
             };
