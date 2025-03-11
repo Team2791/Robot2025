@@ -11,7 +11,7 @@ public class DispenseOut extends ParallelDeadlineGroup {
      * Dispense the coral if not at L0
      *
      * @param dispenser the dispenser subsystem
-     * @param elevator  the elevator subsystem
+     * @param elevator  the elevator subsystem. not a command requirement
      */
     public DispenseOut(Dispenser dispenser, Elevator elevator) {
         super(

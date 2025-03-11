@@ -10,7 +10,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -76,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
         rearRight = moduleConstructor.apply(3);
 
         odometry = new SwerveDrivePoseEstimator(
-            DriveConstants.kKinematics,
+            ModuleConstants.kKinematics,
             gyro.heading(),
             modulePositions(),
             GameConstants.kInitialPose
@@ -121,7 +120,7 @@ public class Drivetrain extends SubsystemBase {
                     MotorConstants.Neo.kCurrentLimit,
                     1
                 ),
-                DriveConstants.kModuleTranslations
+                ModuleConstants.Translations.kModules
             ),
             () -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
             this
@@ -198,7 +197,7 @@ public class Drivetrain extends SubsystemBase {
     /**
      * @return The speeds of the entire chassis
      */
-    public ChassisSpeeds getChassisSpeeds() { return DriveConstants.kKinematics.toChassisSpeeds(moduleStates()); }
+    public ChassisSpeeds getChassisSpeeds() { return ModuleConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
     /**
      * @param speeds The desired speeds for the robot to move at.
@@ -206,12 +205,13 @@ public class Drivetrain extends SubsystemBase {
     private void setDesiredSpeeds(ChassisSpeeds speeds) {
         // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
-        SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(discrete);
-
-        // this probably doesn't need to happen again but just in case we get bad parameters somehow
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
-
-        IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
+        SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
+        
+        IterUtil.zipThen(
+            Arrays.stream(modules()),
+            Arrays.stream(states),
+            ModuleIO::setDesiredState
+        );
     }
 
     /**

@@ -16,11 +16,14 @@ import java.util.function.BiFunction;
  */
 public class Photon {
     final Drivetrain drivetrain;
+
     final CameraIO front;
+    final CameraIO rear;
 
     public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
         this.drivetrain = drivetrain;
         this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
+        this.rear = cameraFactory.apply(VisionConstants.Names.kRear, VisionConstants.Transforms.kBotToRear);
 
         Emitter.on(new Robot.PeriodicEvent(), _mode -> this.periodic());
     }
@@ -32,11 +35,14 @@ public class Photon {
     public void periodic() {
         // update cameras
         front.update();
+        rear.update();
 
         // add to logger
         Logger.processInputs("Photon/Front", front.data);
+        Logger.processInputs("Photon/Rear", rear.data);
 
         // make vision odometry measurements
         if (front.data.measurement != null) drivetrain.addVisionMeasurement(front.data.measurement);
+        if (rear.data.measurement != null) drivetrain.addVisionMeasurement(rear.data.measurement);
     }
 }

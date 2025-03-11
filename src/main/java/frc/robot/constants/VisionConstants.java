@@ -26,6 +26,7 @@ public final class VisionConstants {
 
     public static final class Names {
         public static final String kFront = "front";
+        public static final String kRear = "rear";
     }
 
     public static final class Transforms {
@@ -37,6 +38,7 @@ public final class VisionConstants {
             ),
             new Rotation3d()
         );
+        public static final Transform3d kBotToRear = new Transform3d(); // todo:
     }
 
     public static final class Align {

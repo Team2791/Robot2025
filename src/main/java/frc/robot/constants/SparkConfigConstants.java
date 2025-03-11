@@ -57,12 +57,6 @@ public class SparkConfigConstants {
             kLeader.smartCurrentLimit((int) MotorConstants.NeoVortex.kCurrentLimit);
             kFollower.smartCurrentLimit((int) MotorConstants.NeoVortex.kCurrentLimit);
 
-            // position and velocity factors
-            kLeader.encoder.positionConversionFactor(DispenserConstants.Encoder.kPositionFactor);
-            kFollower.encoder.positionConversionFactor(DispenserConstants.Encoder.kPositionFactor);
-            kLeader.encoder.velocityConversionFactor(DispenserConstants.Encoder.kVelocityFactor);
-            kFollower.encoder.velocityConversionFactor(DispenserConstants.Encoder.kVelocityFactor);
-
             // idle mode
             kLeader.idleMode(DispenserConstants.Motor.kIdleMode);
             kFollower.idleMode(DispenserConstants.Motor.kIdleMode);
@@ -140,6 +134,10 @@ public class SparkConfigConstants {
             // idle mode
             kTurn.idleMode(AlgaeManipulatorConstants.TurnMotor.kIdleMode);
             kSpin.idleMode(AlgaeManipulatorConstants.SpinMotor.kIdleMode);
+
+            // ???
+            kTurn.limitSwitch.reverseLimitSwitchEnabled(false);
+            kTurn.limitSwitch.forwardLimitSwitchEnabled(false);
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class AlignClosest extends ToNearbyPose {
-    static int tagId = -1;
+    int tagId = -1;
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public AlignClosest(Drivetrain drivetrain, Supplier<List<Integer>> targetIds, Transform2d offset) {
@@ -50,12 +50,12 @@ public abstract class AlignClosest extends ToNearbyPose {
                 tagId = -1;
                 return null;
             }
-            
+
             return target;
         };
     }
 
-    public static int getTagId() {
+    public int getTagId() {
         return tagId;
     }
 }

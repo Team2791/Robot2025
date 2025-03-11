@@ -14,6 +14,7 @@ import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.elevator.ManualElevate;
 import frc.robot.commands.intake.Dislodge;
 import frc.robot.commands.intake.FullIntake;
+import frc.robot.commands.manipulator.FullManipulate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
@@ -72,7 +73,7 @@ public class RobotContainer {
         drivetrain,
         AdvantageUtil.matchReal(Camera::new, CameraSim::new, CameraReplay::new)
     );
-    final AlgaeManipulator algae = new AlgaeManipulator(
+    final AlgaeManipulator manipulator = new AlgaeManipulator(
         AdvantageUtil.matchReal(ManipulatorSpark::new, ManipulatorSim::new, ManipulatorReplay::new)
     );
 
@@ -101,9 +102,9 @@ public class RobotContainer {
     private void configureBindings() {
         // automatically start the intake if near the coral station
 
-        // disable for now. TODO: comps: enable this
-        // FullIntake.registerNearby(intake, lift);
-        // Elevate.registerRetract(lift);
+        // disable for now.
+        FullIntake.registerNearby(dispenser, elevator, intake);
+        Elevate.registerRetract(elevator);
 
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
@@ -123,6 +124,7 @@ public class RobotContainer {
         ));
 
         driverctl.rightStick().onTrue(new Elevate(elevator, 0));
+        driverctl.leftStick().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
 
         operctl.axisLessThan(1, -0.1)
             .whileTrue(

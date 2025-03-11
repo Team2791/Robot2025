@@ -1,6 +1,8 @@
 package frc.robot.constants;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -48,9 +50,6 @@ public final class ModuleConstants {
         /** Reduction factor */
         public static final double kReduction = 9424. / 203.;
 
-        /** The minimum amount of voltage that can turn the turn motor */
-        public static final double kStaticFriction = 0.1;
-
         /** Idle mode, can be either brake or coast */
         public static final IdleMode kIdleMode = IdleMode.kBrake;
     }
@@ -95,4 +94,31 @@ public final class ModuleConstants {
         public static final double kLinear = 3.34;
         public static final double kAngular = 8.87;
     }
+
+    public static final class Translations {
+        public static final Translation2d kFrontLeft = new Translation2d(
+            RobotConstants.DriveBase.kWheelBase / 2,
+            RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d kFrontRight = new Translation2d(
+            RobotConstants.DriveBase.kWheelBase / 2,
+            -RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d kRearLeft = new Translation2d(
+            -RobotConstants.DriveBase.kWheelBase / 2,
+            RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d kRearRight = new Translation2d(
+            -RobotConstants.DriveBase.kWheelBase / 2,
+            -RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d[] kModules = new Translation2d[]{
+            kFrontLeft,
+            kFrontRight,
+            kRearLeft,
+            kRearRight
+        };
+    }
+
+    public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(Translations.kModules);
 }
