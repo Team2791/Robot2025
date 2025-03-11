@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import com.pathplanner.lib.path.PathConstraints;
+
 public final class ControlConstants {
     public static final class DriveMotor {
         public static final double kP = 0.00;
@@ -19,7 +21,7 @@ public final class ControlConstants {
         public static final double kMax = 1.0;
     }
 
-    public static final class Autos {
+    public static final class Auto {
         public static final double kOrthoP = 7.50;
         public static final double kOrthoI = 0.01;
         public static final double kOrthoD = 0.03;
@@ -27,6 +29,9 @@ public final class ControlConstants {
         public static final double kTurnP = 15.00;
         public static final double kTurnI = 0.00;
         public static final double kTurnD = 0.00;
+
+        // lin. speed, lin. accel, ang. speed, ang. accel. provided by choreo, floored
+        public static final PathConstraints kConstraints = new PathConstraints(3.0, 7.0, 8.0, 48.0);
     }
 
     public static final class Align {
