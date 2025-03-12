@@ -140,7 +140,7 @@ gversion {
 task(autocommit) {
     doLast {
         if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
-            def branchPrefix = "comp/"
+            def branchPrefix = "event/"
             def branch = 'git branch --show-current'.execute().text.trim()
 
             if (branch.startsWith(branchPrefix)) {
