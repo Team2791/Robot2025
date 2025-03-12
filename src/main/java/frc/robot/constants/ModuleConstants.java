@@ -30,7 +30,7 @@ public final class ModuleConstants {
         public static final double kBevelPinionTeeth = 15.0;
 
         /** Reduction factor from motor to wheel */
-        public static final double kReduction = (kBevelGearTeeth * kSpurTeeth) / (kPinionTeeth * kBevelPinionTeeth);
+        public static final double kReduction = (kPinionTeeth * kBevelPinionTeeth) / (kBevelGearTeeth * kSpurTeeth);
 
         /** Moment of inertia */
         public static final double kMoI = 1.91e-4;
@@ -56,7 +56,7 @@ public final class ModuleConstants {
 
     public static final class DriveEncoder {
         /** Convert from motor-rotations to wheel-radians */
-        public static final double kPositionFactor = kTau / DriveMotor.kReduction;
+        public static final double kPositionFactor = kTau * DriveMotor.kReduction;
 
         /** Convert from motor rotations per minute to wheel radians per second */
         public static final double kVelocityFactor = kPositionFactor / 60.0;
@@ -71,9 +71,6 @@ public final class ModuleConstants {
 
         /** Invert the turn encoder. Never change this. Ever. */
         public static final boolean kInverted = true;
-
-        public static final double kMinPidInput = 0.0;
-        public static final double kMaxPidInput = kTau;
     }
 
     public static final class Wheel {
@@ -81,7 +78,7 @@ public final class ModuleConstants {
         public static final double kRadius = Inches.of(1.5).in(Meters);
 
         /** Angular free speed of the wheel */
-        public static final double kFreeSpeedAngular = MotorConstants.Neo.kFreeSpeed / DriveMotor.kReduction;
+        public static final double kFreeSpeedAngular = MotorConstants.Neo.kFreeSpeed * DriveMotor.kReduction;
 
         /** Linear free speed of the wheel */
         public static final double kFreeSpeedLinear = kFreeSpeedAngular * kRadius;

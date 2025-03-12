@@ -116,7 +116,7 @@ public class Drivetrain extends SubsystemBase {
                     ModuleConstants.MaxSpeed.kLinear,
                     ModuleConstants.Wheel.kFrictionCoefficient,
                     DCMotor.getNEO(1),
-                    ModuleConstants.DriveMotor.kReduction,
+                    1.0 / ModuleConstants.DriveMotor.kReduction,
                     MotorConstants.Neo.kCurrentLimit,
                     1
                 ),
@@ -206,7 +206,7 @@ public class Drivetrain extends SubsystemBase {
         // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
-        
+
         IterUtil.zipThen(
             Arrays.stream(modules()),
             Arrays.stream(states),

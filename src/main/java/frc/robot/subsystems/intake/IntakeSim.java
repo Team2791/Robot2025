@@ -14,7 +14,8 @@ import frc.robot.constants.IOConstants;
 import frc.robot.constants.IntakeConstants.Motor;
 import frc.robot.constants.SparkConfigConstants;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
 
 public class IntakeSim extends IntakeIO {
     final SparkMax leftMotor;
@@ -81,12 +82,12 @@ public class IntakeSim extends IntakeIO {
         this.data.leftConnected = false;
         this.data.leftVoltage = Volts.of(leftSim.getBusVoltage() * RoboRioSim.getVInVoltage());
         this.data.leftCurrent = Amps.of(leftMechanism.getCurrentDrawAmps());
-        this.data.leftVelocity = RadiansPerSecond.of(leftEncoder.getVelocity() * Motor.kReduction);
+        this.data.leftPower = leftSim.getAppliedOutput();
 
         this.data.rightConnected = false;
         this.data.rightVoltage = Volts.of(rightSim.getBusVoltage() * RoboRioSim.getVInVoltage());
         this.data.rightCurrent = Amps.of(rightMechanism.getCurrentDrawAmps());
-        this.data.rightVelocity = RadiansPerSecond.of(rightEncoder.getVelocity() * Motor.kReduction);
+        this.data.rightPower = rightSim.getAppliedOutput();
 
         this.data.broken = beamSim.getPressed();
     }

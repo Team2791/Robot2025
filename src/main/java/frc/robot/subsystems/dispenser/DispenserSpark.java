@@ -1,7 +1,6 @@
 package frc.robot.subsystems.dispenser;
 
 import com.revrobotics.REVLibError;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -9,20 +8,18 @@ import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.util.Alerter;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
 
 public class DispenserSpark extends DispenserIO {
     final SparkMax leader;
     final SparkMax follower;
 
     final SparkLimitSwitch beam;
-    final RelativeEncoder encoder;
 
     public DispenserSpark() {
         leader = new SparkMax(IOConstants.Dispenser.kLeader, MotorType.kBrushless);
         follower = new SparkMax(IOConstants.Dispenser.kFollower, MotorType.kBrushless);
-
-        encoder = leader.getEncoder();
         beam = leader.getReverseLimitSwitch();
 
         leader.clearFaults();
@@ -55,7 +52,7 @@ public class DispenserSpark extends DispenserIO {
         this.data.followerVoltage = Volts.of(follower.getBusVoltage() * follower.getAppliedOutput());
         this.data.followerCurrent = Amps.of(follower.getOutputCurrent());
 
-        this.data.velocity = RadiansPerSecond.of(encoder.getVelocity());
+        this.data.power = leader.getAppliedOutput();
         this.data.broken = beam.isPressed();
     }
 

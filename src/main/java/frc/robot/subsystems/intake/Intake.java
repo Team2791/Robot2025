@@ -45,16 +45,16 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    final IntakeIO roller;
+    final IntakeIO intake;
 
-    public Intake(IntakeIO roller) {
-        this.roller = roller;
+    public Intake(IntakeIO intake) {
+        this.intake = intake;
     }
 
-    public IntakeIO.IntakeData data() { return roller.data; }
+    public IntakeIO.IntakeData data() { return intake.data; }
 
     public void set(double left, double right) {
-        roller.set(left, right);
+        intake.set(left, right);
     }
 
     public void set(double power) {
@@ -67,8 +67,8 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        roller.update();
+        intake.update();
 
-        Logger.processInputs("Intake", roller.data);
+        Logger.processInputs("Intake", intake.data);
     }
 }

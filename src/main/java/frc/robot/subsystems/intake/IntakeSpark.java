@@ -1,30 +1,24 @@
 package frc.robot.subsystems.intake;
 
 import com.revrobotics.REVLibError;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.util.Alerter;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
 
 public class IntakeSpark extends IntakeIO {
     final SparkMax leftMotor;
     final SparkMax rightMotor;
-
-    final RelativeEncoder leftEncoder;
-    final RelativeEncoder rightEncoder;
 
     final SparkLimitSwitch beam;
 
     public IntakeSpark() {
         leftMotor = new SparkMax(IOConstants.Intake.kLeft, SparkMax.MotorType.kBrushless);
         rightMotor = new SparkMax(IOConstants.Intake.kRight, SparkMax.MotorType.kBrushless);
-
-        leftEncoder = leftMotor.getEncoder();
-        rightEncoder = rightMotor.getEncoder();
         beam = leftMotor.getReverseLimitSwitch();
 
         leftMotor.clearFaults();
@@ -42,21 +36,21 @@ public class IntakeSpark extends IntakeIO {
             SparkConfigConstants.kPersistMode
         );
 
-        Alerter.getInstance().registerSpark("RollerLeft", leftMotor);
-        Alerter.getInstance().registerSpark("RollerRight", rightMotor);
+        Alerter.getInstance().registerSpark("IntakeLeader", leftMotor);
+        Alerter.getInstance().registerSpark("IntakeFollower", rightMotor);
     }
 
     @Override
     public void update() {
         this.data.leftConnected = leftMotor.getLastError() == REVLibError.kOk;
-        this.data.leftVelocity = RadiansPerSecond.of(leftMotor.getEncoder().getVelocity());
         this.data.leftVoltage = Volts.of(leftMotor.getBusVoltage() * leftMotor.getAppliedOutput());
         this.data.leftCurrent = Amps.of(leftMotor.getOutputCurrent());
+        this.data.leftPower = leftMotor.getAppliedOutput();
 
         this.data.rightConnected = rightMotor.getLastError() == REVLibError.kOk;
-        this.data.rightVelocity = RadiansPerSecond.of(rightMotor.getEncoder().getVelocity());
         this.data.rightVoltage = Volts.of(rightMotor.getBusVoltage() * rightMotor.getAppliedOutput());
         this.data.rightCurrent = Amps.of(rightMotor.getOutputCurrent());
+        this.data.rightPower = rightMotor.getAppliedOutput();
 
         this.data.broken = beam.isPressed();
     }

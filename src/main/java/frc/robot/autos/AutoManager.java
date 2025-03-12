@@ -133,17 +133,15 @@ public class AutoManager {
         Intake intake,
         List<ScoreLocation> scoring
     ) {
-        Command[] commands = new Command[3 + 4 * scoring.size()];
-        commands[0] = pathfindFollow(scoreToIntake);
-        commands[1] = intake(dispenser, elevator, intake);
-        commands[2] = pathfindFollow(intakeToScore);
+        Command[] commands = new Command[4 * scoring.size()];
 
-        int i = 3;
+        int i = 0;
         for (ScoreLocation location : scoring) {
-            commands[i] = score(dispenser, elevator, location);
-            commands[i + 1] = pathfindFollow(scoreToIntake);
-            commands[i + 2] = intake(dispenser, elevator, intake);
-            commands[i + 3] = pathfindFollow(intakeToScore);
+            commands[i] = pathfindFollow(scoreToIntake);
+            commands[i + 1] = intake(dispenser, elevator, intake);
+            commands[i + 2] = pathfindFollow(intakeToScore);
+            commands[i + 3] = score(dispenser, elevator, location);
+
             i += 4;
         }
 
@@ -166,9 +164,9 @@ public class AutoManager {
     public AutoRoutine routine(Dispenser dispenser, Elevator elevator, Intake intake) {
         AutoRoutine routine = factory.newRoutine("Main Routine");
 
-        AutoTrajectory startingToScore = routine.trajectory("far_side1");
-        AutoTrajectory scoreToIntake = routine.trajectory("score_intake1");
-        AutoTrajectory intakeToScore = routine.trajectory("intake1_score");
+        AutoTrajectory startingToScore = routine.trajectory("far_lscore");
+        AutoTrajectory scoreToIntake = routine.trajectory("lscore_lintake");
+        AutoTrajectory intakeToScore = routine.trajectory("lintake_lscore");
 
         startingToScore.active().onTrue(Commands.runOnce(() -> displayTrajectory(startingToScore)));
         scoreToIntake.active().onTrue(Commands.runOnce(() -> displayTrajectory(scoreToIntake)));

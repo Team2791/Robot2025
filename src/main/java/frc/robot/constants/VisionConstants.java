@@ -14,8 +14,7 @@ import org.photonvision.simulation.SimCameraProperties;
 
 import java.util.List;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 public final class VisionConstants {
     public static final SimCameraProperties kSimCameraProps;
@@ -38,7 +37,14 @@ public final class VisionConstants {
             ),
             new Rotation3d()
         );
-        public static final Transform3d kBotToRear = new Transform3d(); // todo:
+        public static final Transform3d kBotToRear = new Transform3d(
+            new Translation3d(
+                Inches.of(-12).in(Meters),
+                0,
+                Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)
+            ),
+            new Rotation3d(0, Degrees.of(27).in(Radians), 0)
+        ); // todo:
     }
 
     public static final class Align {
