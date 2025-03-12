@@ -1,4 +1,4 @@
-package frc.robot.commands.lift;
+package frc.robot.commands.dispenser;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -8,6 +8,7 @@ import frc.robot.subsystems.dispenser.Dispenser;
 public class SlowBack extends Command {
     final Dispenser dispenser;
     final Timer timer = new Timer(); // todo: replace with encoder readings
+    boolean wasBroken = false;
 
     /**
      * Run the coral back through the dispenser slowly
@@ -21,14 +22,16 @@ public class SlowBack extends Command {
 
     @Override
     public void initialize() {
-        timer.stop();
-        timer.reset();
+        wasBroken = false;
         dispenser.dispense(DispenserConstants.Power.kSlowBack);
     }
 
     @Override
     public void execute() {
-        if (dispenser.getDispenser().broken) timer.restart();
+        if (dispenser.data().broken && !wasBroken) {
+            timer.restart();
+            wasBroken = true;
+        }
     }
 
     @Override
@@ -38,6 +41,6 @@ public class SlowBack extends Command {
 
     @Override
     public boolean isFinished() {
-        return timer.get() >= 4.5;
+        return wasBroken && timer.get() >= 0.1;
     }
 }

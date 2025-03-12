@@ -52,6 +52,6 @@ public final class ElevatorConstants {
 
     public static final class Range {
         /** The maximum distance between the robot and reef center to keep the elevator up */
-        public static final double kRetract = 1.375;
+        public static final double kRetract = 2.5;
     }
 }

@@ -4,18 +4,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.Robot;
-import frc.robot.constants.AdvantageConstants;
+import frc.robot.constants.*;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
-import frc.robot.constants.ModuleConstants;
-import frc.robot.constants.RobotConstants;
-import frc.robot.constants.VisionConstants;
-import frc.robot.event.EventDependency;
 import frc.robot.event.Emitter;
 import frc.robot.event.Event;
+import frc.robot.event.EventDependency;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.gyro.GyroSim;
 import frc.robot.subsystems.drivetrain.module.ModuleSim;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -27,92 +23,92 @@ import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meters;
 
 public class WorldSimulator {
-	public static final class WorldPoseUpdate extends Event<Pose2d> {
-		@Override
-		public EventDependency<Pose2d, Robot.PeriodicEvent.CurrentMode> runAfter() {
-			return new EventDependency<>(
-				new Robot.PeriodicEvent(),
-				_mode -> WorldSimulator.getInstance().drivetrain.getSimulatedDriveTrainPose()
-			);
-		}
-	}
+    public static final class WorldPoseUpdate extends Event<Pose2d> {
+        @Override
+        public EventDependency<Pose2d, Robot.PeriodicEvent.CurrentMode> runAfter() {
+            return new EventDependency<>(
+                new Robot.PeriodicEvent(),
+                _mode -> WorldSimulator.getInstance().drivetrain.getSimulatedDriveTrainPose()
+            );
+        }
+    }
 
-	static WorldSimulator instance;
+    static WorldSimulator instance;
 
-	final SwerveDriveSimulation drivetrain;
-	final VisionSystemSim vision;
+    final SwerveDriveSimulation drivetrain;
+    final VisionSystemSim vision;
 
-	private WorldSimulator() {
-		assertSim();
+    private WorldSimulator() {
+        assertSim();
 
-		DriveTrainSimulationConfig config = DriveTrainSimulationConfig.Default()
-			.withGyro(COTS.ofNav2X())
-			.withTrackLengthTrackWidth(
-				Meters.of(RobotConstants.Drivetrain.kTrackWidth),
-				Meters.of(RobotConstants.Drivetrain.kWheelBase)
-			)
-			.withSwerveModule(
-				COTS.ofMAXSwerve(
-					DCMotor.getNEO(1),
-					DCMotor.getNeo550(1),
-					ModuleConstants.Wheel.kFrictionCoefficient,
-					switch ((int) ModuleConstants.DriveMotor.kPinionTeeth) {
-						case 12 -> 1;
-						case 13 -> 2;
-						case 14 -> 3;
-						default -> throw new IllegalArgumentException("Invalid pinion teeth");
-					}
-				)
-			)
-			.withBumperSize(
-				Meters.of(RobotConstants.Drivetrain.kBumperLength),
-				Meters.of(RobotConstants.Drivetrain.kBumperWidth)
-			)
-			.withRobotMass(Kilogram.of(RobotConstants.kMass));
+        DriveTrainSimulationConfig config = DriveTrainSimulationConfig.Default()
+            .withGyro(COTS.ofNav2X())
+            .withTrackLengthTrackWidth(
+                Meters.of(RobotConstants.DriveBase.kTrackWidth),
+                Meters.of(RobotConstants.DriveBase.kWheelBase)
+            )
+            .withSwerveModule(
+                COTS.ofMAXSwerve(
+                    DCMotor.getNEO(1),
+                    DCMotor.getNeo550(1),
+                    ModuleConstants.Wheel.kFrictionCoefficient,
+                    switch ((int) ModuleConstants.DriveMotor.kPinionTeeth) {
+                        case 12 -> 1;
+                        case 13 -> 2;
+                        case 14 -> 3;
+                        default -> throw new IllegalArgumentException("Invalid pinion teeth");
+                    }
+                )
+            )
+            .withBumperSize(
+                Meters.of(RobotConstants.DriveBase.kBumperLength),
+                Meters.of(RobotConstants.DriveBase.kBumperWidth)
+            )
+            .withRobotMass(Kilogram.of(RobotConstants.kMass));
 
-		drivetrain = new SwerveDriveSimulation(config, RobotConstants.kInitialPose);
-		vision = new VisionSystemSim("caspian");
+        drivetrain = new SwerveDriveSimulation(config, GameConstants.kInitialPose);
+        vision = new VisionSystemSim("caspian");
 
-		vision.addAprilTags(VisionConstants.AprilTag.kLayout);
+        vision.addAprilTags(VisionConstants.AprilTag.kLayout);
 
-		SimulatedArena.getInstance().addDriveTrainSimulation(drivetrain);
+        SimulatedArena.getInstance().addDriveTrainSimulation(drivetrain);
 
-		Emitter.on(new Drivetrain.PoseResetEvent(), this::resetPose);
-		Emitter.on(new WorldPoseUpdate(), this.vision::update);
+        Emitter.on(new Drivetrain.PoseResetEvent(), this::resetPose);
+        Emitter.on(new WorldPoseUpdate(), this.vision::update);
 
-	}
+    }
 
-	public static WorldSimulator getInstance() {
-		assertSim();
+    public static WorldSimulator getInstance() {
+        assertSim();
 
-		if (instance == null) {
-			instance = new WorldSimulator();
-		}
-		return instance;
-	}
+        if (instance == null) {
+            instance = new WorldSimulator();
+        }
+        return instance;
+    }
 
-	static void assertSim() {
-		assert AdvantageConstants.kCurrentMode == AdvantageMode.Sim : "Used simulation globals in real or replay mode";
-	}
+    static void assertSim() {
+        assert AdvantageConstants.kCurrentMode == AdvantageMode.Sim : "Used simulation globals in real or replay mode";
+    }
 
-	public ModuleSim makeModule(int id) {
-		assertSim();
-		return new ModuleSim(drivetrain.getModules()[id]);
-	}
+    public ModuleSim makeModule(int id) {
+        assertSim();
+        return new ModuleSim(drivetrain.getModules()[id]);
+    }
 
-	public GyroSim makeGyro() {
-		assertSim();
-		return new GyroSim(drivetrain.getGyroSimulation());
-	}
+    public GyroSim makeGyro() {
+        assertSim();
+        return new GyroSim(drivetrain.getGyroSimulation());
+    }
 
-	public void resetPose(Pose2d pose) {
-		assertSim();
-		drivetrain.setSimulationWorldPose(pose);
-		vision.resetRobotPose(pose);
-	}
+    public void resetPose(Pose2d pose) {
+        assertSim();
+        drivetrain.setSimulationWorldPose(pose);
+        vision.resetRobotPose(pose);
+    }
 
-	public void addCamera(PhotonCameraSim camera, Transform3d transform) {
-		assertSim();
-		vision.addCamera(camera, transform);
-	}
+    public void addCamera(PhotonCameraSim camera, Transform3d transform) {
+        assertSim();
+        vision.addCamera(camera, transform);
+    }
 }

@@ -5,11 +5,9 @@ import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
 /**
@@ -17,28 +15,34 @@ import java.util.function.BiFunction;
  * Does not extend SubsystemBase because this should not be used as a command requirement!
  */
 public class Photon {
-	final Drivetrain drivetrain;
-	final CameraIO front;
+    final Drivetrain drivetrain;
 
-	public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
-		this.drivetrain = drivetrain;
-		this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
+    final CameraIO front;
+    final CameraIO rear;
 
-		Emitter.on(new Robot.PeriodicEvent(), _mode -> this.periodic());
-	}
+    public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
+        this.drivetrain = drivetrain;
+        this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
+        this.rear = cameraFactory.apply(VisionConstants.Names.kRear, VisionConstants.Transforms.kBotToRear);
 
-	public PhotonPipelineResult frontResult() {
-		return front.getLatestResult();
-	}
+        Emitter.on(new Robot.PeriodicEvent(), _mode -> this.periodic());
+    }
 
-	public void periodic() {
-		// update cameras
-		front.update();
+    public PhotonPipelineResult frontResult() {
+        return front.getLatestResult();
+    }
 
-		// add to logger
-		Logger.processInputs("Photon/Front", front.data);
+    public void periodic() {
+        // update cameras
+        front.update();
+        rear.update();
 
-		// make vision odometry measurements
-		Arrays.stream(front.data.measurements).forEach(drivetrain::addVisionMeasurement);
-	}
+        // add to logger
+        Logger.processInputs("Photon/Front", front.data);
+        Logger.processInputs("Photon/Rear", rear.data);
+
+        // make vision odometry measurements
+        if (front.data.measurement != null) drivetrain.addVisionMeasurement(front.data.measurement);
+        if (rear.data.measurement != null) drivetrain.addVisionMeasurement(rear.data.measurement);
+    }
 }

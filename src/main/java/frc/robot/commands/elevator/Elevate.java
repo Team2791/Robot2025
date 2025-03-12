@@ -1,7 +1,8 @@
-package frc.robot.commands.lift;
+package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.util.FunctionWrapper;
+import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.event.Emitter;
 import frc.robot.event.Key;
@@ -29,7 +30,11 @@ public class Elevate extends FunctionWrapper {
      * @param blocking Whether to block until the elevator is at the desired height
      */
     public Elevate(Elevator elevator, int height, boolean blocking) {
-        super(() -> elevator.elevate(height), () -> elevator.atLevel(height) || !blocking, elevator);
+        super(
+            () -> elevator.elevate(height),
+            () -> elevator.atLevel(height) || !blocking || AdvantageConstants.kCurrentMode == AdvantageConstants.AdvantageMode.Sim,
+            elevator
+        );
     }
 
     public static void registerRetract(Elevator elevator) {

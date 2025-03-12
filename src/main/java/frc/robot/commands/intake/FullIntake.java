@@ -1,13 +1,11 @@
-package frc.robot.commands.auto;
+package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.intake.TakeIn;
-import frc.robot.commands.intake.ToDispenser;
-import frc.robot.commands.lift.DispenseIn;
-import frc.robot.commands.lift.Elevate;
-import frc.robot.commands.lift.SlowBack;
+import frc.robot.commands.dispenser.DispenseIn;
+import frc.robot.commands.dispenser.SlowBack;
+import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.event.Emitter;
@@ -15,6 +13,7 @@ import frc.robot.event.Key;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.util.Alerter;
 
 
 public class FullIntake extends SequentialCommandGroup {
@@ -23,9 +22,9 @@ public class FullIntake extends SequentialCommandGroup {
 
     /**
      * Full intake command.
-     * First, run the elevator to L0 and take coral into the intake simultaneously.
-     * Then, move the coral from the intake to the dispenser by simultaneously running both motors.
-     * Both the elevator and intake are used as command requirements.
+     * First, run the elevator to L0.
+     * Then, run the intake until the beam has broken and move it to the dispenser.
+     * At the same time as above, run the dispenser to accept the coral, and pull coral back slowly
      *
      * @param dispenser the dispenser subsystem
      * @param elevator  the elevator subsystem
@@ -39,7 +38,8 @@ public class FullIntake extends SequentialCommandGroup {
             new ParallelCommandGroup(
                 new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, elevator)),
                 new SequentialCommandGroup(new DispenseIn(dispenser, elevator), new SlowBack(dispenser))
-            )
+            ),
+            new FunctionWrapper(Alerter.getInstance()::rumble)
         );
     }
 

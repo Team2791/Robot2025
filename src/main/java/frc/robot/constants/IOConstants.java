@@ -32,7 +32,12 @@ public final class IOConstants {
         public static final int kFollower = 52;
     }
 
-    public static final class Roller {
+    public static final class AlgaeManipulator {
+        public static final int kTurn = 53;
+        public static final int kSpin = 54;
+    }
+
+    public static final class Intake {
         public static final int kLeft = 60;
         public static final int kRight = 61;
     }

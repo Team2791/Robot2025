@@ -19,7 +19,7 @@ public class Dislodge extends FunctionWrapper {
                 intake.set(IntakeConstants.Power.kDislodge);
                 dispenser.dispense(DispenserConstants.Power.kDislodge);
             },
-            () -> !intake.getRoller().broken,
+            () -> !intake.data().broken,
             () -> {
                 intake.stop();
                 dispenser.dispense(0);

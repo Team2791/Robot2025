@@ -1,4 +1,4 @@
-package frc.robot.commands.lift;
+package frc.robot.commands.dispenser;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DispenserConstants;
@@ -32,7 +32,7 @@ public class DispenseIn extends Command {
 
     @Override
     public void execute() {
-        wasBroken |= dispenser.getDispenser().broken;
+        wasBroken |= dispenser.data().broken;
     }
 
     @Override
@@ -42,6 +42,6 @@ public class DispenseIn extends Command {
 
     @Override
     public boolean isFinished() {
-        return !elevator.atLevel(0) || (wasBroken && !dispenser.getDispenser().broken);
+        return !elevator.atLevel(0) || (wasBroken && !dispenser.data().broken);
     }
 }

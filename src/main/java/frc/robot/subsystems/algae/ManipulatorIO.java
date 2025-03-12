@@ -20,7 +20,18 @@ public abstract class ManipulatorIO {
         public Voltage spinVoltage = Volts.of(0);
         public Current spinCurrent = Amps.of(0);
         public AngularVelocity spinVelocity = RadiansPerSecond.of(0);
+
+        public boolean enabled = false;
     }
 
-    public final ManipulatorData data = new ManipulatorData();
+    public final ManipulatorDataAutoLogged data = new ManipulatorDataAutoLogged();
+
+    public abstract void update();
+
+    protected abstract void set(boolean enabled);
+
+    public final void toggle(boolean enabled) {
+        this.data.enabled = enabled;
+        set(enabled);
+    }
 }
