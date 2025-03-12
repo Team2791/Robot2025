@@ -16,7 +16,7 @@ public class ToDispenser extends FunctionWrapper {
     public ToDispenser(Intake intake, Elevator elevator) {
         super(
             () -> intake.set(IntakeConstants.Power.kIntake),
-            () -> !intake.getRoller().broken || !elevator.atLevel(0), // if not L0, don't do this
+            () -> !intake.data().broken || !elevator.atLevel(0), // if not L0, don't do this
             intake::stop,
             intake
         );

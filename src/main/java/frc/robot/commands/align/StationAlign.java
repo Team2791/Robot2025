@@ -17,7 +17,7 @@ public class StationAlign extends AlignClosest {
             drivetrain,
             VisionConstants.AprilTag::stations,
             new Transform2d(
-                -0.5 * RobotConstants.Drivetrain.kBumperLength,
+                0.5 * RobotConstants.DriveBase.kBumperLength + 0.06,
                 0,
                 new Rotation2d()
             )

@@ -1,6 +1,8 @@
 package frc.robot.constants;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
@@ -28,7 +30,7 @@ public final class ModuleConstants {
         public static final double kBevelPinionTeeth = 15.0;
 
         /** Reduction factor from motor to wheel */
-        public static final double kReduction = (kBevelGearTeeth * kSpurTeeth) / (kPinionTeeth * kBevelPinionTeeth);
+        public static final double kReduction = (kPinionTeeth * kBevelPinionTeeth) / (kBevelGearTeeth * kSpurTeeth);
 
         /** Moment of inertia */
         public static final double kMoI = 1.91e-4;
@@ -48,16 +50,13 @@ public final class ModuleConstants {
         /** Reduction factor */
         public static final double kReduction = 9424. / 203.;
 
-        /** The minimum amount of voltage that can turn the turn motor */
-        public static final double kStaticFriction = 0.1;
-
         /** Idle mode, can be either brake or coast */
         public static final IdleMode kIdleMode = IdleMode.kBrake;
     }
 
     public static final class DriveEncoder {
         /** Convert from motor-rotations to wheel-radians */
-        public static final double kPositionFactor = kTau / DriveMotor.kReduction;
+        public static final double kPositionFactor = kTau * DriveMotor.kReduction;
 
         /** Convert from motor rotations per minute to wheel radians per second */
         public static final double kVelocityFactor = kPositionFactor / 60.0;
@@ -72,9 +71,6 @@ public final class ModuleConstants {
 
         /** Invert the turn encoder. Never change this. Ever. */
         public static final boolean kInverted = true;
-
-        public static final double kMinPidInput = 0.0;
-        public static final double kMaxPidInput = kTau;
     }
 
     public static final class Wheel {
@@ -82,7 +78,7 @@ public final class ModuleConstants {
         public static final double kRadius = Inches.of(1.5).in(Meters);
 
         /** Angular free speed of the wheel */
-        public static final double kFreeSpeedAngular = MotorConstants.Neo.kFreeSpeed / DriveMotor.kReduction;
+        public static final double kFreeSpeedAngular = MotorConstants.Neo.kFreeSpeed * DriveMotor.kReduction;
 
         /** Linear free speed of the wheel */
         public static final double kFreeSpeedLinear = kFreeSpeedAngular * kRadius;
@@ -92,7 +88,34 @@ public final class ModuleConstants {
     }
 
     public static final class MaxSpeed {
-        public static final double kLinear = 2.8;
-        public static final double kAngular = kTau;
+        public static final double kLinear = 3.34;
+        public static final double kAngular = 8.87;
     }
+
+    public static final class Translations {
+        public static final Translation2d kFrontLeft = new Translation2d(
+            RobotConstants.DriveBase.kWheelBase / 2,
+            RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d kFrontRight = new Translation2d(
+            RobotConstants.DriveBase.kWheelBase / 2,
+            -RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d kRearLeft = new Translation2d(
+            -RobotConstants.DriveBase.kWheelBase / 2,
+            RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d kRearRight = new Translation2d(
+            -RobotConstants.DriveBase.kWheelBase / 2,
+            -RobotConstants.DriveBase.kTrackWidth / 2
+        );
+        public static final Translation2d[] kModules = new Translation2d[]{
+            kFrontLeft,
+            kFrontRight,
+            kRearLeft,
+            kRearRight
+        };
+    }
+
+    public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(Translations.kModules);
 }
