@@ -46,11 +46,11 @@ public abstract class AlignClosest extends ToNearbyPose {
             double targetDist = robotPose.getTranslation().getDistance(target.getTranslation());
 
             if (targetDist >= VisionConstants.Align.kMaxDistance) {
-                System.out.println("AlignClosest: target too far away. Exiting early");
+                System.out.println("AlignClosest: target too far away." + targetDist + " Exiting early");
                 tagId = -1;
                 return null;
             }
-            
+
             return target;
         };
     }

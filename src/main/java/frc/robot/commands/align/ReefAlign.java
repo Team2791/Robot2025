@@ -20,7 +20,7 @@ public class ReefAlign extends AlignClosest {
             drivetrain,
             VisionConstants.AprilTag::reef,
             new Transform2d(
-                0.5 * RobotConstants.DriveBase.kBumperLength + 0.06,
+                0.5 * RobotConstants.DriveBase.kBumperLength,
                 VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             )
