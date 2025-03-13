@@ -164,9 +164,9 @@ public class AutoManager {
     public AutoRoutine routine(Dispenser dispenser, Elevator elevator, Intake intake) {
         AutoRoutine routine = factory.newRoutine("Main Routine");
 
-        AutoTrajectory startingToScore = routine.trajectory("far_lscore");
-        AutoTrajectory scoreToIntake = routine.trajectory("lscore_lintake");
-        AutoTrajectory intakeToScore = routine.trajectory("lintake_lscore");
+        AutoTrajectory startingToScore = routine.trajectory("far_flscore");
+        AutoTrajectory scoreToIntake = routine.trajectory("flscore_lintake");
+        AutoTrajectory intakeToScore = routine.trajectory("lintake_flscore");
 
         startingToScore.active().onTrue(Commands.runOnce(() -> displayTrajectory(startingToScore)));
         scoreToIntake.active().onTrue(Commands.runOnce(() -> displayTrajectory(scoreToIntake)));
