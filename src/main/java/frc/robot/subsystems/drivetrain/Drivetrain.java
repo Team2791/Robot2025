@@ -10,6 +10,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -207,6 +208,9 @@ public class Drivetrain extends SubsystemBase {
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
 
+        // desaturate
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
+
         IterUtil.zipThen(
             Arrays.stream(modules()),
             Arrays.stream(states),
@@ -342,7 +346,7 @@ public class Drivetrain extends SubsystemBase {
         // update gyro data
         gyro.update();
 
-        // update all modulesz
+        // update all modules
         Arrays.stream(modules()).forEach(ModuleIO::update);
 
         // update odometry

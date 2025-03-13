@@ -99,7 +99,7 @@ public class AutoManager {
 
     public Command score(Dispenser dispenser, Elevator elevator, ScoreLocation location) {
         return Commands.sequence(
-            new ReefAlign(drivetrain, location.offset, List.of(19, 17, 8, 6)),
+            new ReefAlign(drivetrain, location.offset),
             new Elevate(elevator, location.level),
             new DispenseOut(dispenser, elevator),
             new Elevate(elevator, 0)
