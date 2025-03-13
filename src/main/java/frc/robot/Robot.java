@@ -59,7 +59,7 @@ public class Robot extends LoggedRobot {
         switch (AdvantageConstants.kCurrentMode) {
             case Real:
                 String log = "akit_" + BuildConstants.BUILD_DATE.replaceAll(" ", "_") + ".wpi.log";
-                Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/.log/akit/" + log));
+                Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs/akit/" + log));
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
             case Sim:
