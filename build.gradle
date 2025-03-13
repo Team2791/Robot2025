@@ -1,7 +1,5 @@
 import edu.wpi.first.gradlerio.GradleRIOPlugin
 
-import javax.swing.*
-
 plugins {
     id "java"
     id "com.peterabeles.gversion" version "1.10"
@@ -144,17 +142,7 @@ task(autocommit) {
             def branch = 'git branch --show-current'.execute().text.trim()
 
             if (branch.startsWith(branchPrefix)) {
-                def commitMessage = JOptionPane.showInputDialog(
-                        null,
-                        "Enter commit message:",
-                        "Commit Message",
-                        JOptionPane.PLAIN_MESSAGE
-                )
-
-                if (commitMessage == null || commitMessage.trim().isEmpty()) {
-                    commitMessage = "Auto-commit at ${new Date().toString()}"
-                    return
-                }
+                def commitMessage = "Auto-commit at ${new Date().toString()}"
 
                 exec {
                     workingDir(projectDir)
