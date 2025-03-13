@@ -58,8 +58,7 @@ public class Robot extends LoggedRobot {
         // setup logger data receivers
         switch (AdvantageConstants.kCurrentMode) {
             case Real:
-                String log = "akit_" + BuildConstants.BUILD_DATE.replaceAll(" ", "_") + ".wpi.log";
-                Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs/akit/" + log));
+                Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
             case Sim:
