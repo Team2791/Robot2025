@@ -1,5 +1,5 @@
 {
- "name":"near_lscore",
+ "name":"near_flscore",
  "version":1,
  "snapshot":{
   "waypoints":[
