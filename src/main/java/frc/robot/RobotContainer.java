@@ -15,6 +15,7 @@ import frc.robot.commands.elevator.ManualElevate;
 import frc.robot.commands.intake.Dislodge;
 import frc.robot.commands.intake.FullIntake;
 import frc.robot.commands.manipulator.FullManipulate;
+import frc.robot.commands.manipulator.RunManipulator;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
@@ -145,6 +146,7 @@ public class RobotContainer {
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
         operctl.x().whileTrue(new Dislodge(intake, dispenser));
+        operctl.y().toggleOnTrue(new RunManipulator(manipulator));
     }
 
     public Command getAutonomousCommand() { return autoChooser.selectedCommand(); }
