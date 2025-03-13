@@ -43,8 +43,8 @@ public final class VisionConstants {
                 0,
                 Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)
             ),
-            new Rotation3d(0, Degrees.of(27).in(Radians), 0)
-        ); // todo:
+            new Rotation3d(0, Degrees.of(27).in(Radians), Math.PI)
+        );
     }
 
     public static final class Align {
