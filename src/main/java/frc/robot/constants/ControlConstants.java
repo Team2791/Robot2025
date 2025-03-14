@@ -35,7 +35,7 @@ public final class ControlConstants {
     }
 
     public static final class Align {
-        public static final double kOrthoP = 0.95;
+        public static final double kOrthoP = 1.15;
         public static final double kOrthoI = 0.00;
         public static final double kOrthoD = 0.075;
 
