@@ -1,6 +1,7 @@
 package frc.robot.commands.align;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -8,11 +9,22 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class AlignClosest extends ToNearbyPose {
+public class AlignNearby extends ToNearbyPose {
+    public record DisableDirection(boolean x, boolean y, boolean rot) {
+        public static DisableDirection disableNone() {
+            return new DisableDirection(false, false, false);
+        }
+    }
+
     int tagId = -1;
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public AlignClosest(Drivetrain drivetrain, Supplier<List<Integer>> targetIds, Transform2d offset) {
+    public AlignNearby(
+        Drivetrain drivetrain,
+        Supplier<List<Integer>> targetIds,
+        final Transform2d offset,
+        DisableDirection disabled
+    ) {
         super(
             drivetrain,
             new Pose2d()
@@ -21,6 +33,11 @@ public abstract class AlignClosest extends ToNearbyPose {
         super.targetSupplier = () -> {
             System.out.println("AlignClosest: aligning to closest tag");
 
+            Transform2d offsetFixed = new Transform2d(
+                offset.getX(),
+                offset.getY(),
+                new Rotation2d(offset.getRotation().getRadians())
+            );
             Pose2d robotPose = drivetrain.getPose();
             Pose2d tagPose = null;
 
@@ -43,8 +60,14 @@ public abstract class AlignClosest extends ToNearbyPose {
                 return null;
             }
 
+            Transform2d toRobot = tagPose.minus(robotPose);
+            if (disabled.x) offsetFixed = new Transform2d(toRobot.getX(), offset.getY(), offset.getRotation());
+            if (disabled.y) offsetFixed = new Transform2d(offset.getX(), toRobot.getY(), offset.getRotation());
+            if (disabled.rot) offsetFixed = new Transform2d(offset.getX(), offset.getY(), offset.getRotation());
+
             // set target robot pose
-            Pose2d target = tagPose.transformBy(offset);
+            Pose2d target = tagPose.transformBy(offsetFixed);
+
             double targetDist = robotPose.getTranslation().getDistance(target.getTranslation());
 
             if (targetDist >= VisionConstants.Align.kMaxDistance) {
@@ -62,6 +85,14 @@ public abstract class AlignClosest extends ToNearbyPose {
 
             return target;
         };
+    }
+
+    public AlignNearby(
+        Drivetrain drivetrain,
+        Supplier<List<Integer>> targetIds,
+        Transform2d offset
+    ) {
+        this(drivetrain, targetIds, offset, DisableDirection.disableNone());
     }
 
     public int getTagId() {

@@ -94,8 +94,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // automatically start the intake if near the coral station
-
         // disable for now.
         FullIntake.registerNearby(dispenser, elevator, intake);
         Elevate.registerRetract(elevator);
@@ -118,7 +116,6 @@ public class RobotContainer {
         ));
 
         driverctl.rightStick().onTrue(new Elevate(elevator, 0));
-        driverctl.leftStick().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
 
         operctl.axisLessThan(1, -0.1)
             .whileTrue(
@@ -136,10 +133,12 @@ public class RobotContainer {
                 )
             );
 
+        operctl.leftBumper().toggleOnTrue(new RunManipulator(manipulator));
+
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
         operctl.x().whileTrue(new Dislodge(intake, dispenser));
-        operctl.y().toggleOnTrue(new RunManipulator(manipulator));
+        operctl.y().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
     }
 
     public Command getAutonomousCommand() { return autoChooser.selectedCommand(); }

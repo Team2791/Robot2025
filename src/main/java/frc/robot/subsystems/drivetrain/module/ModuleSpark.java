@@ -7,6 +7,8 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.IOConstants;
@@ -118,6 +120,14 @@ public class ModuleSpark extends ModuleIO {
 
         this.data.desired = corrected;
         this.data.commanded = RadiansPerSecond.of(angular);
+    }
+
+    @Override
+    public void setIdleMode(SparkBaseConfig.IdleMode mode) {
+        SparkMaxConfig config = SparkConfigConstants.Drivetrain.kDrive;
+        config.idleMode(mode);
+
+        this.driveMotor.configure(config, SparkConfigConstants.kResetMode, SparkConfigConstants.kPersistMode);
     }
 }
 
