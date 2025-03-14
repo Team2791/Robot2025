@@ -2,9 +2,7 @@ package frc.robot;
 
 import choreo.auto.AutoChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autos.AutoManager;
 import frc.robot.commands.dispenser.DispenseOut;
@@ -148,5 +146,12 @@ public class RobotContainer {
         // operctl.y().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
     }
 
-    public Command getAutonomousCommand() { return autoChooser.selectedCommand(); }
+    public Command getAutonomousCommand() {
+        return Commands.runOnce(() -> drivetrain.drive(
+            0.25,
+            0.0,
+            0.0,
+            Drivetrain.FieldRelativeMode.kOff
+        )).withDeadline(new WaitCommand(3));
+    }
 }
