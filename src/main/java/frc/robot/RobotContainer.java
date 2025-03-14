@@ -85,7 +85,7 @@ public class RobotContainer {
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
         this.autoChooser = new AutoChooser();
-        this.autoChooser.addRoutine("Default Routine", () -> this.autoManager.routine(dispenser, elevator, intake));
+        this.autoChooser.addRoutine("Default Routine", this.autoManager::straight);
 
         configureBindings();
 

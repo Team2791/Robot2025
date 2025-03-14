@@ -191,4 +191,14 @@ public class AutoManager {
 
         return routine;
     }
+
+    public AutoRoutine straight() {
+        AutoRoutine routine = factory.newRoutine("Straight");
+
+        AutoTrajectory begin = routine.trajectory("straight");
+        begin.done().onTrue(Commands.runOnce(this::clearTrajectory));
+
+        routine.active().onTrue(routine.cmd());
+        return routine;
+    }
 }
