@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 public class ToNearbyPose extends Command {
     public record NearbyPoseOptions(boolean notifySuccess) { }
 
+    // TODO: HolonomicDriveController
     final PIDController xController = new PIDController(
         ControlConstants.Align.kOrthoP,
         ControlConstants.Align.kOrthoI,
@@ -55,7 +56,7 @@ public class ToNearbyPose extends Command {
 
         xController.setTolerance(0.02);
         yController.setTolerance(0.02);
-        rotController.setTolerance(0.002);
+        rotController.setTolerance(0.02);
 
         addRequirements(drivetrain);
     }
@@ -124,7 +125,7 @@ public class ToNearbyPose extends Command {
                 "Alignment cancelled",
                 "Automatic alignment took too long or was too far away"
             ));
-        } else {
+        } else if (!options.notifySuccess) {
             Elastic.sendNotification(new Elastic.Notification(
                 Elastic.Notification.NotificationLevel.WARNING,
                 "Alignment cancelled",

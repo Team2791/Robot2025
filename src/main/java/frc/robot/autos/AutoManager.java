@@ -16,6 +16,7 @@ import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.intake.FullIntake;
 import frc.robot.constants.ControlConstants;
+import frc.robot.constants.GameConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -74,12 +75,20 @@ public class AutoManager {
     public void follow(SwerveSample trajectory) {
         // get current pose
         Pose2d pose = drivetrain.getPose();
+        Pose2d wants = trajectory.getPose();
 
+        if (GameConstants.kAllianceInvert.get()) {
+            wants = wants.relativeTo(GameConstants.kRedOrigin);
+        }
+        
         // generate speeds
         ChassisSpeeds speeds = new ChassisSpeeds(
-            trajectory.vx + xController.calculate(pose.getX(), trajectory.x),
-            trajectory.vy + yController.calculate(pose.getY(), trajectory.y),
-            trajectory.omega + rotController.calculate(pose.getRotation().getRadians(), trajectory.heading)
+            trajectory.vx + xController.calculate(pose.getX(), wants.getX()),
+            trajectory.vy + yController.calculate(pose.getY(), wants.getY()),
+            trajectory.omega + rotController.calculate(
+                pose.getRotation().getRadians(),
+                wants.getRotation().getRadians()
+            )
         );
 
         // field-relative drive
