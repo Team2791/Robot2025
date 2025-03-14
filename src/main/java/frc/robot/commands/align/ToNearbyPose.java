@@ -101,7 +101,6 @@ public class ToNearbyPose extends Command {
         double rotPower = rotController.calculate(robot.getRotation().getRadians());
 
         drivetrain.drive(xPower, yPower, rotPower, Drivetrain.FieldRelativeMode.kFixedOrigin);
-
         if (deadline.hasElapsed(VisionConstants.Align.kDeadline)) exit = true;
     }
 

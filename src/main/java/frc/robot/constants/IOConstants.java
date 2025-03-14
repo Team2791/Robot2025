@@ -46,6 +46,6 @@ public final class IOConstants {
         public static final int kDriver = 0;
         public static final int kOperator = 1;
 
-        public static final double kDeadband = 0.1;
+        public static final double kDeadband = 0.05;
     }
 }
