@@ -26,6 +26,7 @@ import frc.robot.event.EventDependency;
 import frc.robot.subsystems.drivetrain.gyro.GyroIO;
 import frc.robot.subsystems.drivetrain.module.ModuleIO;
 import frc.robot.subsystems.photon.CameraIO;
+import frc.robot.util.AdvantageUtil;
 import frc.robot.util.IterUtil;
 import frc.robot.util.RateLimiter;
 import org.dyn4j.geometry.Vector2;
@@ -76,7 +77,7 @@ public class Drivetrain extends SubsystemBase {
         rearRight = moduleConstructor.apply(3);
 
         odometry = new SwerveDrivePoseEstimator(
-            DriveConstants.kKinematics,
+            ModuleConstants.kKinematics,
             gyro.heading(),
             modulePositions(),
             GameConstants.kInitialPose
@@ -117,11 +118,11 @@ public class Drivetrain extends SubsystemBase {
                     ModuleConstants.MaxSpeed.kLinear,
                     ModuleConstants.Wheel.kFrictionCoefficient,
                     DCMotor.getNEO(1),
-                    ModuleConstants.DriveMotor.kReduction,
+                    1.0 / ModuleConstants.DriveMotor.kReduction,
                     MotorConstants.Neo.kCurrentLimit,
                     1
                 ),
-                DriveConstants.kModuleTranslations
+                ModuleConstants.Translations.kModules
             ),
             () -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
             this
@@ -198,7 +199,7 @@ public class Drivetrain extends SubsystemBase {
     /**
      * @return The speeds of the entire chassis
      */
-    public ChassisSpeeds getChassisSpeeds() { return DriveConstants.kKinematics.toChassisSpeeds(moduleStates()); }
+    public ChassisSpeeds getChassisSpeeds() { return ModuleConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
     /**
      * @param speeds The desired speeds for the robot to move at.
@@ -206,7 +207,7 @@ public class Drivetrain extends SubsystemBase {
     private void setDesiredSpeeds(ChassisSpeeds speeds) {
         // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
-        SwerveModuleState[] states = DriveConstants.kKinematics.toSwerveModuleStates(discrete);
+        SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
 
         // this probably doesn't need to happen again but just in case we get bad parameters somehow
         SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
@@ -342,7 +343,7 @@ public class Drivetrain extends SubsystemBase {
         // update gyro data
         gyro.update();
 
-        // update all modulesz
+        // update all modules
         Arrays.stream(modules()).forEach(ModuleIO::update);
 
         // update odometry
@@ -366,6 +367,7 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
         Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());
         Logger.processInputs("Drivetrain/Gyro", gyro.data);
+        AdvantageUtil.logActiveCommand(this);
 
         SmartDashboard.putData("Field", field);
     }

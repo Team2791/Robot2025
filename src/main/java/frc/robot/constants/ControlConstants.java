@@ -1,6 +1,6 @@
 package frc.robot.constants;
 
-import com.pathplanner.lib.path.PathConstraints;
+import static frc.robot.constants.MathConstants.kTau;
 
 public final class ControlConstants {
     public static final class DriveMotor {
@@ -17,8 +17,11 @@ public final class ControlConstants {
         public static final double kI = 0.0;
         public static final double kD = 0.01;
         public static final double kF = 0.0;
-        public static final double kMin = -1.0;
-        public static final double kMax = 1.0;
+
+        public static final double kMinOut = -1.0;
+        public static final double kMaxOut = 1.0;
+        public static final double kMinInput = 0;
+        public static final double kMaxInput = kTau;
     }
 
     public static final class Auto {
@@ -29,9 +32,6 @@ public final class ControlConstants {
         public static final double kTurnP = 15.00;
         public static final double kTurnI = 0.00;
         public static final double kTurnD = 0.00;
-
-        // lin. speed, lin. accel, ang. speed, ang. accel. provided by choreo, floored
-        public static final PathConstraints kConstraints = new PathConstraints(3.0, 7.0, 8.0, 48.0);
     }
 
     public static final class Align {
@@ -54,9 +54,9 @@ public final class ControlConstants {
     }
 
     public static final class AlgaeManipulator {
-        public static final double kP = 0.0;
+        public static final double kP = 0.1;
         public static final double kI = 0.0;
-        public static final double kD = 0.0;
+        public static final double kD = 0.0004;
         public static final double kF = 0.0;
         public static final double kMin = -1.0;
         public static final double kMax = 1.0;
@@ -66,4 +66,6 @@ public final class ControlConstants {
         public static final double kOrthogonal = 9.5;
         public static final double kRotation = 4.5;
     }
+
+    public static final double kGyroFactor = -1.0;
 }

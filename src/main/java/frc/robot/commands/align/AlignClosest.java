@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class AlignClosest extends ToNearbyPose {
-    static int tagId = -1;
+    int tagId = -1;
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public AlignClosest(Drivetrain drivetrain, Supplier<List<Integer>> targetIds, Transform2d offset) {
@@ -19,6 +19,8 @@ public abstract class AlignClosest extends ToNearbyPose {
         );
 
         super.targetSupplier = () -> {
+            System.out.println("AlignClosest: aligning to closest tag");
+
             Pose2d robotPose = drivetrain.getPose();
             Pose2d tagPose = null;
 
@@ -46,16 +48,23 @@ public abstract class AlignClosest extends ToNearbyPose {
             double targetDist = robotPose.getTranslation().getDistance(target.getTranslation());
 
             if (targetDist >= VisionConstants.Align.kMaxDistance) {
-                System.out.println("AlignClosest: target too far away." + targetDist + " Exiting early");
+                System.out.println(
+                    "AlignClosest: target too far away: "
+                        + targetDist + "m > "
+                        + VisionConstants.Align.kMaxDistance + "m. "
+                        + "Exiting early"
+                );
                 tagId = -1;
                 return null;
+            } else {
+                System.out.println("AlignClosest: aligning to tag " + tagId + " with distance " + targetDist + "m");
             }
 
             return target;
         };
     }
 
-    public static int getTagId() {
+    public int getTagId() {
         return tagId;
     }
 }

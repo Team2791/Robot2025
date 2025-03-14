@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ElevatorConstants;
+import frc.robot.util.AdvantageUtil;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -72,6 +73,8 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         elevator.update();
+        
         Logger.processInputs("Elevator", elevator.data);
+        AdvantageUtil.logActiveCommand(this);
     }
 }

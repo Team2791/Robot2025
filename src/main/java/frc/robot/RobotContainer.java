@@ -1,7 +1,6 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -14,6 +13,8 @@ import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.elevator.ManualElevate;
 import frc.robot.commands.intake.Dislodge;
 import frc.robot.commands.intake.FullIntake;
+import frc.robot.commands.manipulator.FullManipulate;
+import frc.robot.commands.manipulator.RunManipulator;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
@@ -72,7 +73,7 @@ public class RobotContainer {
         drivetrain,
         AdvantageUtil.matchReal(Camera::new, CameraSim::new, CameraReplay::new)
     );
-    final AlgaeManipulator algae = new AlgaeManipulator(
+    final AlgaeManipulator manipulator = new AlgaeManipulator(
         AdvantageUtil.matchReal(ManipulatorSpark::new, ManipulatorSim::new, ManipulatorReplay::new)
     );
 
@@ -81,15 +82,9 @@ public class RobotContainer {
     final AutoChooser autoChooser;
 
     public RobotContainer() {
-        NamedCommands.registerCommand("LeftAlign", new ReefAlign(drivetrain, -1));
-        NamedCommands.registerCommand("Elevate0", new Elevate(elevator, 0));
-        NamedCommands.registerCommand("Elevate4", new Elevate(elevator, 4));
-        NamedCommands.registerCommand("DispenseOut", new DispenseOut(dispenser, elevator));
-
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
         this.autoChooser = new AutoChooser();
-
         this.autoChooser.addRoutine("Default Routine", () -> this.autoManager.routine(dispenser, elevator, intake));
 
         configureBindings();
@@ -101,9 +96,9 @@ public class RobotContainer {
     private void configureBindings() {
         // automatically start the intake if near the coral station
 
-        // disable for now. TODO: comps: enable this
-        // FullIntake.registerNearby(intake, lift);
-        // Elevate.registerRetract(lift);
+        // disable for now.
+        FullIntake.registerNearby(dispenser, elevator, intake);
+        Elevate.registerRetract(elevator);
 
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
@@ -123,6 +118,7 @@ public class RobotContainer {
         ));
 
         driverctl.rightStick().onTrue(new Elevate(elevator, 0));
+        driverctl.leftStick().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
 
         operctl.axisLessThan(1, -0.1)
             .whileTrue(
@@ -143,6 +139,7 @@ public class RobotContainer {
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
         operctl.x().whileTrue(new Dislodge(intake, dispenser));
+        operctl.y().toggleOnTrue(new RunManipulator(manipulator));
     }
 
     public Command getAutonomousCommand() { return autoChooser.selectedCommand(); }

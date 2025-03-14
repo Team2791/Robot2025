@@ -2,8 +2,6 @@ package frc.robot.constants;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import static frc.robot.constants.MathConstants.kTau;
-
 public class IntakeConstants {
     public static final class Motor {
         /** No reduction is applied */
@@ -14,11 +12,6 @@ public class IntakeConstants {
 
         /** Moment of Inertia */
         public static final double kMoI = 0.01;
-    }
-
-    public static final class Encoder {
-        public static final double kPositionFactor = kTau / Motor.kReduction;
-        public static final double kVelocityFactor = kPositionFactor / 60;
     }
 
     public static final class Power {

@@ -20,7 +20,6 @@ public class Alerter {
 
     ArrayList<SparkBase> sparks = new ArrayList<>();
     ArrayList<String> sparkNames = new ArrayList<>();
-    ArrayList<Integer> sparkIds = new ArrayList<>();
 
     Notifier vibrateStop = new Notifier(this::still);
 
@@ -96,7 +95,6 @@ public class Alerter {
 
     public void registerSpark(String name, SparkBase spark) {
         sparks.add(spark);
-        sparkIds.add(spark.getDeviceId());
         sparkNames.add(name);
     }
 
@@ -104,7 +102,7 @@ public class Alerter {
         for (int i = 0; i < sparks.size(); i++) {
             SparkBase spark = sparks.get(i);
             String name = sparkNames.get(i);
-            int can = sparkIds.get(i);
+            int can = spark.getDeviceId();
 
             if (spark.getLastError() != REVLibError.kOk) {
                 Elastic.sendNotification(

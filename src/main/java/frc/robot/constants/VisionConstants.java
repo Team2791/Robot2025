@@ -14,8 +14,7 @@ import org.photonvision.simulation.SimCameraProperties;
 
 import java.util.List;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 public final class VisionConstants {
     public static final SimCameraProperties kSimCameraProps;
@@ -26,6 +25,7 @@ public final class VisionConstants {
 
     public static final class Names {
         public static final String kFront = "front";
+        public static final String kRear = "rear";
     }
 
     public static final class Transforms {
@@ -37,11 +37,19 @@ public final class VisionConstants {
             ),
             new Rotation3d()
         );
+        public static final Transform3d kBotToRear = new Transform3d(
+            new Translation3d(
+                Inches.of(-12).in(Meters),
+                0,
+                Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)
+            ),
+            new Rotation3d(0, Degrees.of(27).in(Radians), Math.PI)
+        );
     }
 
     public static final class Align {
         public static final double kReefOffset = Inches.of(13.0).div(2).in(Meters);
-        public static final double kMaxDistance = 3.5;
+        public static final double kMaxDistance = 1.20;
     }
 
     public static final class AprilTag {

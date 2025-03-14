@@ -10,6 +10,7 @@ import frc.robot.event.Event;
 import frc.robot.event.EventDependency;
 import frc.robot.subsystems.dispenser.DispenserIO.DispenserData;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.util.AdvantageUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -61,6 +62,8 @@ public class Dispenser extends SubsystemBase {
     @Override
     public void periodic() {
         dispenser.update();
+        
         Logger.processInputs("Dispenser", dispenser.data);
+        AdvantageUtil.logActiveCommand(this);
     }
 }

@@ -1,5 +1,6 @@
 package frc.robot.commands.intake;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -38,7 +39,12 @@ public class FullIntake extends SequentialCommandGroup {
             new ParallelCommandGroup(
                 new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, elevator)),
                 new SequentialCommandGroup(new DispenseIn(dispenser, elevator), new SlowBack(dispenser))
-            ),
+            )
+                .handleInterrupt(() -> new SequentialCommandGroup(
+                    new Dislodge(intake, dispenser),
+                    new FullIntake(dispenser, elevator, intake)
+                ))
+                .withTimeout(5.0),
             new FunctionWrapper(Alerter.getInstance()::rumble)
         );
     }
@@ -59,6 +65,9 @@ public class FullIntake extends SequentialCommandGroup {
             distance -> {
                 boolean nearby = distance <= IntakeConstants.Range.kRunIntake;
                 boolean scheduled = scheduler.isScheduled(instance);
+                boolean auto = DriverStation.isAutonomous();
+
+                if (auto) return;
 
                 if (nearby && !scheduled) scheduler.schedule(instance);
                 else if (!nearby && scheduled && instance.stage == 0) scheduler.cancel(instance);

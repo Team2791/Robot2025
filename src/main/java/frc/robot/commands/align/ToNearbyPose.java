@@ -54,6 +54,7 @@ public class ToNearbyPose extends Command {
 
     @Override
     public final void initialize() {
+        exit = false;
         Pose2d target = targetSupplier.get();
 
         if (target == null) {
@@ -84,6 +85,7 @@ public class ToNearbyPose extends Command {
     public final void end(boolean interrupted) {
         // effectively remove target from field
         drivetrain.field.getObject("Nearby/Target").setPose(new Pose2d(-1, -1, new Rotation2d()));
+        Logger.recordOutput("Nearby/Target", new Pose2d(-1, -1, new Rotation2d()));
 
         if (!interrupted) Alerter.getInstance().rumble();
         else Elastic.sendNotification(new Elastic.Notification(

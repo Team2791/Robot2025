@@ -1,11 +1,11 @@
 package frc.robot.subsystems.dispenser;
 
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
 
 public abstract class DispenserIO {
     @AutoLog
@@ -18,7 +18,7 @@ public abstract class DispenserIO {
         public Voltage followerVoltage = Volts.of(0);
         public Current followerCurrent = Amps.of(0);
 
-        public AngularVelocity velocity = RadiansPerSecond.of(0);
+        public double power = 0;
         public boolean broken = false;
     }
 

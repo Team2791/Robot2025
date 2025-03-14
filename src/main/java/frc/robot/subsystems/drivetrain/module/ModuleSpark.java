@@ -4,21 +4,14 @@ import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
-import frc.robot.constants.ModuleConstants.DriveEncoder;
-import frc.robot.constants.ModuleConstants.TurnEncoder;
-import frc.robot.constants.MotorConstants;
+import frc.robot.constants.SparkConfigConstants;
 import frc.robot.util.Alerter;
 
 import static edu.wpi.first.units.Units.*;
@@ -79,59 +72,17 @@ public class ModuleSpark extends ModuleIO {
 
         desiredState = new SwerveModuleState();
 
-        // configure motors
-        SparkMaxConfig driveConfig = new SparkMaxConfig();
-        SparkMaxConfig turnConfig = new SparkMaxConfig();
-
-        // position, velocity factors
-        driveConfig.encoder.positionConversionFactor(DriveEncoder.kPositionFactor);
-        driveConfig.encoder.velocityConversionFactor(DriveEncoder.kVelocityFactor);
-        turnConfig.absoluteEncoder.positionConversionFactor(TurnEncoder.kPositionFactor);
-        turnConfig.absoluteEncoder.velocityConversionFactor(TurnEncoder.kVelocityFactor);
-
-        // invert encoders
-        turnConfig.absoluteEncoder.inverted(TurnEncoder.kInverted);
-        turnConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-
-        // pid wrapping
-        turnConfig.closedLoop.positionWrappingEnabled(true);
-        turnConfig.closedLoop.positionWrappingMinInput(TurnEncoder.kMinPidInput);
-        turnConfig.closedLoop.positionWrappingMaxInput(TurnEncoder.kMaxPidInput);
-
-        // pid constants
-        driveConfig.closedLoop.pidf(
-            ControlConstants.DriveMotor.kP,
-            ControlConstants.DriveMotor.kI,
-            ControlConstants.DriveMotor.kD,
-            ControlConstants.DriveMotor.kF
-        );
-
-        driveConfig.closedLoop.outputRange(
-            ControlConstants.DriveMotor.kMin,
-            ControlConstants.DriveMotor.kMax
-        );
-
-        turnConfig.closedLoop.pidf(
-            ControlConstants.TurnMotor.kP,
-            ControlConstants.TurnMotor.kI,
-            ControlConstants.TurnMotor.kD,
-            ControlConstants.TurnMotor.kF
-        );
-
-        turnConfig.closedLoop.outputRange(
-            ControlConstants.TurnMotor.kMin,
-            ControlConstants.TurnMotor.kMax
-        );
-
-        // misc
-        driveConfig.idleMode(ModuleConstants.DriveMotor.kIdleMode);
-        turnConfig.idleMode(ModuleConstants.TurnMotor.kIdleMode);
-        driveConfig.smartCurrentLimit((int) MotorConstants.Neo.kCurrentLimit);
-        turnConfig.smartCurrentLimit((int) MotorConstants.Neo550.kCurrentLimit);
-
         // apply and burn configs
-        driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        driveMotor.configure(
+            SparkConfigConstants.Drivetrain.kDrive,
+            SparkConfigConstants.kResetMode,
+            SparkConfigConstants.kPersistMode
+        );
+        turnMotor.configure(
+            SparkConfigConstants.Drivetrain.kTurn,
+            SparkConfigConstants.kResetMode,
+            SparkConfigConstants.kPersistMode
+        );
 
         // register with notifier
         Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Drive", driveMotor);
