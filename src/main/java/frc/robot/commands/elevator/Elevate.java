@@ -13,13 +13,13 @@ public class Elevate extends FunctionWrapper {
     private static Key<Double, Dispenser.ReefRange> retract;
 
     /**
-     * Elevate to a certain height. This command will block until the lift is at the desired height.
+     * Elevate to a certain height. This command will block until the elevator is at the desired height.
      *
-     * @param lift   The lift subsystem
-     * @param height The height to elevate to
+     * @param elevator The elevator subsystem
+     * @param height   The height to elevate to
      */
-    public Elevate(Elevator lift, int height) {
-        this(lift, height, true);
+    public Elevate(Elevator elevator, int height) {
+        this(elevator, height, true);
     }
 
     /**

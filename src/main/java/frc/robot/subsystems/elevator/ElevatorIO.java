@@ -23,7 +23,7 @@ public abstract class ElevatorIO {
 
         public Angle desired = Radians.of(0);
 
-        @AutoLogOutput(key = "Lift/Elevator/Height")
+        @AutoLogOutput(key = "Elevator/Height")
         public Distance height() {
             double angle = position.in(Radians);
             double elevatorHeight = angle * ElevatorConstants.Sprocket.kRadius;

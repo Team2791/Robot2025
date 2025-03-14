@@ -21,7 +21,7 @@ public class Emitter {
 
         if (eventListeners != null) {
             for (Consumer<?> listener : eventListeners) {
-                executor.execute(() -> ((Consumer<T>) listener).accept(data));
+                ((Consumer<T>) listener).accept(data);
             }
         }
     }

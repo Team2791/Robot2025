@@ -16,7 +16,6 @@ import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.intake.FullIntake;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.GameConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -24,7 +23,6 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class AutoManager {
@@ -63,7 +61,11 @@ public class AutoManager {
             p -> Emitter.emit(new Drivetrain.PoseResetEvent(), p),
             this::follow,
             true,
-            drivetrain
+            drivetrain,
+            (sample, isStart) -> {
+                Logger.recordOutput("Auto/CurrentTrajectory", sample.getPoses());
+                drivetrain.field.getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
+            }
         );
 
         rotController.enableContinuousInput(-Math.PI, Math.PI);
@@ -147,19 +149,6 @@ public class AutoManager {
         return Commands.sequence(commands).withName("Auto: Intake+Score Loop");
     }
 
-    public void displayTrajectory(AutoTrajectory trajectory) {
-        Pose2d[] traj = trajectory.getRawTrajectory().getPoses();
-
-        if (GameConstants.kAllianceInvert.get()) {
-            List<Pose2d> poses = Arrays.stream(traj).map(p -> p.relativeTo(GameConstants.kRedOrigin)).toList();
-            drivetrain.field.getObject("AutoPath").setPoses(poses);
-            Logger.recordOutput("Auto/CurrentTrajectory", poses.toArray(Pose2d[]::new));
-        } else {
-            drivetrain.field.getObject("AutoPath").setPoses(traj);
-            Logger.recordOutput("Auto/CurrentTrajectory", traj);
-        }
-    }
-
     public void clearTrajectory() {
         drivetrain.field.getObject("AutoPath").setPoses();
         Logger.recordOutput("Auto/CurrentTrajectory", new Pose2d[0]);
@@ -171,10 +160,6 @@ public class AutoManager {
         AutoTrajectory startingScore = routine.trajectory("far_flscore");
         AutoTrajectory startingIntake = routine.trajectory("flscore_lintake");
         AutoTrajectory secondScore = routine.trajectory("lintake_flscore");
-
-        startingScore.active().onTrue(Commands.runOnce(() -> displayTrajectory(startingScore)));
-        startingIntake.active().onTrue(Commands.runOnce(() -> displayTrajectory(startingIntake)));
-        secondScore.active().onTrue(Commands.runOnce(() -> displayTrajectory(secondScore)));
 
         startingScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
         startingIntake.done().onTrue(Commands.runOnce(this::clearTrajectory));
