@@ -54,7 +54,7 @@ public class ToNearbyPose extends Command {
 
         xController.setTolerance(0.02);
         yController.setTolerance(0.02);
-        rotController.setTolerance(0.02);
+        rotController.setTolerance(0.002);
 
         addRequirements(drivetrain);
     }
