@@ -147,11 +147,13 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.runOnce(() -> drivetrain.drive(
-            0.25,
-            0.0,
-            0.0,
-            Drivetrain.FieldRelativeMode.kOff
-        )).withDeadline(new WaitCommand(3));
+        return Commands.run(
+            () -> drivetrain.drive(
+                0.25,
+                0.0,
+                0.0,
+                Drivetrain.FieldRelativeMode.kOff
+            ), drivetrain
+        ).withDeadline(new WaitCommand(3));
     }
 }
