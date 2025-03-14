@@ -18,10 +18,10 @@ public class DispenserConstants {
     }
 
     public static final class Power {
-        public static final double kDispense = 0.25;
+        public static final double kDispense = 0.15;
         public static final double kSlowBack = -0.1;
         public static final double kDispenseIn = 0.15;
         public static final double kDislodge = -0.5;
-        public static final double kDispenseL1 = 0.15;
+        public static final double kDispenseL1 = 0.10;
     }
 }
