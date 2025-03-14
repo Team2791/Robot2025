@@ -41,7 +41,7 @@ public class ReefAlign extends SequentialCommandGroup {
             tags,
             new Transform2d(
                 0.5 * RobotConstants.DriveBase.kBumperLength + 0.02,
-                VisionConstants.Align.kReefOffset,
+                VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             ),
             new AlignNearby.DisableDirection(true, false, false)
