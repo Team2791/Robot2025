@@ -88,14 +88,14 @@ public class AutoManager {
         return Commands.sequence(
             trajectory.resetOdometry(),
             trajectory.cmd()
-        );
+        ).withName("Reset and Follow");
     }
 
     public Command pathfindFollow(AutoTrajectory trajectory) {
         return Commands.sequence(
             new ToNearbyPose(drivetrain, () -> trajectory.getInitialPose().orElse(null)),
             trajectory.cmd()
-        );
+        ).withName("Pathfind and Follow");
     }
 
     public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement, List<Integer> reefTags) {
@@ -104,14 +104,14 @@ public class AutoManager {
             new Elevate(elevator, placement.level).withTimeout(5.0),
             new DispenseOut(dispenser, elevator),
             new Elevate(elevator, 0)
-        );
+        ).withName("Auto: Align+Score");
     }
 
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
             new StationAlign(drivetrain),
             new FullIntake(dispenser, elevator, intake)
-        );
+        ).withName("Auto: Align+Intake");
     }
 
     public Command initialScoreIntake(
@@ -123,7 +123,7 @@ public class AutoManager {
             resetFollow(location.trajectories.toScore),
             score(dispenser, elevator, location.placement, location.reefTags),
             pathfindFollow(location.trajectories.toIntake)
-        );
+        ).withName("Auto: Initial Score+Intake");
     }
 
     public Command intakeScoreLoop(
@@ -144,7 +144,7 @@ public class AutoManager {
             i += 4;
         }
 
-        return Commands.sequence(commands);
+        return Commands.sequence(commands).withName("Auto: Intake+Score Loop");
     }
 
     public void displayTrajectory(AutoTrajectory trajectory) {
@@ -202,7 +202,7 @@ public class AutoManager {
                     )
                 )
             )
-        ));
+        ).withName("Auto: Main Routine"));
 
         return routine;
     }
