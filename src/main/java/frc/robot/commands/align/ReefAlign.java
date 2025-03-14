@@ -40,7 +40,7 @@ public class ReefAlign extends SequentialCommandGroup {
             drivetrain,
             tags,
             new Transform2d(
-                0.5 * RobotConstants.DriveBase.kBumperLength - 0.02,
+                0.5 * RobotConstants.DriveBase.kBumperLength - 0.04,
                 VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             ),
@@ -54,7 +54,7 @@ public class ReefAlign extends SequentialCommandGroup {
                 drivetrain,
                 tags,
                 new Transform2d(
-                    0.5 * RobotConstants.DriveBase.kBumperLength - 0.02,
+                    0.5 * RobotConstants.DriveBase.kBumperLength - 0.04,
                     VisionConstants.Align.kReefOffset * direction,
                     Rotation2d.kPi
                 )
