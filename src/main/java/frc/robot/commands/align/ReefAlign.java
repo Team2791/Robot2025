@@ -44,7 +44,8 @@ public class ReefAlign extends SequentialCommandGroup {
                 VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             ),
-            new AlignNearby.DisableDirection(true, false, false)
+            new AlignNearby.Capabilities(false, true, true),
+            new ToNearbyPose.NearbyPoseOptions(false)
         );
 
         addCommands(

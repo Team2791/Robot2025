@@ -60,7 +60,11 @@ public class Robot extends LoggedRobot {
         // setup logger data receivers
         switch (AdvantageConstants.kCurrentMode) {
             case Real:
-                String log = "/U/logs/" + new Date().toString().replaceAll(" ", "_") + ".wpilog";
+                String log = String.format(
+                    "/U/logs/akit_%s_%s.wpilog",
+                    new Date().toString().replaceAll(" ", "_"),
+                    BuildConstants.GIT_SHA
+                );
                 Logger.addDataReceiver(new WPILOGWriter(log));
                 Logger.addDataReceiver(new NT4Publisher());
                 break;

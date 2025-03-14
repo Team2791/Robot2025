@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class AlignNearby extends ToNearbyPose {
-    public record DisableDirection(boolean x, boolean y, boolean rot) {
-        public static DisableDirection disableNone() {
-            return new DisableDirection(false, false, false);
+    public record Capabilities(boolean x, boolean y, boolean rot) {
+        public static Capabilities all() {
+            return new Capabilities(true, true, true);
         }
     }
 
@@ -23,11 +23,13 @@ public class AlignNearby extends ToNearbyPose {
         Drivetrain drivetrain,
         Supplier<List<Integer>> targetIds,
         final Transform2d offset,
-        DisableDirection disabled
+        Capabilities caps,
+        NearbyPoseOptions options
     ) {
         super(
             drivetrain,
-            new Pose2d()
+            new Pose2d(),
+            options
         );
 
         super.targetSupplier = () -> {
@@ -61,9 +63,9 @@ public class AlignNearby extends ToNearbyPose {
             }
 
             Transform2d toRobot = tagPose.minus(robotPose);
-            if (disabled.x) offsetFixed = new Transform2d(toRobot.getX(), offset.getY(), offset.getRotation());
-            if (disabled.y) offsetFixed = new Transform2d(offset.getX(), toRobot.getY(), offset.getRotation());
-            if (disabled.rot) offsetFixed = new Transform2d(offset.getX(), offset.getY(), offset.getRotation());
+            if (!caps.x) offsetFixed = new Transform2d(toRobot.getX(), offset.getY(), offset.getRotation());
+            if (!caps.y) offsetFixed = new Transform2d(offset.getX(), toRobot.getY(), offset.getRotation());
+            if (!caps.rot) offsetFixed = new Transform2d(offset.getX(), offset.getY(), offset.getRotation());
 
             // set target robot pose
             Pose2d target = tagPose.transformBy(offsetFixed);
@@ -90,9 +92,18 @@ public class AlignNearby extends ToNearbyPose {
     public AlignNearby(
         Drivetrain drivetrain,
         Supplier<List<Integer>> targetIds,
+        Transform2d offset,
+        NearbyPoseOptions options
+    ) {
+        this(drivetrain, targetIds, offset, Capabilities.all(), options);
+    }
+
+    public AlignNearby(
+        Drivetrain drivetrain,
+        Supplier<List<Integer>> targetIds,
         Transform2d offset
     ) {
-        this(drivetrain, targetIds, offset, DisableDirection.disableNone());
+        this(drivetrain, targetIds, offset, Capabilities.all(), new NearbyPoseOptions(true));
     }
 
     public int getTagId() {
