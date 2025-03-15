@@ -1,6 +1,7 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -87,6 +88,7 @@ public class RobotContainer {
 
         SmartDashboard.putData("Chooser", autoChooser);
         Alerter.getInstance().provideControllers(driverctl, operctl);
+        CameraServer.startAutomaticCapture();
     }
 
     private void configureBindings() {

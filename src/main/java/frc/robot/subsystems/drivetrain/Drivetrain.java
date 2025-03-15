@@ -91,7 +91,7 @@ public class Drivetrain extends SubsystemBase {
 
         field = new Field2d();
 
-        this.gyro.reset();
+        this.gyro.reset(new Rotation2d());
 
         AutoBuilder.configure(
             this::getPose,
@@ -319,13 +319,23 @@ public class Drivetrain extends SubsystemBase {
      * Reset the gyro
      */
     public void resetGyro() {
-        gyro.reset();
+        Rotation2d reset = GameConstants.kAllianceInvert.get() ? Rotation2d.kPi : Rotation2d.kZero;
+        gyro.reset(reset);
         Emitter.emit(
             new PoseResetEvent(),
-            new Pose2d(
-                getPose().getTranslation(),
-                new Rotation2d()
-            )
+            new Pose2d(getPose().getTranslation(), reset)
+        );
+    }
+
+    /**
+     * Reset the gyro
+     */
+    public void resetGyroInvert() {
+        Rotation2d reset = GameConstants.kAllianceInvert.get() ? Rotation2d.kZero : Rotation2d.kPi;
+        gyro.reset(reset);
+        Emitter.emit(
+            new PoseResetEvent(),
+            new Pose2d(getPose().getTranslation(), reset)
         );
     }
 

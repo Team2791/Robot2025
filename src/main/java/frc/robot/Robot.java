@@ -137,6 +137,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        container.drivetrain.resetGyroInvert();
         Elastic.selectTab("Teleoperated");
         if (autoCommand != null) {
             autoCommand.cancel();
