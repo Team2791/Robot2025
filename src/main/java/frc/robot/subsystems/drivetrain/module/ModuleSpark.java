@@ -2,19 +2,22 @@ package frc.robot.subsystems.drivetrain.module;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.util.Alerter;
+import frc.robot.util.SwerveUtil;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -106,20 +109,19 @@ public class ModuleSpark extends ModuleIO {
         this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
     }
 
-    public void setDesiredState(SwerveModuleState desired) {
-        SwerveModuleState corrected = new SwerveModuleState(
-            desired.speedMetersPerSecond,
-            desired.angle.plus(new Rotation2d(angularOffset))
+    @Override
+    public void setStateSetpoint(double driveVelocity, double turnPosition) {
+        double ff = ControlConstants.DriveMotor.kS * Math.signum(driveVelocity) + ControlConstants.DriveMotor.kV * driveVelocity;
+        double turnSetpoint = SwerveUtil.normalizeAngle(turnPosition + angularOffset);
+
+        turnController.setReference(turnSetpoint, ControlType.kPosition);
+        driveController.setReference(
+            driveVelocity,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot0,
+            ff,
+            ArbFFUnits.kVoltage
         );
-
-        corrected.optimize(new Rotation2d(turnEncoder.getPosition()));
-
-        double angular = corrected.speedMetersPerSecond / ModuleConstants.Wheel.kRadius;
-        driveController.setReference(angular, ControlType.kVelocity);
-        turnController.setReference(corrected.angle.getRadians(), ControlType.kPosition);
-
-        this.data.desired = corrected;
-        this.data.commanded = RadiansPerSecond.of(angular);
     }
 
     @Override
@@ -128,6 +130,16 @@ public class ModuleSpark extends ModuleIO {
         config.idleMode(mode);
 
         this.driveMotor.configure(config, SparkConfigConstants.kResetMode, SparkConfigConstants.kPersistMode);
+    }
+
+    @Override
+    public void driveOpenLoop(double output) {
+        driveMotor.setVoltage(output);
+    }
+
+    @Override
+    public void zeroTurn() {
+        turnController.setReference(angularOffset, ControlType.kPosition);
     }
 }
 

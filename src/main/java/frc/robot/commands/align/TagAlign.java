@@ -9,7 +9,7 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class AlignNearby extends ToNearbyPose {
+public abstract class TagAlign extends Navigate {
     public record Capabilities(boolean x, boolean y, boolean rot) {
         public static Capabilities all() {
             return new Capabilities(true, true, true);
@@ -19,7 +19,7 @@ public class AlignNearby extends ToNearbyPose {
     int tagId = -1;
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public AlignNearby(
+    public TagAlign(
         Drivetrain drivetrain,
         Supplier<List<Integer>> targetIds,
         final Transform2d offset,
@@ -89,7 +89,7 @@ public class AlignNearby extends ToNearbyPose {
         };
     }
 
-    public AlignNearby(
+    public TagAlign(
         Drivetrain drivetrain,
         Supplier<List<Integer>> targetIds,
         Transform2d offset,
@@ -98,7 +98,7 @@ public class AlignNearby extends ToNearbyPose {
         this(drivetrain, targetIds, offset, Capabilities.all(), options);
     }
 
-    public AlignNearby(
+    public TagAlign(
         Drivetrain drivetrain,
         Supplier<List<Integer>> targetIds,
         Transform2d offset

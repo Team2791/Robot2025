@@ -12,7 +12,7 @@ import static edu.wpi.first.units.Units.*;
 
 public abstract class ModuleIO {
     @AutoLog
-    public static class SwerveData {
+    public static class ModuleData {
         public boolean driveConnected = false;
         public Angle drivePosition = Radians.of(0); // wheel position
         public AngularVelocity driveVelocity = RadiansPerSecond.of(0); // wheel velocity
@@ -41,22 +41,33 @@ public abstract class ModuleIO {
         }
     }
 
-    public final SwerveDataAutoLogged data = new SwerveDataAutoLogged();
+    public final ModuleDataAutoLogged data = new ModuleDataAutoLogged();
 
     public abstract void update();
 
-    public abstract void setDesiredState(SwerveModuleState desired);
+    /** Set the desired state of the module. This includes velocity and position */
+    public void setDesiredState(SwerveModuleState desired) { }
 
+    /** Set the desired state of the module. This includes velocity and position */
+    public abstract void setStateSetpoint(double driveVelocity, double turnPosition);
+
+    /** Change from either coast or brake. */
     public abstract void setIdleMode(SparkBaseConfig.IdleMode mode);
 
-    public SwerveModulePosition getPosition() {
+    /** Run the drive motor at the specified open loop value. */
+    public abstract void driveOpenLoop(double output);
+
+    /** Run the turn motor at the specified open loop value. */
+    public abstract void zeroTurn();
+
+    public final SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
             data.linearPosition(),
             new Rotation2d(data.turnPosition)
         );
     }
 
-    public SwerveModuleState getState() {
+    public final SwerveModuleState getState() {
         return new SwerveModuleState(
             data.linearVelocity(),
             new Rotation2d(data.turnPosition)

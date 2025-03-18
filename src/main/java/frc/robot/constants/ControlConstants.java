@@ -1,5 +1,8 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 import static frc.robot.constants.MathConstants.kTau;
 
 public final class ControlConstants {
@@ -7,7 +10,10 @@ public final class ControlConstants {
         public static final double kP = 0.00;
         public static final double kI = 0.00;
         public static final double kD = 0.00;
-        public static final double kF = 1 / ModuleConstants.Wheel.kFreeSpeedAngular;
+
+        public static final double kS = 0.00;
+        public static final double kV = 0.00;
+
         public static final double kMin = -1.0;
         public static final double kMax = 1.0;
     }
@@ -16,7 +22,6 @@ public final class ControlConstants {
         public static final double kP = 1.0;
         public static final double kI = 0.0;
         public static final double kD = 0.01;
-        public static final double kF = 0.0;
 
         public static final double kMinOut = -1.0;
         public static final double kMaxOut = 1.0;
@@ -42,6 +47,11 @@ public final class ControlConstants {
         public static final double kTurnP = 0.65;
         public static final double kTurnI = 0.00;
         public static final double kTurnD = 0.04;
+
+        public static final double kMaxTurnVelocity = kTau;
+        public static final double kMaxTurnAcceleration = kTau;
+
+        public static final Pose2d kTolerance = new Pose2d(0.027, 0.027, new Rotation2d(0.05));
     }
 
     public static final class Elevator {

@@ -21,4 +21,6 @@ public final class MotorConstants {
         public static final double kFreeSpeed = RotationsPerSecond.of(11000.0 / 60.0).in(RadiansPerSecond);
         public static final double kCurrentLimit = 20;
     }
+
+    public static final double kNominalVoltage = 12.0;
 }

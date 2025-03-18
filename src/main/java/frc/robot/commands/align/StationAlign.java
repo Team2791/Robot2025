@@ -6,7 +6,7 @@ import frc.robot.constants.RobotConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 
-public class StationAlign extends AlignNearby {
+public class StationAlign extends TagAlign {
     /**
      * Align to the station using photon vision, positioning self for intaking
      *

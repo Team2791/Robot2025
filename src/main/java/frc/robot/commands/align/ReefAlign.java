@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ReefAlign extends SequentialCommandGroup {
-    public AlignNearby initial;
+    public TagAlign initial;
 
     /**
      * Align to the reef using photon vision, positioning self to score on a particular branch
@@ -36,7 +36,7 @@ public class ReefAlign extends SequentialCommandGroup {
     }
 
     public ReefAlign(Drivetrain drivetrain, int direction, Supplier<List<Integer>> tags) {
-        initial = new AlignNearby(
+        initial = new TagAlign(
             drivetrain,
             tags,
             new Transform2d(
@@ -44,13 +44,13 @@ public class ReefAlign extends SequentialCommandGroup {
                 VisionConstants.Align.kReefOffset * direction,
                 Rotation2d.kPi
             ),
-            new AlignNearby.Capabilities(false, true, true),
-            new ToNearbyPose.NearbyPoseOptions(false)
+            new TagAlign.Capabilities(false, true, true),
+            new Navigate.NearbyPoseOptions(false)
         );
 
         addCommands(
             initial,
-            new AlignNearby(
+            new TagAlign(
                 drivetrain,
                 tags,
                 new Transform2d(

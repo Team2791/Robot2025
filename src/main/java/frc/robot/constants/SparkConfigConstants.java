@@ -27,6 +27,10 @@ public class SparkConfigConstants {
             kTurn.absoluteEncoder.positionConversionFactor(ModuleConstants.TurnEncoder.kPositionFactor);
             kTurn.absoluteEncoder.velocityConversionFactor(ModuleConstants.TurnEncoder.kVelocityFactor);
 
+            // voltage compensation
+            kDrive.voltageCompensation(MotorConstants.kNominalVoltage);
+            kTurn.voltageCompensation(MotorConstants.kNominalVoltage);
+
             // setup absolute encoder
             kTurn.absoluteEncoder.inverted(ModuleConstants.TurnEncoder.kInverted);
             kTurn.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
@@ -41,18 +45,18 @@ public class SparkConfigConstants {
                 ControlConstants.DriveMotor.kP,
                 ControlConstants.DriveMotor.kI,
                 ControlConstants.DriveMotor.kD,
-                ControlConstants.DriveMotor.kF
+                0.0
             );
             kDrive.closedLoop.outputRange(
                 ControlConstants.DriveMotor.kMin,
                 ControlConstants.DriveMotor.kMax
             );
-
+            
             kTurn.closedLoop.pidf(
                 ControlConstants.TurnMotor.kP,
                 ControlConstants.TurnMotor.kI,
                 ControlConstants.TurnMotor.kD,
-                ControlConstants.TurnMotor.kF
+                0.0
             );
             kTurn.closedLoop.outputRange(
                 ControlConstants.TurnMotor.kMinOut,

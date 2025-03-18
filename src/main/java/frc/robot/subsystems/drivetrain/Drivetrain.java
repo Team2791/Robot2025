@@ -348,6 +348,16 @@ public class Drivetrain extends SubsystemBase {
         odometry.addVisionMeasurement(measurement.estimate2(), measurement.timestamp(), measurement.stdDevs());
     }
 
+    /**
+     * Runs feedforward/SysId characterization
+     */
+    public void characterize(double output) {
+        for (ModuleIO module : modules()) {
+            module.driveOpenLoop(output);
+            module.zeroTurn();
+        }
+    }
+
     @Override
     public void periodic() {
         // update gyro data
