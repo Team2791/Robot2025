@@ -43,13 +43,14 @@ public final class VisionConstants {
                 0,
                 Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)
             ),
-            new Rotation3d(0, Degrees.of(27).in(Radians), 0)
-        ); // todo:
+            new Rotation3d(0, Degrees.of(27).in(Radians), Math.PI)
+        );
     }
 
     public static final class Align {
-        public static final double kReefOffset = Inches.of(12.9375).div(2).in(Meters);
-        public static final double kMaxDistance = 2.0;
+        public static final double kReefOffset = Inches.of(12.875).div(2).in(Meters);
+        public static final double kMaxDistance = 1.20;
+        public static final double kDeadline = 6.0;
     }
 
     public static final class AprilTag {

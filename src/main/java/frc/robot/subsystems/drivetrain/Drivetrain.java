@@ -10,6 +10,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -25,6 +26,7 @@ import frc.robot.event.EventDependency;
 import frc.robot.subsystems.drivetrain.gyro.GyroIO;
 import frc.robot.subsystems.drivetrain.module.ModuleIO;
 import frc.robot.subsystems.photon.CameraIO;
+import frc.robot.util.AdvantageUtil;
 import frc.robot.util.IterUtil;
 import frc.robot.util.RateLimiter;
 import org.dyn4j.geometry.Vector2;
@@ -89,7 +91,7 @@ public class Drivetrain extends SubsystemBase {
 
         field = new Field2d();
 
-        this.gyro.reset();
+        this.gyro.reset(new Rotation2d());
 
         AutoBuilder.configure(
             this::getPose,
@@ -207,11 +209,10 @@ public class Drivetrain extends SubsystemBase {
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
 
-        IterUtil.zipThen(
-            Arrays.stream(modules()),
-            Arrays.stream(states),
-            ModuleIO::setDesiredState
-        );
+        // this probably doesn't need to happen again but just in case we get bad parameters somehow
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
+
+        IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
     }
 
     /**
@@ -318,13 +319,23 @@ public class Drivetrain extends SubsystemBase {
      * Reset the gyro
      */
     public void resetGyro() {
-        gyro.reset();
+        Rotation2d reset = GameConstants.kAllianceInvert.get() ? Rotation2d.kPi : Rotation2d.kZero;
+        gyro.reset(reset);
         Emitter.emit(
             new PoseResetEvent(),
-            new Pose2d(
-                getPose().getTranslation(),
-                new Rotation2d()
-            )
+            new Pose2d(getPose().getTranslation(), reset)
+        );
+    }
+
+    /**
+     * Reset the gyro
+     */
+    public void resetGyroInvert() {
+        Rotation2d reset = GameConstants.kAllianceInvert.get() ? Rotation2d.kZero : Rotation2d.kPi;
+        gyro.reset(reset);
+        Emitter.emit(
+            new PoseResetEvent(),
+            new Pose2d(getPose().getTranslation(), reset)
         );
     }
 
@@ -342,7 +353,7 @@ public class Drivetrain extends SubsystemBase {
         // update gyro data
         gyro.update();
 
-        // update all modulesz
+        // update all modules
         Arrays.stream(modules()).forEach(ModuleIO::update);
 
         // update odometry
@@ -366,6 +377,7 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
         Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());
         Logger.processInputs("Drivetrain/Gyro", gyro.data);
+        AdvantageUtil.logActiveCommand(this);
 
         SmartDashboard.putData("Field", field);
     }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drivetrain.module;
 
+import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
@@ -94,4 +95,7 @@ public class ModuleSim extends ModuleIO {
         this.data.desired = desired;
         this.data.commanded = RadiansPerSecond.of(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
     }
+
+    @Override
+    public void setIdleMode(SparkBaseConfig.IdleMode mode) { }
 }

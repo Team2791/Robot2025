@@ -7,7 +7,7 @@ public final class ControlConstants {
         public static final double kP = 0.00;
         public static final double kI = 0.00;
         public static final double kD = 0.00;
-        public static final double kF = 1 / ModuleConstants.Wheel.kFreeSpeedLinear;
+        public static final double kF = 1 / ModuleConstants.Wheel.kFreeSpeedAngular;
         public static final double kMin = -1.0;
         public static final double kMax = 1.0;
     }
@@ -25,17 +25,17 @@ public final class ControlConstants {
     }
 
     public static final class Auto {
-        public static final double kOrthoP = 5.50;
-        public static final double kOrthoI = 0.00;
+        public static final double kOrthoP = 7.50;
+        public static final double kOrthoI = 0.01;
         public static final double kOrthoD = 0.03;
 
-        public static final double kTurnP = 12.50;
+        public static final double kTurnP = 15.00;
         public static final double kTurnI = 0.00;
         public static final double kTurnD = 0.00;
     }
 
     public static final class Align {
-        public static final double kOrthoP = 0.95;
+        public static final double kOrthoP = 1.85;
         public static final double kOrthoI = 0.00;
         public static final double kOrthoD = 0.075;
 

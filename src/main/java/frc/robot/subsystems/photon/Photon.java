@@ -42,7 +42,7 @@ public class Photon {
         Logger.processInputs("Photon/Rear", rear.data);
 
         // make vision odometry measurements
-        if (front.data.measurement != null) drivetrain.addVisionMeasurement(front.data.measurement);
-        if (rear.data.measurement != null) drivetrain.addVisionMeasurement(rear.data.measurement);
+        // if (front.data.measurement != null) drivetrain.addVisionMeasurement(front.data.measurement);
+        // if (rear.data.measurement != null) drivetrain.addVisionMeasurement(rear.data.measurement);
     }
 }

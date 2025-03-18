@@ -14,14 +14,14 @@ public class DispenseIn extends Command {
     /**
      * Run the dispenser using intake
      *
-     * @param lift     the lift subsystem
-     * @param elevator the elevator subsystem, not a command requirement
+     * @param dispenser the dispenser subsystem
+     * @param elevator  the elevator subsystem, not a command requirement
      */
-    public DispenseIn(Dispenser lift, Elevator elevator) {
-        this.dispenser = lift;
+    public DispenseIn(Dispenser dispenser, Elevator elevator) {
+        this.dispenser = dispenser;
         this.elevator = elevator;
 
-        addRequirements(lift);
+        addRequirements(dispenser);
     }
 
     @Override

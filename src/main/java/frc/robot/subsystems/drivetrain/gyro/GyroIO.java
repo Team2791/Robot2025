@@ -31,7 +31,7 @@ public abstract class GyroIO {
     /**
      * Resets the gyro.
      */
-    public abstract void reset();
+    public abstract void reset(Rotation2d rotation);
 
     public Rotation2d heading() {
         return new Rotation2d(this.data.heading);

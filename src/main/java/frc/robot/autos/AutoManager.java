@@ -22,12 +22,16 @@ import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import org.littletonrobotics.junction.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class AutoManager {
-    public record ScoreLocation(int offset, int level) { }
+    public record ScorePlacement(int offset, int level) { }
+
+    public record ScoreTrajectories(AutoTrajectory toIntake, AutoTrajectory toScore) { }
+
+    public record ScoreLocation(ScorePlacement placement, ScoreTrajectories trajectories, List<Integer> reefTags) { }
 
     final PIDController xController = new PIDController(
         ControlConstants.Auto.kOrthoP,
@@ -58,7 +62,11 @@ public class AutoManager {
             p -> Emitter.emit(new Drivetrain.PoseResetEvent(), p),
             this::follow,
             true,
-            drivetrain
+            drivetrain,
+            (sample, isStart) -> {
+                Logger.recordOutput("Auto/CurrentTrajectory", sample.getPoses());
+                drivetrain.field.getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
+            }
         );
 
         rotController.enableContinuousInput(-Math.PI, Math.PI);
@@ -67,12 +75,20 @@ public class AutoManager {
     public void follow(SwerveSample trajectory) {
         // get current pose
         Pose2d pose = drivetrain.getPose();
+        Pose2d wants = trajectory.getPose();
 
+        if (GameConstants.kAllianceInvert.get()) {
+            wants = wants.relativeTo(GameConstants.kRedOrigin);
+        }
+        
         // generate speeds
         ChassisSpeeds speeds = new ChassisSpeeds(
-            trajectory.vx + xController.calculate(pose.getX(), trajectory.x),
-            trajectory.vy + yController.calculate(pose.getY(), trajectory.y),
-            trajectory.omega + rotController.calculate(pose.getRotation().getRadians(), trajectory.heading)
+            trajectory.vx + xController.calculate(pose.getX(), wants.getX()),
+            trajectory.vy + yController.calculate(pose.getY(), wants.getY()),
+            trajectory.omega + rotController.calculate(
+                pose.getRotation().getRadians(),
+                wants.getRotation().getRadians()
+            )
         );
 
         // field-relative drive
@@ -83,51 +99,45 @@ public class AutoManager {
         return Commands.sequence(
             trajectory.resetOdometry(),
             trajectory.cmd()
-        );
+        ).withName("Reset and Follow");
     }
 
     public Command pathfindFollow(AutoTrajectory trajectory) {
-        Command toPose = trajectory.getInitialPose()
-            .map(p -> ((Command) new ToNearbyPose(drivetrain, p)))
-            .orElseGet(Commands::none);
-
         return Commands.sequence(
-            toPose,
+            new ToNearbyPose(drivetrain, () -> trajectory.getInitialPose().orElse(null)),
             trajectory.cmd()
-        );
+        ).withName("Pathfind and Follow");
     }
 
-    public Command score(Dispenser dispenser, Elevator elevator, ScoreLocation location) {
+    public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement, List<Integer> reefTags) {
         return Commands.sequence(
-            new ReefAlign(drivetrain, location.offset, List.of(19, 17, 8, 6)),
-            new Elevate(elevator, location.level),
+            new ReefAlign(drivetrain, placement.offset, reefTags),
+            new Elevate(elevator, placement.level).withTimeout(5.0),
             new DispenseOut(dispenser, elevator),
             new Elevate(elevator, 0)
-        );
+        ).withName("Auto: Align+Score");
     }
 
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
             new StationAlign(drivetrain),
             new FullIntake(dispenser, elevator, intake)
-        );
+        ).withName("Auto: Align+Intake");
     }
 
-    public Command initialScore(
-        AutoTrajectory startingToScore,
+    public Command initialScoreIntake(
         Dispenser dispenser,
         Elevator elevator,
         ScoreLocation location
     ) {
         return Commands.sequence(
-            resetFollow(startingToScore),
-            score(dispenser, elevator, location)
-        );
+            resetFollow(location.trajectories.toScore),
+            score(dispenser, elevator, location.placement, location.reefTags),
+            pathfindFollow(location.trajectories.toIntake)
+        ).withName("Auto: Initial Score+Intake");
     }
 
     public Command intakeScoreLoop(
-        AutoTrajectory scoreToIntake,
-        AutoTrajectory intakeToScore,
         Dispenser dispenser,
         Elevator elevator,
         Intake intake,
@@ -137,61 +147,67 @@ public class AutoManager {
 
         int i = 0;
         for (ScoreLocation location : scoring) {
-            commands[i] = pathfindFollow(scoreToIntake);
-            commands[i + 1] = intake(dispenser, elevator, intake);
-            commands[i + 2] = pathfindFollow(intakeToScore);
-            commands[i + 3] = score(dispenser, elevator, location);
+            commands[i] = intake(dispenser, elevator, intake);
+            commands[i + 1] = pathfindFollow(location.trajectories.toScore);
+            commands[i + 2] = score(dispenser, elevator, location.placement, location.reefTags);
+            commands[i + 3] = pathfindFollow(location.trajectories.toIntake);
 
             i += 4;
         }
 
-        return Commands.sequence(commands);
-    }
-
-    public void displayTrajectory(AutoTrajectory trajectory) {
-        Pose2d[] traj = trajectory.getRawTrajectory().getPoses();
-
-        if (GameConstants.kAllianceInvert.get()) {
-            List<Pose2d> poses = Arrays.stream(traj).map(p -> p.relativeTo(GameConstants.kRedOrigin)).toList();
-            drivetrain.field.getObject("AutoPath").setPoses(poses);
-        } else drivetrain.field.getObject("AutoPath").setPoses(traj);
+        return Commands.sequence(commands).withName("Auto: Intake+Score Loop");
     }
 
     public void clearTrajectory() {
         drivetrain.field.getObject("AutoPath").setPoses();
+        Logger.recordOutput("Auto/CurrentTrajectory", new Pose2d[0]);
     }
 
     public AutoRoutine routine(Dispenser dispenser, Elevator elevator, Intake intake) {
         AutoRoutine routine = factory.newRoutine("Main Routine");
 
-        AutoTrajectory startingToScore = routine.trajectory("far_lscore");
-        AutoTrajectory scoreToIntake = routine.trajectory("lscore_lintake");
-        AutoTrajectory intakeToScore = routine.trajectory("lintake_lscore");
+        AutoTrajectory startingScore = routine.trajectory("far_flscore");
+        AutoTrajectory startingIntake = routine.trajectory("flscore_lintake");
+        AutoTrajectory secondScore = routine.trajectory("lintake_flscore");
 
-        startingToScore.active().onTrue(Commands.runOnce(() -> displayTrajectory(startingToScore)));
-        scoreToIntake.active().onTrue(Commands.runOnce(() -> displayTrajectory(scoreToIntake)));
-        intakeToScore.active().onTrue(Commands.runOnce(() -> displayTrajectory(intakeToScore)));
-
-        startingToScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
-        scoreToIntake.done().onTrue(Commands.runOnce(this::clearTrajectory));
-        intakeToScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
+        startingScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
+        startingIntake.done().onTrue(Commands.runOnce(this::clearTrajectory));
+        secondScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
 
         routine.active().onTrue(Commands.sequence(
-            initialScore(startingToScore, dispenser, elevator, new ScoreLocation(-1, 4)),
+            initialScoreIntake(
+                dispenser,
+                elevator,
+                new ScoreLocation(
+                    new ScorePlacement(-1, 4),
+                    new ScoreTrajectories(startingIntake, startingScore),
+                    List.of(19, 6)
+                )
+            ),
             intakeScoreLoop(
-                scoreToIntake,
-                intakeToScore,
                 dispenser,
                 elevator,
                 intake,
                 List.of(
-                    new ScoreLocation(1, 4),
-                    new ScoreLocation(-1, 3),
-                    new ScoreLocation(1, 3)
+                    new ScoreLocation(
+                        new ScorePlacement(1, 4),
+                        new ScoreTrajectories(startingIntake, secondScore),
+                        List.of(19, 6)
+                    )
                 )
             )
-        ));
+        ).withName("Auto: Main Routine"));
 
+        return routine;
+    }
+
+    public AutoRoutine straight() {
+        AutoRoutine routine = factory.newRoutine("Straight");
+
+        AutoTrajectory begin = routine.trajectory("straight");
+        begin.done().onTrue(Commands.runOnce(this::clearTrajectory));
+
+        routine.active().onTrue(routine.cmd());
         return routine;
     }
 }

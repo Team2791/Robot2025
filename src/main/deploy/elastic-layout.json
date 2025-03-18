@@ -7,77 +7,10 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Connections",
-            "x": 1616.0,
-            "y": 368.0,
-            "width": 288.0,
-            "height": 240.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Field Management (FMS)",
-                "x": 1664.0,
-                "y": 496.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/DriverStation/FMSAttached",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                },
-                "ntStructMeta": null
-              },
-              {
-                "title": "Radio",
-                "x": 1632.0,
-                "y": 480.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RadioStatus/Connected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                },
-                "ntStructMeta": null
-              },
-              {
-                "title": "Robot Enabled",
-                "x": 1616.0,
-                "y": 528.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/DriverStation/Enabled",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                },
-                "ntStructMeta": null
-              }
-            ]
-          },
-          {
-            "title": "Motor Statuses",
-            "x": 1136.0,
-            "y": 352.0,
-            "width": 272.0,
+            "title": "Motors",
+            "x": 1568.0,
+            "y": 16.0,
+            "width": 336.0,
             "height": 384.0,
             "type": "List Layout",
             "properties": {
@@ -231,76 +164,25 @@
             ]
           },
           {
-            "title": "Intake",
-            "x": 784.0,
-            "y": 496.0,
-            "width": 352.0,
-            "height": 240.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Leader",
-                "x": 896.0,
-                "y": 560.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Voltage View",
-                "properties": {
-                  "topic": "/AdvantageKit/Intake/LeftVoltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": 4.0,
-                  "max_value": 13.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
-                },
-                "ntStructMeta": null
-              },
-              {
-                "title": "Follower",
-                "x": 880.0,
-                "y": 688.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Voltage View",
-                "properties": {
-                  "topic": "/AdvantageKit/Intake/RightVoltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": 4.0,
-                  "max_value": 13.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
-                },
-                "ntStructMeta": null
-              }
-            ]
-          },
-          {
             "title": "Elevator",
-            "x": 784.0,
-            "y": 16.0,
+            "x": 1216.0,
+            "y": 352.0,
             "width": 352.0,
             "height": 240.0,
             "type": "List Layout",
             "properties": {
-              "label_position": "LEFT"
+              "label_position": "RIGHT"
             },
             "children": [
               {
                 "title": "Setpoint",
-                "x": 944.0,
-                "y": 96.0,
+                "x": 688.0,
+                "y": 144.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Number Bar",
                 "properties": {
-                  "topic": "/AdvantageKit/Lift/Elevator/Desired",
+                  "topic": "/AdvantageKit/Elevator/Desired",
                   "period": 0.06,
                   "data_type": "double",
                   "min_value": 0.0,
@@ -313,13 +195,13 @@
               },
               {
                 "title": "Actual",
-                "x": 864.0,
-                "y": 176.0,
+                "x": 768.0,
+                "y": 144.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Number Bar",
                 "properties": {
-                  "topic": "/AdvantageKit/Lift/Elevator/Position",
+                  "topic": "/AdvantageKit/Elevator/Position",
                   "period": 0.06,
                   "data_type": "double",
                   "min_value": 0.0,
@@ -333,61 +215,10 @@
             ]
           },
           {
-            "title": "Dispenser",
-            "x": 784.0,
-            "y": 256.0,
+            "title": "Coral Status",
+            "x": 1216.0,
+            "y": 592.0,
             "width": 352.0,
-            "height": 240.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "LEFT"
-            },
-            "children": [
-              {
-                "title": "Leader",
-                "x": 896.0,
-                "y": 352.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Voltage View",
-                "properties": {
-                  "topic": "/AdvantageKit/Dispenser/LeaderVoltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": 4.0,
-                  "max_value": 13.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
-                },
-                "ntStructMeta": null
-              },
-              {
-                "title": "Follower ",
-                "x": 832.0,
-                "y": 448.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Voltage View",
-                "properties": {
-                  "topic": "/AdvantageKit/Dispenser/FollowerVoltage",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": 4.0,
-                  "max_value": 13.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
-                },
-                "ntStructMeta": null
-              }
-            ]
-          },
-          {
-            "title": "List Layout",
-            "x": 1136.0,
-            "y": 16.0,
-            "width": 272.0,
             "height": 176.0,
             "type": "List Layout",
             "properties": {
@@ -396,8 +227,8 @@
             "children": [
               {
                 "title": "In Intake",
-                "x": 1264.0,
-                "y": 96.0,
+                "x": 448.0,
+                "y": 672.0,
                 "width": 96.0,
                 "height": 64.0,
                 "type": "Boolean Box",
@@ -414,13 +245,62 @@
               },
               {
                 "title": "In Scoral",
-                "x": 1184.0,
-                "y": 64.0,
+                "x": 448.0,
+                "y": 720.0,
                 "width": 128.0,
                 "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/AdvantageKit/Dispenser/Broken",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              }
+            ]
+          },
+          {
+            "title": "Connections",
+            "x": 1216.0,
+            "y": 16.0,
+            "width": 352.0,
+            "height": 176.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Field Management (FMS)",
+                "x": 1232.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/DriverStation/FMSAttached",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Radio",
+                "x": 1296.0,
+                "y": 192.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RadioStatus/Connected",
                   "period": 0.06,
                   "data_type": "boolean",
                   "true_color": 4283215696,
@@ -438,8 +318,8 @@
             "title": "SwerveDrive",
             "x": 320.0,
             "y": 16.0,
-            "width": 288.0,
-            "height": 304.0,
+            "width": 352.0,
+            "height": 384.0,
             "type": "SwerveDrive",
             "properties": {
               "topic": "/SmartDashboard/SwerveDrive",
@@ -472,10 +352,10 @@
           },
           {
             "title": "Match Time",
-            "x": 1616.0,
+            "x": 672.0,
             "y": 16.0,
-            "width": 288.0,
-            "height": 192.0,
+            "width": 544.0,
+            "height": 272.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -488,29 +368,11 @@
             "ntStructMeta": null
           },
           {
-            "title": "Alliance",
-            "x": 1616.0,
-            "y": 224.0,
-            "width": 288.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/FMSInfo/IsRedAlliance",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4294198070,
-              "false_color": 4279256207,
-              "true_icon": "None",
-              "false_icon": "None"
-            },
-            "ntStructMeta": null
-          },
-          {
             "title": "Velocity",
             "x": 320.0,
-            "y": 320.0,
-            "width": 288.0,
-            "height": 304.0,
+            "y": 400.0,
+            "width": 352.0,
+            "height": 368.0,
             "type": "Radial Gauge",
             "properties": {
               "topic": "/AdvantageKit/Drivetrain/SwerveModule/10.0/Desired",
@@ -564,9 +426,9 @@
           },
           {
             "title": "Battery Voltage",
-            "x": 1136.0,
+            "x": 1216.0,
             "y": 192.0,
-            "width": 272.0,
+            "width": 352.0,
             "height": 160.0,
             "type": "Voltage View",
             "properties": {
@@ -578,6 +440,38 @@
               "divisions": 5,
               "inverted": false,
               "orientation": "horizontal"
+            },
+            "ntStructMeta": null
+          },
+          {
+            "title": "Robot Enabled",
+            "x": 1568.0,
+            "y": 400.0,
+            "width": 336.0,
+            "height": 368.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/DriverStation/Enabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            },
+            "ntStructMeta": null
+          },
+          {
+            "title": "photonvision_Port_1182_Output_MJPEG_Server",
+            "x": 672.0,
+            "y": 288.0,
+            "width": 544.0,
+            "height": 480.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
             },
             "ntStructMeta": null
           }
@@ -607,7 +501,7 @@
                 "height": 128.0,
                 "type": "Number Bar",
                 "properties": {
-                  "topic": "/AdvantageKit/Lift/Elevator/Desired",
+                  "topic": "/AdvantageKit/Elevator/Desired",
                   "period": 0.06,
                   "data_type": "double",
                   "min_value": 0.0,
@@ -626,7 +520,7 @@
                 "height": 128.0,
                 "type": "Number Bar",
                 "properties": {
-                  "topic": "/AdvantageKit/Lift/Elevator/Position",
+                  "topic": "/AdvantageKit/Elevator/Position",
                   "period": 0.06,
                   "data_type": "double",
                   "min_value": 0.0,

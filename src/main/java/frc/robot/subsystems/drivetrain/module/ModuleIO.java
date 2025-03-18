@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drivetrain.module;
 
+import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -45,6 +46,8 @@ public abstract class ModuleIO {
     public abstract void update();
 
     public abstract void setDesiredState(SwerveModuleState desired);
+
+    public abstract void setIdleMode(SparkBaseConfig.IdleMode mode);
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(

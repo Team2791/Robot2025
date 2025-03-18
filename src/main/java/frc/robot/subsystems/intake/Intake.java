@@ -8,6 +8,7 @@ import frc.robot.constants.VisionConstants;
 import frc.robot.event.Event;
 import frc.robot.event.EventDependency;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.util.AdvantageUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
@@ -70,5 +71,6 @@ public class Intake extends SubsystemBase {
         intake.update();
 
         Logger.processInputs("Intake", intake.data);
+        AdvantageUtil.logActiveCommand(this);
     }
 }

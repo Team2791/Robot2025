@@ -1,20 +1,17 @@
 package frc.robot;
 
 import choreo.auto.AutoChooser;
-import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autos.AutoManager;
-import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.elevator.ManualElevate;
 import frc.robot.commands.intake.Dislodge;
 import frc.robot.commands.intake.FullIntake;
-import frc.robot.commands.manipulator.FullManipulate;
+import frc.robot.commands.manipulator.RunManipulator;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
@@ -82,40 +79,42 @@ public class RobotContainer {
     final AutoChooser autoChooser;
 
     public RobotContainer() {
-        NamedCommands.registerCommand("LeftAlign", new ReefAlign(drivetrain, -1));
-        NamedCommands.registerCommand("Elevate0", new Elevate(elevator, 0));
-        NamedCommands.registerCommand("Elevate4", new Elevate(elevator, 4));
-        NamedCommands.registerCommand("DispenseOut", new DispenseOut(dispenser, elevator));
-
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
         this.autoChooser = new AutoChooser();
-
         this.autoChooser.addRoutine("Default Routine", () -> this.autoManager.routine(dispenser, elevator, intake));
 
         configureBindings();
 
         SmartDashboard.putData("Chooser", autoChooser);
         Alerter.getInstance().provideControllers(driverctl, operctl);
+        CameraServer.startAutomaticCapture();
     }
 
     private void configureBindings() {
-        // automatically start the intake if near the coral station
-
         // disable for now.
         FullIntake.registerNearby(dispenser, elevator, intake);
         Elevate.registerRetract(elevator);
 
-        drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.drive(driverctl), drivetrain));
+        Command joystickDrive = new RunCommand(() -> drivetrain.drive(driverctl), drivetrain);
+        drivetrain.setDefaultCommand(joystickDrive);
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
+
+        //        Command drivetrainOverride = Commands.runOnce(() -> {
+        //            if (!joystickDrive.isScheduled()) CommandScheduler.getInstance().requiring(drivetrain).cancel();
+        //        });
+        //        driverctl.axisGreaterThan(1, 0.85).onTrue(drivetrainOverride);
+        //        driverctl.axisLessThan(1, -0.85).onTrue(drivetrainOverride);
+        //        driverctl.axisGreaterThan(2, 0.85).onTrue(drivetrainOverride);
+        //        driverctl.axisLessThan(2, -0.85).onTrue(drivetrainOverride);
 
         driverctl.x().onTrue(new Elevate(elevator, 3));
         driverctl.y().onTrue(new Elevate(elevator, 4));
         driverctl.a().onTrue(new Elevate(elevator, 1));
         driverctl.b().onTrue(new Elevate(elevator, 2));
 
-        driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
-        driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
+        // driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
+        // driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
 
         driverctl.rightTrigger().onTrue(new DispenseOut(dispenser, elevator));
         driverctl.leftTrigger().toggleOnTrue(new SequentialCommandGroup(
@@ -124,7 +123,6 @@ public class RobotContainer {
         ));
 
         driverctl.rightStick().onTrue(new Elevate(elevator, 0));
-        driverctl.leftStick().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
 
         operctl.axisLessThan(1, -0.1)
             .whileTrue(
@@ -142,10 +140,22 @@ public class RobotContainer {
                 )
             );
 
+        operctl.leftBumper().toggleOnTrue(new RunManipulator(manipulator));
+
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
         operctl.x().whileTrue(new Dislodge(intake, dispenser));
+        // operctl.y().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
     }
 
-    public Command getAutonomousCommand() { return autoChooser.selectedCommand(); }
+    public Command getAutonomousCommand() {
+        return Commands.run(
+            () -> drivetrain.drive(
+                0.25,
+                0.0,
+                0.0,
+                Drivetrain.FieldRelativeMode.kOff
+            ), drivetrain
+        ).withDeadline(new WaitCommand(3));
+    }
 }

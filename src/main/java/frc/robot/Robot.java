@@ -24,6 +24,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+import java.util.Date;
+
 public class Robot extends LoggedRobot {
     public static final class PeriodicEvent extends Event<PeriodicEvent.CurrentMode> {
         public enum CurrentMode {
@@ -58,8 +60,12 @@ public class Robot extends LoggedRobot {
         // setup logger data receivers
         switch (AdvantageConstants.kCurrentMode) {
             case Real:
-                String log = "akit_" + BuildConstants.BUILD_DATE.replaceAll(" ", "_") + ".wpi.log";
-                Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/.log/akit/" + log));
+                String log = String.format(
+                    "/U/logs/akit_%s_%s.wpilog",
+                    new Date().toString().replaceAll(" ", "_"),
+                    BuildConstants.GIT_SHA
+                );
+                Logger.addDataReceiver(new WPILOGWriter(log));
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
             case Sim:
@@ -131,6 +137,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        container.drivetrain.resetGyroInvert();
         Elastic.selectTab("Teleoperated");
         if (autoCommand != null) {
             autoCommand.cancel();

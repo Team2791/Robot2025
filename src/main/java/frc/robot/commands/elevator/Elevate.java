@@ -1,8 +1,8 @@
 package frc.robot.commands.elevator;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.util.FunctionWrapper;
-import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.event.Emitter;
 import frc.robot.event.Key;
@@ -13,13 +13,13 @@ public class Elevate extends FunctionWrapper {
     private static Key<Double, Dispenser.ReefRange> retract;
 
     /**
-     * Elevate to a certain height. This command will block until the lift is at the desired height.
+     * Elevate to a certain height. This command will block until the elevator is at the desired height.
      *
-     * @param lift   The lift subsystem
-     * @param height The height to elevate to
+     * @param elevator The elevator subsystem
+     * @param height   The height to elevate to
      */
-    public Elevate(Elevator lift, int height) {
-        this(lift, height, true);
+    public Elevate(Elevator elevator, int height) {
+        this(elevator, height, true);
     }
 
     /**
@@ -32,7 +32,7 @@ public class Elevate extends FunctionWrapper {
     public Elevate(Elevator elevator, int height, boolean blocking) {
         super(
             () -> elevator.elevate(height),
-            () -> elevator.atLevel(height) || !blocking || AdvantageConstants.kCurrentMode == AdvantageConstants.AdvantageMode.Sim,
+            () -> elevator.atLevel(height) || !blocking,
             elevator
         );
     }
@@ -47,7 +47,9 @@ public class Elevate extends FunctionWrapper {
                 boolean outside = distance >= ElevatorConstants.Range.kRetract;
                 boolean scheduled = scheduler.isScheduled(instance);
                 boolean zeroed = elevator.atLevel(0);
+                boolean auto = DriverStation.isAutonomous();
 
+                if (auto) return;
                 if (outside && !scheduled && !zeroed) scheduler.schedule(instance);
             }
         );
