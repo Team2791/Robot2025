@@ -1,42 +1,12 @@
 package frc.robot.subsystems.dispenser;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.DispenserConstants;
-import frc.robot.constants.VisionConstants;
-import frc.robot.event.Event;
-import frc.robot.event.EventDependency;
 import frc.robot.subsystems.dispenser.DispenserIO.DispenserData;
-import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.util.AdvantageUtil;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Optional;
-
 public class Dispenser extends SubsystemBase {
-    public static class ReefRange extends Event<Double> {
-        @Override
-        public EventDependency<Double, Pose2d> runAfter() {
-            final AprilTagFieldLayout layout = VisionConstants.AprilTag.kLayout;
-
-            final Translation2d avg = VisionConstants.AprilTag.reef() // get current-alliance reef
-                .stream()
-                .map(layout::getTagPose) // map tag id to pose
-                .filter(Optional::isPresent)
-                .map(p -> p.get().toPose2d().getTranslation()) // get translation and average
-                .reduce(Translation2d::plus)
-                .orElse(new Translation2d())
-                .div(6);
-
-            return new EventDependency<>(
-                new Drivetrain.PoseUpdateEvent(),
-                pose -> pose.getTranslation().getDistance(avg)
-            );
-        }
-    }
-
     final DispenserIO dispenser;
 
     public Dispenser(DispenserIO dispenser) {
@@ -62,7 +32,7 @@ public class Dispenser extends SubsystemBase {
     @Override
     public void periodic() {
         dispenser.update();
-        
+
         Logger.processInputs("Dispenser", dispenser.data);
         AdvantageUtil.logActiveCommand(this);
     }

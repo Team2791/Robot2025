@@ -1,65 +1,63 @@
 package frc.robot.event;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.constants.VisionConstants;
 
-@SuppressWarnings("rawtypes")
+import java.util.List;
+import java.util.Optional;
+
 public class Emitter {
+    public static final VoidEvent periodic = new VoidEvent();
 
-    // java complains about Class<? extends Event<?>> idk why
-    private static final HashMap<Class<? extends Event>, HashSet<Consumer<?>>> listeners = new HashMap<>();
+    public static final Event<Pose2d> poseReset = new Event<>();
+    public static final Event<Pose2d> poseUpdate = new Event<>(poseReset);
 
-    // manage active jobs for paralleling/concurrency/whatever
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+    public static final Event<Double> reefRange = new Event<>(
+        new EventTrigger<>(
+            poseUpdate,
+            pose -> {
+                final AprilTagFieldLayout layout = VisionConstants.AprilTag.kLayout;
 
-    @SuppressWarnings("unchecked")
-    public static <T, E extends Event<T>> void emit(E event, T data) {
-        HashSet<Consumer<?>> eventListeners = listeners.get(event.getClass());
+                final Translation2d avg = VisionConstants.AprilTag.reef() // get current-alliance reef
+                    .stream()
+                    .map(layout::getTagPose) // map tag id to pose
+                    .filter(Optional::isPresent)
+                    .map(p -> p.get().toPose2d().getTranslation()) // get translation and average
+                    .reduce(Translation2d::plus)
+                    .orElse(new Translation2d())
+                    .div(6);
 
-        if (eventListeners != null) {
-            for (Consumer<?> listener : eventListeners) {
-                ((Consumer<T>) listener).accept(data);
+                return pose.getTranslation().getDistance(avg);
             }
-        }
-    }
+        )
+    );
 
-    public static <E extends Event<Void>> void emit(E event) {
-        emit(event, null);
-    }
+    public static final Event<Double> stationRange = new Event<>(
+        new EventTrigger<>(
+            poseUpdate,
+            pose -> {
+                final AprilTagFieldLayout layout = VisionConstants.AprilTag.kLayout;
+                final List<Translation2d> stations = VisionConstants.AprilTag.stations()
+                    .stream()
+                    .map(layout::getTagPose)
+                    .filter(Optional::isPresent)
+                    .map(p -> p.get().toPose2d().getTranslation())
+                    .toList();
 
-    @SuppressWarnings("unchecked")
-    public static <T, E extends Event<T>> Key<T, E> on(E event, Consumer<T> listener) {
-        if (!listeners.containsKey(event.getClass())) {
-            EventDependency<T, Object> dep = ((EventDependency<T, Object>) event.runAfter());
+                final Translation2d robot = pose.getTranslation();
+                double nearest2 = Double.MAX_VALUE;
 
-            if (dep != null) {
-                listeners.computeIfAbsent(dep.other.getClass(), k -> new HashSet<>())
-                    .add(k -> Emitter.emit(event, dep.transform.apply(k)));
+                for (Translation2d station : stations) {
+                    double dx2 = Math.pow(station.getX() - robot.getX(), 2);
+                    double dy2 = Math.pow(station.getY() - robot.getY(), 2);
+                    double dist2 = dx2 + dy2;
+                    if (dist2 < nearest2) nearest2 = dist2;
+                }
+
+                return Math.sqrt(nearest2);
             }
-        }
-
-        listeners.computeIfAbsent(event.getClass(), k -> new HashSet<>()).add(listener);
-
-        return new Key<>(event.getClass(), listener);
-    }
-
-    public static <T, E extends Event<T>> Key<T, E> on(E event, Runnable listener) {
-        return on(event, _v -> listener.run());
-    }
-
-    public static <T, E extends Event<T>> void off(Key<T, E> key) {
-        HashSet<Consumer<?>> eventListeners = listeners.get(key.key);
-
-        if (eventListeners != null) {
-            eventListeners.remove(key.listener);
-        }
-    }
-
-    public static <T, E extends Event<T>> boolean exists(Key<T, E> key) {
-        HashSet<Consumer<?>> eventListeners = listeners.get(key.key);
-        return eventListeners != null && eventListeners.contains(key.listener);
-    }
+        )
+    );
 }

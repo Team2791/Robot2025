@@ -16,12 +16,12 @@ import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.intake.FullIntake;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.GameConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.util.AllianceUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
@@ -52,20 +52,19 @@ public class AutoManager {
     );
 
     final AutoFactory factory;
-
     final Drivetrain drivetrain;
 
     public AutoManager(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         this.factory = new AutoFactory(
             drivetrain::getPose,
-            p -> Emitter.emit(new Drivetrain.PoseResetEvent(), p),
+            Emitter.poseReset::emit,
             this::follow,
             true,
             drivetrain,
             (sample, isStart) -> {
                 Logger.recordOutput("Auto/CurrentTrajectory", sample.getPoses());
-                drivetrain.field.getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
+                drivetrain.getField().getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
             }
         );
 
@@ -75,11 +74,7 @@ public class AutoManager {
     public void follow(SwerveSample trajectory) {
         // get current pose
         Pose2d pose = drivetrain.getPose();
-        Pose2d wants = trajectory.getPose();
-
-        if (GameConstants.kAllianceInvert.get()) {
-            wants = wants.relativeTo(GameConstants.kRedOrigin);
-        }
+        Pose2d wants = AllianceUtil.recenter(trajectory.getPose());
 
         // generate speeds
         ChassisSpeeds speeds = new ChassisSpeeds(
@@ -164,7 +159,7 @@ public class AutoManager {
     }
 
     public void clearTrajectory() {
-        drivetrain.field.getObject("AutoPath").setPoses();
+        drivetrain.getField().getObject("AutoPath").setPoses();
         Logger.recordOutput("Auto/CurrentTrajectory", new Pose2d[0]);
     }
 

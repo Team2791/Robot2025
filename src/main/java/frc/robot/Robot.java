@@ -11,11 +11,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
 import frc.robot.event.Emitter;
-import frc.robot.event.Event;
 import frc.robot.util.ADStar;
 import frc.robot.util.Elastic;
 import org.ironmaple.simulation.SimulatedArena;
-import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -27,18 +25,12 @@ import org.littletonrobotics.urcl.URCL;
 import java.util.Date;
 
 public class Robot extends LoggedRobot {
-    public static final class PeriodicEvent extends Event<PeriodicEvent.CurrentMode> {
-        public enum CurrentMode {
-            kDisabled, kTeleop, kAutonomous,
-        }
-    }
-
     final RobotContainer container;
 
     Command autoCommand;
 
     public Robot() {
-        // setup logger constants
+        // setup logger constants. this helps determine which log files to pull.
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -57,14 +49,12 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
-        // setup logger data receivers
+        // setup logger data receivers, i.e. where logs are kept when they are made
         switch (AdvantageConstants.kCurrentMode) {
             case Real:
-                String log = String.format(
-                    "/U/logs/akit_%s_%s.wpilog",
-                    new Date().toString().replaceAll(" ", "_"),
-                    BuildConstants.GIT_SHA
-                );
+                String date = new Date().toString().replaceAll(" ", "_").replaceAll(":", "-"); // imagine windows
+                String log = String.format("/U/logs/akit_%s_%s.wpilog", date, BuildConstants.GIT_SHA);
+
                 Logger.addDataReceiver(new WPILOGWriter(log));
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
@@ -73,17 +63,11 @@ public class Robot extends LoggedRobot {
                 break;
             case Replay:
                 String logfile = LogFileUtil.findReplayLog();
-
-                setUseTiming(false);
+                setUseTiming(false); // make it go fast
                 Logger.setReplaySource(new WPILOGReader(logfile));
                 Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logfile, ".sim")));
                 break;
         }
-
-        // allow auto logging in frc.robotio, frc.robotsim, and frc.robotreplay
-        AutoLogOutputManager.addPackage("frc.robotio");
-        AutoLogOutputManager.addPackage("frc.robotsim");
-        AutoLogOutputManager.addPackage("frc.robotreplay");
 
         // register rev hardware logger
         Logger.registerURCL(URCL.startExternal());
@@ -94,11 +78,13 @@ public class Robot extends LoggedRobot {
         // elastic remote downloading thing
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
+        // setup everything else
         this.container = new RobotContainer();
     }
 
     @Override
     public void robotInit() {
+        // setup pp pathfinder (currently not being used, we'll see later)
         Pathfinding.setPathfinder(new ADStar());
         FollowPathCommand.warmupCommand().schedule();
     }
@@ -111,14 +97,15 @@ public class Robot extends LoggedRobot {
         // Run the robot for a tick
         CommandScheduler.getInstance().run();
 
+        // Run event emitter periodic event
+        Emitter.periodic.emit();
+
         // High prio no longer needed
         Threads.setCurrentThreadPriority(false, 10);
     }
 
     @Override
-    public void disabledPeriodic() {
-        Emitter.emit(new PeriodicEvent(), PeriodicEvent.CurrentMode.kDisabled);
-    }
+    public void disabledPeriodic() { }
 
     @Override
     public void autonomousInit() {
@@ -131,13 +118,10 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() {
-        Emitter.emit(new PeriodicEvent(), PeriodicEvent.CurrentMode.kAutonomous);
-    }
+    public void autonomousPeriodic() { }
 
     @Override
     public void teleopInit() {
-        container.drivetrain.resetGyroInvert();
         Elastic.selectTab("Teleoperated");
         if (autoCommand != null) {
             autoCommand.cancel();
@@ -146,9 +130,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void teleopPeriodic() {
-        Emitter.emit(new PeriodicEvent(), PeriodicEvent.CurrentMode.kTeleop);
-    }
+    public void teleopPeriodic() { }
 
     @Override
     public void testInit() {

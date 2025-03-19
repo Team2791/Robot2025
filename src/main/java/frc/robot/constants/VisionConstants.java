@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.util.AllianceUtil;
 import org.photonvision.simulation.SimCameraProperties;
 
 import java.util.List;
@@ -63,17 +63,13 @@ public final class VisionConstants {
         public static final List<Integer> kBlueReef = List.of(17, 18, 19, 20, 21, 22);
 
         public static List<Integer> stations() {
-            return switch (DriverStation.getAlliance().orElse(GameConstants.kDefaultAlliance)) {
-                case Blue -> kBlueStations;
-                case Red -> kRedStations;
-            };
+            if (AllianceUtil.isRed()) return kRedStations;
+            else return kBlueStations;
         }
 
         public static List<Integer> reef() {
-            return switch (DriverStation.getAlliance().orElse(GameConstants.kDefaultAlliance)) {
-                case Blue -> kBlueReef;
-                case Red -> kRedReef;
-            };
+            if (AllianceUtil.isRed()) return kRedReef;
+            else return kBlueReef;
         }
     }
 

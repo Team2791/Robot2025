@@ -62,7 +62,7 @@ public abstract class Navigate extends Command {
         }
 
         Logger.recordOutput("Nearby/Target", currentTarget);
-        drivetrain.field.getObject("Nearby/Target").setPose(currentTarget);
+        drivetrain.getField().getObject("Nearby/Target").setPose(currentTarget);
     }
 
     @Override
@@ -77,7 +77,7 @@ public abstract class Navigate extends Command {
     @OverridingMethodsMustInvokeSuper
     public void end(boolean interrupted) {
         // effectively remove target from field
-        drivetrain.field.getObject("Nearby/Target").setPose(new Pose2d(-1, -1, new Rotation2d()));
+        drivetrain.getField().getObject("Nearby/Target").setPose(new Pose2d(-1, -1, new Rotation2d()));
         Logger.recordOutput("Nearby/Target", new Pose2d(-1, -1, new Rotation2d()));
         drivetrain.drive(new ChassisSpeeds());
     }

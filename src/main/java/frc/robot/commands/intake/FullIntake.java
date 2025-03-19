@@ -10,7 +10,6 @@ import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.event.Emitter;
-import frc.robot.event.Key;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -19,7 +18,7 @@ import frc.robot.util.Alerter;
 
 public class FullIntake extends SequentialCommandGroup {
     private int stage = 0;
-    private static Key<Double, Intake.IntakeRange> key;
+    private static boolean useNearby = true;
 
     /**
      * Full intake command.
@@ -60,26 +59,21 @@ public class FullIntake extends SequentialCommandGroup {
         FullIntake instance = new FullIntake(dispenser, elevator, intake);
         CommandScheduler scheduler = CommandScheduler.getInstance();
 
-        key = Emitter.on(
-            new Intake.IntakeRange(),
-            distance -> {
-                boolean nearby = distance <= IntakeConstants.Range.kRunIntake;
-                boolean scheduled = scheduler.isScheduled(instance);
-                boolean auto = DriverStation.isAutonomous();
+        Emitter.stationRange.register(distance -> {
+            boolean nearby = distance <= IntakeConstants.Range.kRunIntake;
+            boolean scheduled = scheduler.isScheduled(instance);
+            boolean auto = DriverStation.isAutonomous();
 
-                if (auto) return;
-
-                if (nearby && !scheduled) scheduler.schedule(instance);
-                else if (!nearby && scheduled && instance.stage == 0) scheduler.cancel(instance);
-            }
-        );
+            if (auto || !useNearby) return;
+            if (nearby && !scheduled) scheduler.schedule(instance);
+            else if (!nearby && scheduled && instance.stage == 0) scheduler.cancel(instance);
+        });
     }
 
     /**
      * Unregister the full intake command from running when the robot is near the coral dispenser.
      */
     public static void disableNearby() {
-        if (key == null) return;
-        Emitter.off(key);
+        useNearby = false;
     }
 }

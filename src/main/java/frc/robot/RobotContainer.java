@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autos.AutoManager;
 import frc.robot.commands.dispenser.DispenseOut;
+import frc.robot.commands.drivetrain.Characterization;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.elevator.ManualElevate;
 import frc.robot.commands.intake.Dislodge;
@@ -100,18 +101,12 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(joystickDrive);
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
 
-        //        Command drivetrainOverride = Commands.runOnce(() -> {
-        //            if (!joystickDrive.isScheduled()) CommandScheduler.getInstance().requiring(drivetrain).cancel();
-        //        });
-        //        driverctl.axisGreaterThan(1, 0.85).onTrue(drivetrainOverride);
-        //        driverctl.axisLessThan(1, -0.85).onTrue(drivetrainOverride);
-        //        driverctl.axisGreaterThan(2, 0.85).onTrue(drivetrainOverride);
-        //        driverctl.axisLessThan(2, -0.85).onTrue(drivetrainOverride);
-
         driverctl.x().onTrue(new Elevate(elevator, 3));
         driverctl.y().onTrue(new Elevate(elevator, 4));
         driverctl.a().onTrue(new Elevate(elevator, 1));
         driverctl.b().onTrue(new Elevate(elevator, 2));
+
+        driverctl.rightBumper().onTrue(new Characterization(drivetrain));
 
         // driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
         // driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));

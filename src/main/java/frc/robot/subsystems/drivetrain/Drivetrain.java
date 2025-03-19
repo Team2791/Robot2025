@@ -14,19 +14,17 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.*;
 import frc.robot.event.Emitter;
-import frc.robot.event.Event;
-import frc.robot.event.EventDependency;
 import frc.robot.subsystems.drivetrain.gyro.GyroIO;
 import frc.robot.subsystems.drivetrain.module.ModuleIO;
 import frc.robot.subsystems.photon.CameraIO;
 import frc.robot.util.AdvantageUtil;
+import frc.robot.util.AllianceUtil;
 import frc.robot.util.IterUtil;
 import frc.robot.util.RateLimiter;
 import org.dyn4j.geometry.Vector2;
@@ -39,15 +37,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Drivetrain extends SubsystemBase {
-    public static class PoseUpdateEvent extends Event<Pose2d> {
-        @Override
-        public EventDependency<Pose2d, Pose2d> runAfter() {
-            return new EventDependency<>(new PoseResetEvent(), Function.identity());
-        }
-    }
-
-    public static class PoseResetEvent extends Event<Pose2d> { }
-
     public enum FieldRelativeMode {
         kOff,
         kFixedOrigin,
@@ -61,7 +50,7 @@ public class Drivetrain extends SubsystemBase {
     final GyroIO gyro;
 
     final SwerveDrivePoseEstimator odometry;
-    public final Field2d field;
+    final Field2d field;
 
     final RateLimiter slew;
 
@@ -95,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
 
         AutoBuilder.configure(
             this::getPose,
-            (pose) -> Emitter.emit(new PoseResetEvent(), pose),
+            Emitter.poseReset::emit,
             this::getChassisSpeeds,
             s -> this.drive(s, FieldRelativeMode.kOff),
             new PPHolonomicDriveController(
@@ -124,7 +113,7 @@ public class Drivetrain extends SubsystemBase {
                 ),
                 ModuleConstants.Translations.kModules
             ),
-            () -> DriverStation.getAlliance().map(al -> al == DriverStation.Alliance.Red).orElse(false),
+            AllianceUtil::invert,
             this
         );
 
@@ -142,7 +131,7 @@ public class Drivetrain extends SubsystemBase {
                     {
                         builder.addDoubleProperty(
                             label + " Angle",
-                            () -> module.getState().angle.getRadians(),
+                            () -> AllianceUtil.recenter(module.getState().angle).getRadians(),
                             null
                         );
                         builder.addDoubleProperty(
@@ -155,21 +144,16 @@ public class Drivetrain extends SubsystemBase {
 
                 builder.addDoubleProperty(
                     "Robot Angle",
-                    () -> {
-                        if (GameConstants.kAllianceInvert.get()) {
-                            return getHeading().getRadians() + Math.PI;
-                        } else {
-                            return getHeading().getRadians();
-                        }
-                    },
+                    () -> AllianceUtil.recenter(getHeading()).getRadians(),
                     null
                 );
             }
         );
 
         AutoLogOutputManager.addObject(this);
-        Emitter.on(new PoseUpdateEvent(), field::setRobotPose);
-        Emitter.on(new PoseResetEvent(), pose -> odometry.resetPosition(gyro.heading(), modulePositions(), pose));
+
+        Emitter.poseReset.register(field::setRobotPose);
+        Emitter.poseReset.register(p -> odometry.resetPosition(gyro.heading(), modulePositions(), p));
     }
 
     /**
@@ -232,15 +216,12 @@ public class Drivetrain extends SubsystemBase {
     public void drive(ChassisSpeeds speeds, FieldRelativeMode fieldRelative) {
         switch (fieldRelative) {
             case kFixedOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
-            case kAllianceOrigin -> {
-                double invert = GameConstants.kAllianceFactor.get();
-                setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
-                    speeds.vxMetersPerSecond * invert,
-                    speeds.vyMetersPerSecond * invert,
-                    speeds.omegaRadiansPerSecond,
-                    getHeading()
-                ));
-            }
+            case kAllianceOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
+                speeds.vxMetersPerSecond * AllianceUtil.factor(),
+                speeds.vyMetersPerSecond * AllianceUtil.factor(),
+                speeds.omegaRadiansPerSecond,
+                getHeading()
+            ));
             case kOff -> setDesiredSpeeds(speeds);
         }
     }
@@ -319,24 +300,9 @@ public class Drivetrain extends SubsystemBase {
      * Reset the gyro
      */
     public void resetGyro() {
-        Rotation2d reset = GameConstants.kAllianceInvert.get() ? Rotation2d.kPi : Rotation2d.kZero;
+        Rotation2d reset = AllianceUtil.facingDriver();
         gyro.reset(reset);
-        Emitter.emit(
-            new PoseResetEvent(),
-            new Pose2d(getPose().getTranslation(), reset)
-        );
-    }
-
-    /**
-     * Reset the gyro
-     */
-    public void resetGyroInvert() {
-        Rotation2d reset = GameConstants.kAllianceInvert.get() ? Rotation2d.kZero : Rotation2d.kPi;
-        gyro.reset(reset);
-        Emitter.emit(
-            new PoseResetEvent(),
-            new Pose2d(getPose().getTranslation(), reset)
-        );
+        Emitter.poseReset.emit(new Pose2d(getPose().getTranslation(), reset));
     }
 
     /**
@@ -358,6 +324,13 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
+    /**
+     * Get Field widget
+     */
+    public Field2d getField() {
+        return field;
+    }
+
     @Override
     public void periodic() {
         // update gyro data
@@ -371,7 +344,7 @@ public class Drivetrain extends SubsystemBase {
             odometry.update(gyro.heading(), modulePositions());
         } catch (Exception ignored) { }
 
-        Emitter.emit(new PoseUpdateEvent(), getPose());
+        Emitter.poseUpdate.emit(getPose());
 
         // log to akit
         IterUtil.enumerateThen(

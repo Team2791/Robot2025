@@ -1,7 +1,6 @@
 package frc.robot.subsystems.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.Emitter;
 import frc.robot.subsystems.drivetrain.Drivetrain;
@@ -25,7 +24,7 @@ public class Photon {
         this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kBotToFront);
         this.rear = cameraFactory.apply(VisionConstants.Names.kRear, VisionConstants.Transforms.kBotToRear);
 
-        Emitter.on(new Robot.PeriodicEvent(), _mode -> this.periodic());
+        Emitter.periodic.register(this::periodic);
     }
 
     public PhotonPipelineResult frontResult() {
