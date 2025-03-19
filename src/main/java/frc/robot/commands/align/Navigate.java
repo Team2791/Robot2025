@@ -69,7 +69,7 @@ public abstract class Navigate extends Command {
     public final void execute() {
         Pose2d robot = drivetrain.getPose();
         ChassisSpeeds speeds = controller.calculate(robot, currentTarget, 0, currentTarget.getRotation());
-        
+
         drivetrain.drive(speeds, Drivetrain.FieldRelativeMode.kFixedOrigin);
     }
 
@@ -83,7 +83,6 @@ public abstract class Navigate extends Command {
     }
 
     @Override
-    @OverridingMethodsMustInvokeSuper
     public boolean isFinished() {
         return controller.atReference();
     }

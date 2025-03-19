@@ -102,16 +102,21 @@ public class AutoManager {
         ).withName("Reset and Follow");
     }
 
-    public Command pathfindFollow(AutoTrajectory trajectory) {
+    public Command navigateFollow(AutoTrajectory trajectory) {
         return Commands.sequence(
-            new Navigate(drivetrain, () -> trajectory.getInitialPose().orElse(null)),
+            new Navigate(drivetrain) {
+                @Override
+                public Pose2d getTargetPose() {
+                    return trajectory.getInitialPose().orElse(null);
+                }
+            },
             trajectory.cmd()
         ).withName("Pathfind and Follow");
     }
 
     public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement, List<Integer> reefTags) {
         return Commands.sequence(
-            new ReefAlign(drivetrain, placement.offset, reefTags),
+            new ReefAlign(drivetrain, placement.offset),
             new Elevate(elevator, placement.level).withTimeout(5.0),
             new DispenseOut(dispenser, elevator),
             new Elevate(elevator, 0)
@@ -133,7 +138,7 @@ public class AutoManager {
         return Commands.sequence(
             resetFollow(location.trajectories.toScore),
             score(dispenser, elevator, location.placement, location.reefTags),
-            pathfindFollow(location.trajectories.toIntake)
+            navigateFollow(location.trajectories.toIntake)
         ).withName("Auto: Initial Score+Intake");
     }
 
@@ -148,9 +153,9 @@ public class AutoManager {
         int i = 0;
         for (ScoreLocation location : scoring) {
             commands[i] = intake(dispenser, elevator, intake);
-            commands[i + 1] = pathfindFollow(location.trajectories.toScore);
+            commands[i + 1] = navigateFollow(location.trajectories.toScore);
             commands[i + 2] = score(dispenser, elevator, location.placement, location.reefTags);
-            commands[i + 3] = pathfindFollow(location.trajectories.toIntake);
+            commands[i + 3] = navigateFollow(location.trajectories.toIntake);
 
             i += 4;
         }
