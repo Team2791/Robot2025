@@ -16,7 +16,6 @@ public abstract class GyroIO {
         public AngularVelocity velocity = RadiansPerSecond.of(0);
     }
 
-
     /**
      * The current gyro's data, since the last update() call
      */
@@ -26,7 +25,6 @@ public abstract class GyroIO {
      * Updates this.data with the current gyro data.
      */
     public abstract void update();
-
 
     /**
      * Resets the gyro.

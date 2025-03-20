@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.ElevatorConstants;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class Elevate extends FunctionWrapper {
@@ -39,7 +39,7 @@ public class Elevate extends FunctionWrapper {
         final Elevate instance = new Elevate(elevator, 0, true);
         final CommandScheduler scheduler = CommandScheduler.getInstance();
 
-        Emitter.reefRange.register(distance -> {
+        EventRegistry.reefRange.register(distance -> {
             boolean outside = distance >= ElevatorConstants.Range.kRetract;
             boolean scheduled = scheduler.isScheduled(instance);
             boolean zeroed = elevator.atLevel(0);

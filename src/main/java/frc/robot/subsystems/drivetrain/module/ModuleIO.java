@@ -46,7 +46,15 @@ public abstract class ModuleIO {
     public abstract void update();
 
     /** Set the desired state of the module. This includes velocity and position */
-    public void setDesiredState(SwerveModuleState desired) { }
+    public void setDesiredState(SwerveModuleState desired) {
+        desired.optimize(new Rotation2d(data.turnPosition));
+        desired.cosineScale(new Rotation2d(data.turnPosition));
+
+        double commanded = desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius;
+        setStateSetpoint(commanded, desired.angle.getRadians());
+
+        data.commanded = RadiansPerSecond.of(commanded);
+    }
 
     /** Set the desired state of the module. This includes velocity and position */
     public abstract void setStateSetpoint(double driveVelocity, double turnPosition);

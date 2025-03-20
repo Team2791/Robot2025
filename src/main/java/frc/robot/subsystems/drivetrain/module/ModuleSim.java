@@ -87,9 +87,8 @@ public class ModuleSim extends ModuleIO {
     @Override
     public void setStateSetpoint(double driveVelocity, double turnPosition) {
         openLoop = false;
-        double ff = ControlConstants.DriveMotor.kS * Math.signum(driveVelocity) + ControlConstants.DriveMotor.kV * driveVelocity;
 
-        driveController.setSetpoint(ff);
+        driveController.setSetpoint(driveVelocity);
         turnController.setSetpoint(turnPosition);
     }
 

@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.constants.*;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.drivetrain.gyro.GyroSim;
 import frc.robot.subsystems.drivetrain.module.ModuleSim;
 import org.ironmaple.simulation.SimulatedArena;
@@ -59,8 +59,8 @@ public class WorldSimulator {
 
         SimulatedArena.getInstance().addDriveTrainSimulation(drivetrain);
 
-        Emitter.poseReset.register(this::resetPose);
-        Emitter.periodic.register(() -> this.vision.update(this.drivetrain.getSimulatedDriveTrainPose()));
+        EventRegistry.poseReset.register(this::resetPose);
+        EventRegistry.periodic.register(() -> this.vision.update(this.drivetrain.getSimulatedDriveTrainPose()));
 
     }
 

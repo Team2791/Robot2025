@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.util.ADStar;
 import frc.robot.util.Elastic;
 import org.ironmaple.simulation.SimulatedArena;
@@ -98,7 +98,7 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         // Run event emitter periodic event
-        Emitter.periodic.emit();
+        EventRegistry.periodic.emit();
 
         // High prio no longer needed
         Threads.setCurrentThreadPriority(false, 10);

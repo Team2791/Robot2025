@@ -9,7 +9,7 @@ import frc.robot.commands.dispenser.SlowBack;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IntakeConstants;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
@@ -59,7 +59,7 @@ public class FullIntake extends SequentialCommandGroup {
         FullIntake instance = new FullIntake(dispenser, elevator, intake);
         CommandScheduler scheduler = CommandScheduler.getInstance();
 
-        Emitter.stationRange.register(distance -> {
+        EventRegistry.stationRange.register(distance -> {
             boolean nearby = distance <= IntakeConstants.Range.kRunIntake;
             boolean scheduled = scheduler.isScheduled(instance);
             boolean auto = DriverStation.isAutonomous();

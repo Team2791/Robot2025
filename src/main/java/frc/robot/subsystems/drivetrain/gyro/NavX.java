@@ -15,6 +15,7 @@ public class NavX extends GyroIO {
 
     public NavX() {
         this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort);
+        this.gyro.enableLogging(true);
     }
 
     Angle measure() {

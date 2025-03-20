@@ -8,7 +8,6 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class SparkConfigConstants {
-
     public static final class Drivetrain {
         public static final SparkMaxConfig kDrive;
         public static final SparkMaxConfig kTurn;
@@ -45,18 +44,18 @@ public class SparkConfigConstants {
                 ControlConstants.DriveMotor.kP,
                 ControlConstants.DriveMotor.kI,
                 ControlConstants.DriveMotor.kD,
-                0.0
+                ControlConstants.DriveMotor.kF
             );
             kDrive.closedLoop.outputRange(
                 ControlConstants.DriveMotor.kMin,
                 ControlConstants.DriveMotor.kMax
             );
-            
+
             kTurn.closedLoop.pidf(
                 ControlConstants.TurnMotor.kP,
                 ControlConstants.TurnMotor.kI,
                 ControlConstants.TurnMotor.kD,
-                0.0
+                ControlConstants.TurnMotor.kF
             );
             kTurn.closedLoop.outputRange(
                 ControlConstants.TurnMotor.kMinOut,

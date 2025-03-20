@@ -10,7 +10,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -19,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.*;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.drivetrain.gyro.GyroIO;
 import frc.robot.subsystems.drivetrain.module.ModuleIO;
 import frc.robot.subsystems.photon.CameraIO;
@@ -84,7 +83,7 @@ public class Drivetrain extends SubsystemBase {
 
         AutoBuilder.configure(
             this::getPose,
-            Emitter.poseReset::emit,
+            EventRegistry.poseReset::emit,
             this::getChassisSpeeds,
             s -> this.drive(s, FieldRelativeMode.kOff),
             new PPHolonomicDriveController(
@@ -152,8 +151,8 @@ public class Drivetrain extends SubsystemBase {
 
         AutoLogOutputManager.addObject(this);
 
-        Emitter.poseReset.register(field::setRobotPose);
-        Emitter.poseReset.register(p -> odometry.resetPosition(gyro.heading(), modulePositions(), p));
+        EventRegistry.poseReset.register(field::setRobotPose);
+        EventRegistry.poseReset.register(p -> odometry.resetPosition(gyro.heading(), modulePositions(), p));
     }
 
     /**
@@ -192,10 +191,6 @@ public class Drivetrain extends SubsystemBase {
         // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
-
-        // this probably doesn't need to happen again but just in case we get bad parameters somehow
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
-
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
     }
 
@@ -302,7 +297,7 @@ public class Drivetrain extends SubsystemBase {
     public void resetGyro() {
         Rotation2d reset = AllianceUtil.facingDriver();
         gyro.reset(reset);
-        Emitter.poseReset.emit(new Pose2d(getPose().getTranslation(), reset));
+        EventRegistry.poseReset.emit(new Pose2d(getPose().getTranslation(), reset));
     }
 
     /**
@@ -344,7 +339,7 @@ public class Drivetrain extends SubsystemBase {
             odometry.update(gyro.heading(), modulePositions());
         } catch (Exception ignored) { }
 
-        Emitter.poseUpdate.emit(getPose());
+        EventRegistry.poseUpdate.emit(getPose());
 
         // log to akit
         IterUtil.enumerateThen(

@@ -2,17 +2,14 @@ package frc.robot.subsystems.drivetrain.module;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.SparkConfigConstants;
@@ -109,19 +106,18 @@ public class ModuleSpark extends ModuleIO {
         this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
     }
 
+    /**
+     * Set a desired module state
+     *
+     * @param driveVelocity the velocity in radians per second
+     * @param turnPosition  the position in radians
+     */
     @Override
     public void setStateSetpoint(double driveVelocity, double turnPosition) {
-        double ff = ControlConstants.DriveMotor.kS * Math.signum(driveVelocity) + ControlConstants.DriveMotor.kV * driveVelocity;
         double turnSetpoint = SwerveUtil.normalizeAngle(turnPosition + angularOffset);
 
         turnController.setReference(turnSetpoint, ControlType.kPosition);
-        driveController.setReference(
-            driveVelocity,
-            ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            ff,
-            ArbFFUnits.kVoltage
-        );
+        driveController.setReference(driveVelocity, ControlType.kVelocity);
     }
 
     @Override

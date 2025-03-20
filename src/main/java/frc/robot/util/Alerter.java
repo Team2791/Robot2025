@@ -6,10 +6,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Alerter {
     private static Alerter instance;
@@ -19,12 +20,13 @@ public class Alerter {
 
     ArrayList<SparkBase> sparks = new ArrayList<>();
     ArrayList<String> sparkNames = new ArrayList<>();
+    HashSet<Integer> alertedSparks = new HashSet<>();
 
     Notifier vibrateStop = new Notifier(this::still);
 
     private Alerter() {
         vibrateStop.setName("VibrateStop");
-        Emitter.periodic.register(this::update);
+        EventRegistry.periodic.register(this::update);
     }
 
     public static Alerter getInstance() {
@@ -103,7 +105,7 @@ public class Alerter {
             String name = sparkNames.get(i);
             int can = spark.getDeviceId();
 
-            if (spark.getLastError() != REVLibError.kOk) {
+            if (!alertedSparks.contains(can) && spark.getLastError() != REVLibError.kOk) {
                 Elastic.sendNotification(
                     new Elastic.Notification(
                         NotificationLevel.ERROR,
@@ -111,6 +113,8 @@ public class Alerter {
                         name + "(CanId " + can + ") has failed with error: " + makeHumanReadable(spark.getLastError())
                     )
                 );
+
+                alertedSparks.add(can);
             }
         }
     }

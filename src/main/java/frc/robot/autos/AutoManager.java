@@ -16,7 +16,7 @@ import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.intake.FullIntake;
 import frc.robot.constants.ControlConstants;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -58,7 +58,7 @@ public class AutoManager {
         this.drivetrain = drivetrain;
         this.factory = new AutoFactory(
             drivetrain::getPose,
-            Emitter.poseReset::emit,
+            EventRegistry.poseReset::emit,
             this::follow,
             true,
             drivetrain,

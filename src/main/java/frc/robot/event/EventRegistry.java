@@ -8,7 +8,7 @@ import frc.robot.constants.VisionConstants;
 import java.util.List;
 import java.util.Optional;
 
-public class Emitter {
+public class EventRegistry {
     public static final VoidEvent periodic = new VoidEvent();
 
     public static final Event<Pose2d> poseReset = new Event<>();

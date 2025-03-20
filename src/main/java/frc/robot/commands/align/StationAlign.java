@@ -18,7 +18,7 @@ public class StationAlign extends TagAlign {
         super(
             drivetrain,
             new Transform2d(
-                0.5 * RobotConstants.DriveBase.kBumperLength + 0.06,
+                0.5 * RobotConstants.DriveBase.kBumperLength,
                 0,
                 new Rotation2d()
             )

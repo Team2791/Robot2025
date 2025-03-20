@@ -6,12 +6,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autos.AutoManager;
+import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.dispenser.DispenseOut;
-import frc.robot.commands.drivetrain.Characterization;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.elevator.ManualElevate;
 import frc.robot.commands.intake.Dislodge;
 import frc.robot.commands.intake.FullIntake;
+import frc.robot.commands.manipulator.FullManipulate;
 import frc.robot.commands.manipulator.RunManipulator;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
@@ -93,7 +94,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // disable for now.
         FullIntake.registerNearby(dispenser, elevator, intake);
         Elevate.registerRetract(elevator);
 
@@ -106,10 +106,9 @@ public class RobotContainer {
         driverctl.a().onTrue(new Elevate(elevator, 1));
         driverctl.b().onTrue(new Elevate(elevator, 2));
 
-        driverctl.rightBumper().onTrue(new Characterization(drivetrain));
 
-        // driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
-        // driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
+        driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
+        driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
 
         driverctl.rightTrigger().onTrue(new DispenseOut(dispenser, elevator));
         driverctl.leftTrigger().toggleOnTrue(new SequentialCommandGroup(
@@ -140,7 +139,7 @@ public class RobotContainer {
         operctl.a().onTrue(new FunctionWrapper(FullIntake::disableNearby));
         operctl.b().onTrue(new FunctionWrapper(Elevate::disableRetract));
         operctl.x().whileTrue(new Dislodge(intake, dispenser));
-        // operctl.y().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
+        operctl.y().toggleOnTrue(new FullManipulate(manipulator, drivetrain, elevator));
     }
 
     public Command getAutonomousCommand() {
