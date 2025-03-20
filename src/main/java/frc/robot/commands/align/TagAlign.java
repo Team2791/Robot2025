@@ -2,31 +2,39 @@ package frc.robot.commands.align;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.util.Alerter;
 
 import java.util.List;
 
-public abstract class TagAlign extends Navigate {
+public abstract class TagAlign extends SequentialCommandGroup {
     final Transform2d offset;
+    final Drivetrain drivetrain;
 
-    int stage = 0;
+    Pose2d targetY;
+    Pose2d targetFinal;
+
     int tagId = -1;
 
-    public TagAlign(
-        Drivetrain drivetrain,
-        final Transform2d offset
-    ) {
-        super(drivetrain);
+    public TagAlign(Drivetrain drivetrain, Transform2d offset) {
         this.offset = offset;
+        this.drivetrain = drivetrain;
+
+        addCommands(
+            new InstantCommand(this::updateTargetPose),
+            new Navigate.Supplied(drivetrain, () -> targetY),
+            new Navigate.Supplied(drivetrain, () -> targetFinal),
+            new InstantCommand(Alerter.getInstance()::rumble)
+        );
     }
 
-    public abstract List<Integer> getTagIds();
+    protected abstract List<Integer> getTagIds();
 
-    @Override
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public Pose2d getTargetPose() {
+    private void updateTargetPose() {
         List<Integer> targetIds = getTagIds();
         Pose2d robot = drivetrain.getPose();
         Pose2d tagPose = null;
@@ -47,44 +55,24 @@ public abstract class TagAlign extends Navigate {
         if (tagPose == null) {
             System.out.println("AlignClosest: no provided apriltags exist");
             tagId = -1;
-            return null;
+            return;
         }
 
-        Transform2d offsetFixed = null;
         Transform2d toRobot = tagPose.minus(robot);
+        Transform2d offsetY = new Transform2d(toRobot.getX(), offset.getY(), offset.getRotation());
 
-        if (stage == 0) offsetFixed = new Transform2d(offset.getX(), toRobot.getY(), offset.getRotation());
-        else offsetFixed = offset;
+        targetY = tagPose.transformBy(offsetY);
+        targetFinal = tagPose.transformBy(offset);
 
-        Pose2d target = tagPose.transformBy(offsetFixed);
-
-        if (robot.getTranslation().getDistance(target.getTranslation()) >= VisionConstants.Align.kMaxDistance) {
+        if (robot.getTranslation().getDistance(targetFinal.getTranslation()) >= VisionConstants.Align.kMaxDistance) {
             System.out.println("AlignClosest: target too far away:");
             tagId = -1;
-            return null;
+            targetY = null;
+            targetFinal = null;
         }
-
-        return target;
     }
 
     public int getTagId() {
         return tagId;
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        super.end(interrupted);
-        Alerter.getInstance().rumble();
-    }
-    
-    @Override
-    public boolean isFinished() {
-        if (super.isFinished() && stage == 1) {
-            return true;
-        } else {
-            stage = 1;
-            super.initialize();
-            return false;
-        }
     }
 }

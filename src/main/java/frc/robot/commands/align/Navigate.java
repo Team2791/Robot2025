@@ -13,8 +13,28 @@ import frc.robot.constants.ControlConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.Supplier;
+
 
 public abstract class Navigate extends Command {
+    public static class Supplied extends Navigate {
+        final Supplier<Pose2d> target;
+
+        public Supplied(Drivetrain drivetrain, Supplier<Pose2d> target) {
+            super(drivetrain);
+            this.target = target;
+        }
+
+        public Supplied(Drivetrain drivetrain, Pose2d target) {
+            this(drivetrain, () -> target);
+        }
+
+        @Override
+        protected Pose2d getTargetPose() {
+            return target.get();
+        }
+    }
+
     final HolonomicDriveController controller = new HolonomicDriveController(
         new PIDController(
             ControlConstants.Align.kOrthoP,
@@ -49,7 +69,7 @@ public abstract class Navigate extends Command {
         addRequirements(drivetrain);
     }
 
-    public abstract Pose2d getTargetPose();
+    protected abstract Pose2d getTargetPose();
 
     @Override
     public final void initialize() {

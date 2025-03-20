@@ -26,7 +26,7 @@ public class StationAlign extends TagAlign {
     }
 
     @Override
-    public List<Integer> getTagIds() {
+    protected List<Integer> getTagIds() {
         return VisionConstants.AprilTag.stations();
     }
 }

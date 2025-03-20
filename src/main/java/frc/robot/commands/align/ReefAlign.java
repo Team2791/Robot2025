@@ -27,7 +27,7 @@ public class ReefAlign extends TagAlign {
     }
 
     @Override
-    public List<Integer> getTagIds() {
+    protected List<Integer> getTagIds() {
         return VisionConstants.AprilTag.reef();
     }
 }
