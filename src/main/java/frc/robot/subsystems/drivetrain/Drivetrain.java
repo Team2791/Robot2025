@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -290,6 +291,10 @@ public class Drivetrain extends SubsystemBase {
         if (velocity.getMagnitude() > 1) velocity.normalize();
         Vector2 velocity2 = velocity.multiply(velocity.getMagnitudeSquared());
 
+        System.out.println(xspeed);
+        System.out.println(yspeed);
+        System.out.println(rot);
+
         /*
          * Time to explain some wpilib strangeness
          *
@@ -337,9 +342,15 @@ public class Drivetrain extends SubsystemBase {
         Arrays.stream(modules()).forEach(ModuleIO::update);
 
         // get heading, use odometry as fallback
-        Rotation2d heading = gyro.data.connected
-            ? gyro.heading()
-            : getHeading().plus(new Rotation2d(ModuleConstants.kKinematics.toTwist2d(modulePositions()).dtheta));
+        Rotation2d heading;
+
+        if (gyro.data.connected) {
+            heading = gyro.heading();
+        } else {
+            Twist2d twist = ModuleConstants.kKinematics.toTwist2d(modulePositions());
+            heading = new Rotation2d(gyro.data.heading).plus(new Rotation2d(twist.dtheta));
+            gyro.data.heading = heading.getMeasure();
+        }
 
         // update odometry
         try { odometry.update(heading, modulePositions()); } catch (Exception ignored) { }

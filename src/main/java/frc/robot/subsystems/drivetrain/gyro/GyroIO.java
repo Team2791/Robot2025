@@ -14,6 +14,7 @@ public abstract class GyroIO {
         public boolean connected = false;
         public Angle heading = Radians.of(0);
         public AngularVelocity velocity = RadiansPerSecond.of(0);
+        public double[] readings = new double[0];
     }
 
     /**
