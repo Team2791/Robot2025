@@ -9,15 +9,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.align.Navigate;
 import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.align.StationAlign;
-import frc.robot.commands.align.ToNearbyPose;
 import frc.robot.commands.dispenser.DispenseOut;
 import frc.robot.commands.elevator.Elevate;
 import frc.robot.commands.intake.FullIntake;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.GameConstants;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
@@ -52,40 +53,35 @@ public class AutoManager {
     );
 
     final AutoFactory factory;
-
     final Drivetrain drivetrain;
 
     public AutoManager(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         this.factory = new AutoFactory(
             drivetrain::getPose,
-            p -> Emitter.emit(new Drivetrain.PoseResetEvent(), p),
+            EventRegistry.poseReset::emit,
             this::follow,
             true,
             drivetrain,
             (sample, isStart) -> {
                 Logger.recordOutput("Auto/CurrentTrajectory", sample.getPoses());
-                drivetrain.field.getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
+                drivetrain.getField().getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
             }
         );
 
         rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
-    public void follow(SwerveSample trajectory) {
+    public void follow(SwerveSample sample) {
         // get current pose
         Pose2d pose = drivetrain.getPose();
-        Pose2d wants = trajectory.getPose();
+        Pose2d wants = sample.getPose();
 
-        if (GameConstants.kAllianceInvert.get()) {
-            wants = wants.relativeTo(GameConstants.kRedOrigin);
-        }
-        
         // generate speeds
         ChassisSpeeds speeds = new ChassisSpeeds(
-            trajectory.vx + xController.calculate(pose.getX(), wants.getX()),
-            trajectory.vy + yController.calculate(pose.getY(), wants.getY()),
-            trajectory.omega + rotController.calculate(
+            sample.vx + xController.calculate(pose.getX(), wants.getX()),
+            sample.vy + yController.calculate(pose.getY(), wants.getY()),
+            sample.omega + rotController.calculate(
                 pose.getRotation().getRadians(),
                 wants.getRotation().getRadians()
             )
@@ -102,25 +98,33 @@ public class AutoManager {
         ).withName("Reset and Follow");
     }
 
-    public Command pathfindFollow(AutoTrajectory trajectory) {
+    public Command navigateFollow(AutoTrajectory trajectory) {
         return Commands.sequence(
-            new ToNearbyPose(drivetrain, () -> trajectory.getInitialPose().orElse(null)),
+            new Navigate(drivetrain) {
+                @Override
+                public Pose2d getTargetPose() {
+                    return trajectory.getInitialPose().orElse(null);
+                }
+            },
             trajectory.cmd()
         ).withName("Pathfind and Follow");
     }
 
     public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement, List<Integer> reefTags) {
         return Commands.sequence(
-            new ReefAlign(drivetrain, placement.offset, reefTags),
-            new Elevate(elevator, placement.level).withTimeout(5.0),
+            new ReefAlign(drivetrain, placement.offset).withTimeout(6.0),
+            new Elevate(elevator, placement.level),
             new DispenseOut(dispenser, elevator),
+            new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(-0.01, 0, 0), Drivetrain.FieldRelativeMode.kOff)),
+            new WaitCommand(2.0),
+            new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0, 0), Drivetrain.FieldRelativeMode.kOff)),
             new Elevate(elevator, 0)
         ).withName("Auto: Align+Score");
     }
 
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
-            new StationAlign(drivetrain),
+            new StationAlign(drivetrain).withTimeout(6.0),
             new FullIntake(dispenser, elevator, intake)
         ).withName("Auto: Align+Intake");
     }
@@ -133,7 +137,7 @@ public class AutoManager {
         return Commands.sequence(
             resetFollow(location.trajectories.toScore),
             score(dispenser, elevator, location.placement, location.reefTags),
-            pathfindFollow(location.trajectories.toIntake)
+            navigateFollow(location.trajectories.toIntake)
         ).withName("Auto: Initial Score+Intake");
     }
 
@@ -148,9 +152,9 @@ public class AutoManager {
         int i = 0;
         for (ScoreLocation location : scoring) {
             commands[i] = intake(dispenser, elevator, intake);
-            commands[i + 1] = pathfindFollow(location.trajectories.toScore);
+            commands[i + 1] = navigateFollow(location.trajectories.toScore);
             commands[i + 2] = score(dispenser, elevator, location.placement, location.reefTags);
-            commands[i + 3] = pathfindFollow(location.trajectories.toIntake);
+            commands[i + 3] = navigateFollow(location.trajectories.toIntake);
 
             i += 4;
         }
@@ -159,7 +163,7 @@ public class AutoManager {
     }
 
     public void clearTrajectory() {
-        drivetrain.field.getObject("AutoPath").setPoses();
+        drivetrain.getField().getObject("AutoPath").setPoses();
         Logger.recordOutput("Auto/CurrentTrajectory", new Pose2d[0]);
     }
 

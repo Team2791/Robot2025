@@ -9,12 +9,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.constants.IOConstants;
 import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.util.Alerter;
+import frc.robot.util.SwerveUtil;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -38,21 +38,16 @@ public class ModuleSpark extends ModuleIO {
      * @param id the module's id. [0, 3] corresponds to [fl, fr, bl, br]
      */
     public ModuleSpark(int id) {
-        int driveId = switch (id) {
-            case 0 -> IOConstants.Drivetrain.Drive.kFrontLeft;
-            case 1 -> IOConstants.Drivetrain.Drive.kFrontRight;
-            case 2 -> IOConstants.Drivetrain.Drive.kRearLeft;
-            case 3 -> IOConstants.Drivetrain.Drive.kRearRight;
+        super(switch (id) {
+            case 0 -> IOConstants.Drivetrain.Drive.kFrontLeft / 10;
+            case 1 -> IOConstants.Drivetrain.Drive.kFrontRight / 10;
+            case 2 -> IOConstants.Drivetrain.Drive.kRearLeft / 10;
+            case 3 -> IOConstants.Drivetrain.Drive.kRearRight / 10;
             default -> throw new IllegalArgumentException("Invalid module id: " + id);
-        };
+        });
 
-        int turnId = switch (id) {
-            case 0 -> IOConstants.Drivetrain.Turn.kFrontLeft;
-            case 1 -> IOConstants.Drivetrain.Turn.kFrontRight;
-            case 2 -> IOConstants.Drivetrain.Turn.kRearLeft;
-            case 3 -> IOConstants.Drivetrain.Turn.kRearRight;
-            default -> throw new IllegalArgumentException("Invalid module id: " + id);
-        };
+        int driveId = moduleId * 10;
+        int turnId = driveId + 5;
 
         angularOffset = switch (id) {
             case 0 -> ModuleConstants.AngularOffsets.kFrontLeft;
@@ -87,8 +82,8 @@ public class ModuleSpark extends ModuleIO {
         );
 
         // register with notifier
-        Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Drive", driveMotor);
-        Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Turn", turnMotor);
+        Alerter.getInstance().registerSpark("Module" + moduleId + "Drive", driveMotor);
+        Alerter.getInstance().registerSpark("Module" + moduleId + "Turn", turnMotor);
     }
 
     @Override
@@ -106,20 +101,18 @@ public class ModuleSpark extends ModuleIO {
         this.data.turnCurrent = Amps.of(turnMotor.getOutputCurrent());
     }
 
-    public void setDesiredState(SwerveModuleState desired) {
-        SwerveModuleState corrected = new SwerveModuleState(
-            desired.speedMetersPerSecond,
-            desired.angle.plus(new Rotation2d(angularOffset))
-        );
+    /**
+     * Set a desired module state
+     *
+     * @param driveVelocity the velocity in radians per second
+     * @param turnPosition  the position in radians
+     */
+    @Override
+    public void setStateSetpoint(double driveVelocity, double turnPosition) {
+        double turnSetpoint = SwerveUtil.normalizeAngle(turnPosition + angularOffset);
 
-        corrected.optimize(new Rotation2d(turnEncoder.getPosition()));
-
-        double angular = corrected.speedMetersPerSecond / ModuleConstants.Wheel.kRadius;
-        driveController.setReference(angular, ControlType.kVelocity);
-        turnController.setReference(corrected.angle.getRadians(), ControlType.kPosition);
-
-        this.data.desired = corrected;
-        this.data.commanded = RadiansPerSecond.of(angular);
+        turnController.setReference(turnSetpoint, ControlType.kPosition);
+        driveController.setReference(driveVelocity, ControlType.kVelocity);
     }
 
     @Override
@@ -128,6 +121,16 @@ public class ModuleSpark extends ModuleIO {
         config.idleMode(mode);
 
         this.driveMotor.configure(config, SparkConfigConstants.kResetMode, SparkConfigConstants.kPersistMode);
+    }
+
+    @Override
+    public void driveOpenLoop(double output) {
+        driveMotor.setVoltage(output);
+    }
+
+    @Override
+    public void zeroTurn() {
+        turnController.setReference(angularOffset, ControlType.kPosition);
     }
 }
 

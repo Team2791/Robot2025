@@ -8,7 +8,6 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class SparkConfigConstants {
-
     public static final class Drivetrain {
         public static final SparkMaxConfig kDrive;
         public static final SparkMaxConfig kTurn;
@@ -26,6 +25,10 @@ public class SparkConfigConstants {
             kDrive.encoder.velocityConversionFactor(ModuleConstants.DriveEncoder.kVelocityFactor);
             kTurn.absoluteEncoder.positionConversionFactor(ModuleConstants.TurnEncoder.kPositionFactor);
             kTurn.absoluteEncoder.velocityConversionFactor(ModuleConstants.TurnEncoder.kVelocityFactor);
+
+            // voltage compensation
+            kDrive.voltageCompensation(MotorConstants.kNominalVoltage);
+            kTurn.voltageCompensation(MotorConstants.kNominalVoltage);
 
             // setup absolute encoder
             kTurn.absoluteEncoder.inverted(ModuleConstants.TurnEncoder.kInverted);
@@ -55,8 +58,8 @@ public class SparkConfigConstants {
                 ControlConstants.TurnMotor.kF
             );
             kTurn.closedLoop.outputRange(
-                ControlConstants.TurnMotor.kMinOut,
-                ControlConstants.TurnMotor.kMaxOut
+                ControlConstants.TurnMotor.kMinOutput,
+                ControlConstants.TurnMotor.kMaxOutput
             );
 
             // idle mode

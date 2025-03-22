@@ -6,6 +6,13 @@ import com.studica.frc.AHRS.NavXComType;
 public final class IOConstants {
     public static final class Drivetrain {
         public static final class Drive {
+            // Orpheus:
+            //            public static final int kFrontLeft = 10;
+            //            public static final int kFrontRight = 20;
+            //            public static final int kRearLeft = 30;
+            //            public static final int kRearRight = 40;
+
+            // Caspian:
             public static final int kFrontLeft = 30;
             public static final int kFrontRight = 40;
             public static final int kRearLeft = 20;
@@ -13,6 +20,13 @@ public final class IOConstants {
         }
 
         public static final class Turn {
+            // Orpheus:
+            //            public static final int kFrontLeft = 15;
+            //            public static final int kFrontRight = 25;
+            //            public static final int kRearLeft = 35;
+            //            public static final int kRearRight = 45;
+
+            // Caspian:
             public static final int kFrontLeft = 35;
             public static final int kFrontRight = 45;
             public static final int kRearLeft = 25;

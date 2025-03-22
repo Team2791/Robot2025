@@ -3,13 +3,9 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import frc.robot.Robot;
 import frc.robot.constants.*;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
-import frc.robot.event.Emitter;
-import frc.robot.event.Event;
-import frc.robot.event.EventDependency;
-import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.drivetrain.gyro.GyroSim;
 import frc.robot.subsystems.drivetrain.module.ModuleSim;
 import org.ironmaple.simulation.SimulatedArena;
@@ -23,16 +19,6 @@ import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Meters;
 
 public class WorldSimulator {
-    public static final class WorldPoseUpdate extends Event<Pose2d> {
-        @Override
-        public EventDependency<Pose2d, Robot.PeriodicEvent.CurrentMode> runAfter() {
-            return new EventDependency<>(
-                new Robot.PeriodicEvent(),
-                _mode -> WorldSimulator.getInstance().drivetrain.getSimulatedDriveTrainPose()
-            );
-        }
-    }
-
     static WorldSimulator instance;
 
     final SwerveDriveSimulation drivetrain;
@@ -73,8 +59,8 @@ public class WorldSimulator {
 
         SimulatedArena.getInstance().addDriveTrainSimulation(drivetrain);
 
-        Emitter.on(new Drivetrain.PoseResetEvent(), this::resetPose);
-        Emitter.on(new WorldPoseUpdate(), this.vision::update);
+        EventRegistry.poseReset.register(this::resetPose);
+        EventRegistry.periodic.register(() -> this.vision.update(this.drivetrain.getSimulatedDriveTrainPose()));
 
     }
 

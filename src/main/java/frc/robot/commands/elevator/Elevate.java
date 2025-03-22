@@ -4,13 +4,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.ElevatorConstants;
-import frc.robot.event.Emitter;
-import frc.robot.event.Key;
-import frc.robot.subsystems.dispenser.Dispenser;
+import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.elevator.Elevator;
 
 public class Elevate extends FunctionWrapper {
-    private static Key<Double, Dispenser.ReefRange> retract;
+    private static boolean useRetract = true;
 
     /**
      * Elevate to a certain height. This command will block until the elevator is at the desired height.
@@ -41,22 +39,22 @@ public class Elevate extends FunctionWrapper {
         final Elevate instance = new Elevate(elevator, 0, true);
         final CommandScheduler scheduler = CommandScheduler.getInstance();
 
-        retract = Emitter.on(
-            new Dispenser.ReefRange(),
-            distance -> {
-                boolean outside = distance >= ElevatorConstants.Range.kRetract;
-                boolean scheduled = scheduler.isScheduled(instance);
-                boolean zeroed = elevator.atLevel(0);
-                boolean auto = DriverStation.isAutonomous();
+        EventRegistry.reefRange.register(distance -> {
+            boolean outside = distance >= ElevatorConstants.Range.kRetract;
+            boolean scheduled = scheduler.isScheduled(instance);
+            boolean zeroed = elevator.atLevel(0);
+            boolean auto = DriverStation.isAutonomous();
 
-                if (auto) return;
-                if (outside && !scheduled && !zeroed) scheduler.schedule(instance);
+            if (auto || !useRetract) {
+                if (instance.isScheduled()) instance.cancel();
+                return;
             }
-        );
+            
+            if (outside && !scheduled && !zeroed) scheduler.schedule(instance);
+        });
     }
 
     public static void disableRetract() {
-        if (retract == null) return;
-        Emitter.off(retract);
+        useRetract = false;
     }
 }

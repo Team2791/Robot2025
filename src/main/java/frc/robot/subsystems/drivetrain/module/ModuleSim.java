@@ -1,15 +1,12 @@
 package frc.robot.subsystems.drivetrain.module;
 
 import com.revrobotics.spark.config.SparkBaseConfig;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.ControlConstants;
-import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.MotorConstants;
-import frc.robot.util.PIDFController;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 
@@ -20,22 +17,24 @@ public class ModuleSim extends ModuleIO {
     final SimulatedMotorController.GenericMotorController driveSim;
     final SimulatedMotorController.GenericMotorController turnSim;
 
-    final PIDFController driveController;
-    final PIDFController turnController;
+    final PIDController driveController;
+    final PIDController turnController;
+
+    boolean openLoop = false;
 
     public ModuleSim(SwerveModuleSimulation moduleSim) {
-        driveController = new PIDFController(
+        super(0);
+
+        driveController = new PIDController(
             ControlConstants.DriveMotor.kP,
             ControlConstants.DriveMotor.kI,
-            ControlConstants.DriveMotor.kD,
-            ControlConstants.DriveMotor.kF
+            ControlConstants.DriveMotor.kD
         );
 
-        turnController = new PIDFController(
+        turnController = new PIDController(
             ControlConstants.TurnMotor.kP,
             ControlConstants.TurnMotor.kI,
-            ControlConstants.TurnMotor.kD,
-            ControlConstants.TurnMotor.kF
+            ControlConstants.TurnMotor.kD
         );
 
         this.moduleSim = moduleSim;
@@ -48,9 +47,10 @@ public class ModuleSim extends ModuleIO {
             .useGenericControllerForSteer()
             .withCurrentLimit(Amps.of(MotorConstants.Neo550.kCurrentLimit));
 
-        driveController.setOutputRange(ControlConstants.DriveMotor.kMin, ControlConstants.DriveMotor.kMax);
-        turnController.setOutputRange(ControlConstants.TurnMotor.kMinOut, ControlConstants.TurnMotor.kMaxOut);
-        turnController.enableContinuousInput(-Math.PI, Math.PI);
+        turnController.enableContinuousInput(
+            ControlConstants.TurnMotor.kMinInput,
+            ControlConstants.TurnMotor.kMaxInput
+        );
     }
 
     @Override
@@ -86,14 +86,22 @@ public class ModuleSim extends ModuleIO {
         data.turnCurrent = moduleSim.getSteerMotorSupplyCurrent();
     }
 
-    public void setDesiredState(SwerveModuleState desired) {
-        desired.optimize(new Rotation2d(moduleSim.getSteerAbsoluteAngle()));
+    @Override
+    public void setStateSetpoint(double driveVelocity, double turnPosition) {
+        openLoop = false;
 
-        driveController.setSetpoint(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
-        turnController.setSetpoint(desired.angle.getRadians());
+        driveController.setSetpoint(driveVelocity);
+        turnController.setSetpoint(turnPosition);
+    }
 
-        this.data.desired = desired;
-        this.data.commanded = RadiansPerSecond.of(desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius);
+    @Override
+    public void driveOpenLoop(double output) {
+        driveSim.requestVoltage(Volts.of(output));
+    }
+
+    @Override
+    public void zeroTurn() {
+        turnController.setSetpoint(0);
     }
 
     @Override

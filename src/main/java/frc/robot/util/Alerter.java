@@ -2,15 +2,16 @@ package frc.robot.util;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
+import com.studica.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Robot;
-import frc.robot.event.Emitter;
+import frc.robot.event.EventRegistry;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Alerter {
     private static Alerter instance;
@@ -20,12 +21,16 @@ public class Alerter {
 
     ArrayList<SparkBase> sparks = new ArrayList<>();
     ArrayList<String> sparkNames = new ArrayList<>();
+    HashSet<Integer> alertedSparks = new HashSet<>();
+
+    AHRS gyro;
+    boolean gyroAlerted;
 
     Notifier vibrateStop = new Notifier(this::still);
 
     private Alerter() {
         vibrateStop.setName("VibrateStop");
-        Emitter.on(new Robot.PeriodicEvent(), this::update);
+        EventRegistry.periodic.register(this::update);
     }
 
     public static Alerter getInstance() {
@@ -98,13 +103,18 @@ public class Alerter {
         sparkNames.add(name);
     }
 
+    public void registerGyro(AHRS gyro) {
+        this.gyro = gyro;
+        this.gyroAlerted = false;
+    }
+
     public void update() {
         for (int i = 0; i < sparks.size(); i++) {
             SparkBase spark = sparks.get(i);
             String name = sparkNames.get(i);
             int can = spark.getDeviceId();
 
-            if (spark.getLastError() != REVLibError.kOk) {
+            if (!alertedSparks.contains(can) && spark.getLastError() != REVLibError.kOk) {
                 Elastic.sendNotification(
                     new Elastic.Notification(
                         NotificationLevel.ERROR,
@@ -112,7 +122,29 @@ public class Alerter {
                         name + "(CanId " + can + ") has failed with error: " + makeHumanReadable(spark.getLastError())
                     )
                 );
+
+                alertedSparks.add(can);
             }
+        }
+
+        if (!gyro.isConnected() && !gyroAlerted) {
+            Elastic.sendNotification(
+                new Elastic.Notification(
+                    NotificationLevel.WARNING,
+                    "Gyro has disconnected",
+                    "Using odometry as fallback - expect field-centric inaccuracies"
+                )
+            );
+            gyroAlerted = true;
+        } else if (gyro.isConnected() && gyroAlerted) {
+            Elastic.sendNotification(
+                new Elastic.Notification(
+                    NotificationLevel.INFO,
+                    "Gyro reconnected",
+                    "No longer using odometry as fallback"
+                )
+            );
+            gyroAlerted = false;
         }
     }
 }

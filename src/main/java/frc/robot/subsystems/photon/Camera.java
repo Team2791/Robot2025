@@ -12,12 +12,15 @@ public class Camera extends CameraIO {
     public Camera(String name, Transform3d bot2cam) {
         super(name, bot2cam);
         camera = new PhotonCamera(name);
-
-        camera.setDriverMode(true);
     }
 
     @Override
     protected List<PhotonPipelineResult> results() {
-        return List.of();
+        return camera.getAllUnreadResults();
+    }
+
+    @Override
+    public void setDriverMode(boolean enabled) {
+        camera.setDriverMode(enabled);
     }
 }

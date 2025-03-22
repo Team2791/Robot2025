@@ -6,7 +6,9 @@ import frc.robot.constants.RobotConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 
-public class StationAlign extends AlignNearby {
+import java.util.List;
+
+public class StationAlign extends TagAlign {
     /**
      * Align to the station using photon vision, positioning self for intaking
      *
@@ -15,12 +17,16 @@ public class StationAlign extends AlignNearby {
     public StationAlign(Drivetrain drivetrain) {
         super(
             drivetrain,
-            VisionConstants.AprilTag::stations,
             new Transform2d(
-                0.5 * RobotConstants.DriveBase.kBumperLength + 0.06,
+                0.5 * RobotConstants.DriveBase.kBumperLength - 0.05,
                 0,
                 new Rotation2d()
             )
         );
+    }
+
+    @Override
+    protected List<Integer> getTagIds() {
+        return VisionConstants.AprilTag.stations();
     }
 }

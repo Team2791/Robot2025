@@ -66,6 +66,8 @@ public abstract class CameraIO {
         latestResult = results.isEmpty() ? null : results.get(0);
     }
 
+    public abstract void setDriverMode(boolean enabled);
+
     void updateStdDevs(Optional<EstimatedRobotPose> estimation, List<PhotonTrackedTarget> targets) {
         if (estimation.isEmpty()) {
             stdDevs = VisionConstants.StdDevs.kSingleTag;
