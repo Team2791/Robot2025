@@ -40,7 +40,6 @@ public final class ElevatorConstants {
         public static final double kL4 = 1.42750;
         public static final double[] kLevels = { kIntake, kL1, kL2, kL3, kL4 };
         public static final double kTolerance = Inches.of(0.75).in(Meters);
-        public static final double kLevelTolerance = 0.25;
     }
 
     public static final class Carriage {

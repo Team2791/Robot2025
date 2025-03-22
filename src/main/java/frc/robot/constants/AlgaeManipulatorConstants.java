@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Radians;
 
 public class AlgaeManipulatorConstants {
     public static final class TurnMotor {
+        /** Reduction factor for the turning motor */
         public static final double kReduction = 1.0 / 25.0;
 
         /** Either Brake or Coast */
@@ -34,17 +35,18 @@ public class AlgaeManipulatorConstants {
         public static final double kVelocityFactor = kPositionFactor / 60;
     }
 
-    public static final class SpinEncoder {
-        public static final double kPositionFactor = MathConstants.kTau * SpinMotor.kReduction;
-        public static final double kVelocityFactor = kPositionFactor / 60;
-    }
-
     public static final class Setpoints {
+        /** Up setpoint */
         public static final double kDisabled = Degrees.of(80.7).in(Radians);
+
+        /** Down setpoint */
         public static final double kEnabled = Degrees.of(30.0).in(Radians);
+
+        /** Spin power */
         public static final double kPower = 0.5;
     }
 
+    /** Heights to move the elevator to based on tag aligned to */
     public static final HashMap<Integer, Integer> kTagHeights = new HashMap<>() {{
         // red side
         put(6, 0);

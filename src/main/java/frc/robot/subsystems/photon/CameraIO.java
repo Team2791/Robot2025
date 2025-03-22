@@ -5,6 +5,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.VisionConstants;
@@ -16,6 +17,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 public abstract class CameraIO {
     public record VisionMeasurement(Pose3d estimate, Matrix<N3, N1> stdDevs, double timestamp) {
@@ -67,6 +69,17 @@ public abstract class CameraIO {
     }
 
     public abstract void setDriverMode(boolean enabled);
+
+    double nearestTarget() {
+        if (latestResult == null) return Double.MAX_VALUE;
+
+        OptionalDouble min = latestResult.targets.stream()
+            .mapToDouble(c -> c.bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d()))
+            .min();
+
+        if (min.isEmpty()) return Double.MAX_VALUE;
+        else return min.getAsDouble();
+    }
 
     void updateStdDevs(Optional<EstimatedRobotPose> estimation, List<PhotonTrackedTarget> targets) {
         if (estimation.isEmpty()) {

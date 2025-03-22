@@ -13,7 +13,7 @@ public final class MotorConstants {
     public static final class NeoVortex {
         /** https://www.revrobotics.com/rev-21-1652/#:~:text=free%20speed%3A%206784%20rpm */
         public static final double kFreeSpeed = RotationsPerSecond.of(6784.0 / 60.0).in(RadiansPerSecond);
-        public static final double kCurrentLimit = 40;
+        public static final double kCurrentLimit = 60;
     }
 
     public static final class Neo550 {

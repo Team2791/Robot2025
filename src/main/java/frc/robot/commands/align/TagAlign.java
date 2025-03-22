@@ -70,11 +70,6 @@ public abstract class TagAlign extends SequentialCommandGroup {
         targetY = tagPose.transformBy(tagToRobotX);
         targetFinal = tagPose.transformBy(tagToPose);
 
-        System.out.println(tagPose);
-        System.out.println(tagToRobot);
-        System.out.println(tagToRobotX);
-        System.out.println(targetY);
-
         double dist = robotPose.getTranslation().getDistance(targetFinal.getTranslation());
 
         if (dist >= VisionConstants.Align.kMaxDistance) {

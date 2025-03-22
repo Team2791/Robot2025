@@ -32,32 +32,16 @@ public final class VisionConstants {
 
     public static final class Transforms {
         public static final Transform3d kFront = new Transform3d(
-            new Translation3d(
-                Inches.of(25).div(2).minus(Inches.of(5)).plus(Inches.of(7.0 / 8.0)).in(Meters),
-                0,
-                Inches.of(12.75).in(Meters)
-            ),
+            new Translation3d(Inches.of(25).div(2).minus(Inches.of(5)).plus(Inches.of(7.0 / 8.0)).in(Meters), 0, Inches.of(12.75).in(Meters)),
             new Rotation3d()
         );
         public static final Transform3d kRear = new Transform3d(
-            new Translation3d(
-                Inches.of(-12).in(Meters),
-                0,
-                Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)
-            ),
+            new Translation3d(Inches.of(-12).in(Meters), 0, Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)),
             new Rotation3d(0, Degrees.of(27).in(Radians), Math.PI)
         );
         public static final Transform3d kOrpheus = new Transform3d(
-            new Translation3d(
-                Inches.of(14.75).in(Meters),
-                0,
-                0.3475
-            ),
-            new Rotation3d(
-                Math.PI,
-                0,
-                0
-            )
+            new Translation3d(Inches.of(14.75).in(Meters), 0, 0.3475),
+            new Rotation3d(Math.PI, 0, 0)
         );
     }
 
@@ -91,4 +75,6 @@ public final class VisionConstants {
         public static final Matrix<N3, N1> kSingleTag = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> kMultiTag = VecBuilder.fill(0.5, 0.5, 1);
     }
+
+    public static final double kMaxDistance = 2.0;
 }

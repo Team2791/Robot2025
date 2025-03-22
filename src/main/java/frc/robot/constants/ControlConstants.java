@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 import static frc.robot.constants.MathConstants.kTau;
 
+/** PID constants, mostly */
 public final class ControlConstants {
     public static final class DriveMotor {
         public static final double kP = 0.00;

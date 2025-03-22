@@ -2,7 +2,7 @@ package frc.robot.constants;
 
 import com.studica.frc.AHRS.NavXComType;
 
-/** Yes, this is input/output not operator interface. */
+/** Yes, this is input/output not operator interface. CANId constants, mostly. */
 public final class IOConstants {
     public static final class Drivetrain {
         public static final class Drive {

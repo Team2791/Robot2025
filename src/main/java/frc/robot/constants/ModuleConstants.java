@@ -92,6 +92,7 @@ public final class ModuleConstants {
         public static final double kAngular = 8.87;
     }
 
+    /** Translation2d's to each module */
     public static final class Translations {
         public static final Translation2d kFrontLeft = new Translation2d(
             RobotConstants.DriveBase.kWheelBase / 2,

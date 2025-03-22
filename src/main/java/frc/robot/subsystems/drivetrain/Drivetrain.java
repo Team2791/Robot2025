@@ -153,9 +153,11 @@ public class Drivetrain extends SubsystemBase {
             }
         );
 
+        // template code stuff
         HAL.report(FRCNetComm.tResourceType.kResourceType_RobotDrive, FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
         AutoLogOutputManager.addObject(this);
 
+        // setup event emitter stuff
         EventRegistry.poseUpdate.register(field::setRobotPose);
         EventRegistry.poseReset.register(p -> odometry.resetPosition(gyro.heading(), modulePositions(), p));
     }
@@ -164,9 +166,7 @@ public class Drivetrain extends SubsystemBase {
      * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
      */
     public ModuleIO[] modules() {
-        return new ModuleIO[]{
-            frontLeft, frontRight, rearLeft, rearRight
-        };
+        return new ModuleIO[]{ frontLeft, frontRight, rearLeft, rearRight };
     }
 
     /**
@@ -185,15 +185,11 @@ public class Drivetrain extends SubsystemBase {
         return Arrays.stream(modules()).map(ModuleIO::getState).toArray(SwerveModuleState[]::new);
     }
 
-    /**
-     * @return The speeds of the entire chassis
-     */
+    /** @return The speeds of the entire chassis */
     @AutoLogOutput
     public ChassisSpeeds getChassisSpeeds() { return ModuleConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
-    /**
-     * @param speeds The desired speeds for the robot to move at.
-     */
+    /** @param speeds The desired speeds for the robot to move at */
     private void setDesiredSpeeds(ChassisSpeeds speeds) {
         // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
@@ -206,9 +202,7 @@ public class Drivetrain extends SubsystemBase {
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
     }
 
-    /**
-     * @return The estimated pose of the robot.
-     */
+    /** @return The estimated pose of the robot */
     @AutoLogOutput
     public Pose2d getPose() { return odometry.getEstimatedPosition(); }
 
@@ -290,10 +284,6 @@ public class Drivetrain extends SubsystemBase {
         Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
         if (velocity.getMagnitude() > 1) velocity.normalize();
         Vector2 velocity2 = velocity.multiply(velocity.getMagnitudeSquared());
-
-        System.out.println(xspeed);
-        System.out.println(yspeed);
-        System.out.println(rot);
 
         /*
          * Time to explain some wpilib strangeness

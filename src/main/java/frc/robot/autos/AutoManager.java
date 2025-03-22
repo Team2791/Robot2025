@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.align.Navigate;
 import frc.robot.commands.align.ReefAlign;
@@ -115,16 +114,14 @@ public class AutoManager {
             new ReefAlign(drivetrain, placement.offset).withTimeout(6.0),
             new Elevate(elevator, placement.level),
             new DispenseOut(dispenser, elevator),
-            new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(-0.01, 0, 0), Drivetrain.FieldRelativeMode.kOff)),
             new WaitCommand(2.0),
-            new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0, 0), Drivetrain.FieldRelativeMode.kOff)),
             new Elevate(elevator, 0)
         ).withName("Auto: Align+Score");
     }
 
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
-            new StationAlign(drivetrain).withTimeout(6.0),
+            new StationAlign(drivetrain).withTimeout(4.0),
             new FullIntake(dispenser, elevator, intake)
         ).withName("Auto: Align+Intake");
     }

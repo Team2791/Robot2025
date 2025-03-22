@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.function.BiFunction;
 
@@ -18,14 +17,13 @@ public class Photon {
     final CameraIO front;
     final CameraIO rear;
     final CameraIO driver;
-    //    final CameraIO orpheus;
 
     public Photon(Drivetrain drivetrain, BiFunction<String, Transform3d, CameraIO> cameraFactory) {
         this.drivetrain = drivetrain;
         this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kFront);
         this.rear = cameraFactory.apply(VisionConstants.Names.kRear, VisionConstants.Transforms.kRear);
         this.driver = cameraFactory.apply(VisionConstants.Names.kDriver, new Transform3d());
-        //        this.orpheus = cameraFactory.apply(VisionConstants.Names.kOrpheus, VisionConstants.Transforms.kOrpheus);
+        this.driver.setDriverMode(true);
 
         EventRegistry.periodic.register(this::periodic);
     }
@@ -34,16 +32,16 @@ public class Photon {
         // update cameras
         front.update();
         rear.update();
-        //        orpheus.update();
 
         // add to logger
-        Logger.processInputs("Photon/Front", front.data);
-        Logger.processInputs("Photon/Rear", rear.data);
-        //        Logger.processInputs("Photon/Orpheus", orpheus.data);
+        //        Logger.processInputs("Photon/Front", front.data);
+        //        Logger.processInputs("Photon/Rear", rear.data);
 
         // make vision odometry measurements
-        if (front.data.measurement != null) drivetrain.addVisionMeasurement(front.data.measurement);
-        if (rear.data.measurement != null) drivetrain.addVisionMeasurement(rear.data.measurement);
-        //        if (orpheus.data.measurement != null) drivetrain.addVisionMeasurement(orpheus.data.measurement);
+        if (front.data.measurement != null && front.nearestTarget() <= VisionConstants.kMaxDistance)
+            drivetrain.addVisionMeasurement(front.data.measurement);
+
+        if (rear.data.measurement != null && rear.nearestTarget() <= VisionConstants.kMaxDistance)
+            drivetrain.addVisionMeasurement(rear.data.measurement);
     }
 }

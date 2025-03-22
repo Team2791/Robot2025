@@ -34,14 +34,12 @@ deploy {
                     jvmArgs.add("-XX:+HeapDumpOnOutOfMemoryError")
                     jvmArgs.add("-XX:HeapDumpPath=/U/dump.hprof")
                     jvmArgs.add("-XX:GCTimeRatio=5")
-//                    jvmArgs.add("-XX:+UseSerialGC")
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
                     // rio2 perf opt
-//                    final MIN_HEAP = 256
-//                    final MAX_HEAP = 512
-//                    jvmArgs.add("-Xmx" + MAX_HEAP + "M")
-//                    jvmArgs.add("-Xms" + MIN_HEAP + "M")
+                    final MAX_HEAP = 256
+                    jvmArgs.add("-Xmx" + MAX_HEAP + "M")
+                    jvmArgs.add("-Xms" + MAX_HEAP + "M")
                     jvmArgs.add("-XX:+AlwaysPreTouch")
                 }
 
