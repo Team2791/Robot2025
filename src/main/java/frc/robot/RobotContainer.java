@@ -17,6 +17,7 @@ import frc.robot.commands.intake.FullIntake;
 import frc.robot.commands.manipulator.FullManipulate;
 import frc.robot.commands.manipulator.RunManipulator;
 import frc.robot.commands.util.FunctionWrapper;
+import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
 import frc.robot.subsystems.algae.ManipulatorReplay;
@@ -26,11 +27,7 @@ import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.dispenser.DispenserReplay;
 import frc.robot.subsystems.dispenser.DispenserSim;
 import frc.robot.subsystems.dispenser.DispenserSpark;
-import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.gyro.GyroReplay;
-import frc.robot.subsystems.drivetrain.gyro.NavX;
-import frc.robot.subsystems.drivetrain.module.ModuleReplay;
-import frc.robot.subsystems.drivetrain.module.ModuleSpark;
+import frc.robot.subsystems.drivetrain.*;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorReplay;
 import frc.robot.subsystems.elevator.ElevatorSim;
@@ -45,7 +42,6 @@ import frc.robot.subsystems.photon.CameraSim;
 import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
-import frc.robot.util.WorldSimulator;
 
 public class RobotContainer {
     // controllers
@@ -53,14 +49,29 @@ public class RobotContainer {
     final CommandXboxController operctl;
 
     // subsystems
-    final Drivetrain drivetrain = new Drivetrain(
-        AdvantageUtil.matchReal(NavX::new, () -> WorldSimulator.getInstance().makeGyro(), GyroReplay::new),
-        AdvantageUtil.matchReal(
-            ModuleSpark::new,
-            (id) -> WorldSimulator.getInstance().makeModule(id),
-            ModuleReplay::new
-        )
-    );
+    final Drivetrain drivetrain = switch (AdvantageConstants.kCurrentMode) {
+        case Real -> new Drivetrain(
+            new GyroIONavX(),
+            new ModuleIOSpark(0),
+            new ModuleIOSpark(1),
+            new ModuleIOSpark(2),
+            new ModuleIOSpark(3)
+        );
+        case Sim -> new Drivetrain(
+            new GyroIO() { },
+            new ModuleIOSim(),
+            new ModuleIOSim(),
+            new ModuleIOSim(),
+            new ModuleIOSim()
+        );
+        case Replay -> new Drivetrain(
+            new GyroIO() { },
+            new ModuleIO() { },
+            new ModuleIO() { },
+            new ModuleIO() { },
+            new ModuleIO() { }
+        );
+    };
     final Intake intake = new Intake(
         AdvantageUtil.matchReal(IntakeSpark::new, IntakeSim::new, IntakeReplay::new)
     );

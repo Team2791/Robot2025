@@ -6,8 +6,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.constants.*;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robot.event.EventRegistry;
-import frc.robot.subsystems.drivetrain.gyro.GyroSim;
-import frc.robot.subsystems.drivetrain.module.ModuleSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -75,16 +73,6 @@ public class WorldSimulator {
 
     static void assertSim() {
         assert AdvantageConstants.kCurrentMode == AdvantageMode.Sim : "Used simulation globals in real or replay mode";
-    }
-
-    public ModuleSim makeModule(int id) {
-        assertSim();
-        return new ModuleSim(drivetrain.getModules()[id]);
-    }
-
-    public GyroSim makeGyro() {
-        assertSim();
-        return new GyroSim(drivetrain.getGyroSimulation());
     }
 
     public void resetPose(Pose2d pose) {
