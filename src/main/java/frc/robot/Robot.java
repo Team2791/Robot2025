@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
 import frc.robot.event.EventRegistry;
@@ -123,9 +122,10 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopInit() {
         Elastic.selectTab("Teleoperated");
+
         if (autoCommand != null) {
             autoCommand.cancel();
-            new InstantCommand(() -> { }, container.drivetrain).schedule();
+            CommandScheduler.getInstance().cancelAll();
         }
     }
 

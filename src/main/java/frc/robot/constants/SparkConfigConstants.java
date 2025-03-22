@@ -58,8 +58,8 @@ public class SparkConfigConstants {
                 ControlConstants.TurnMotor.kF
             );
             kTurn.closedLoop.outputRange(
-                ControlConstants.TurnMotor.kMinOut,
-                ControlConstants.TurnMotor.kMaxOut
+                ControlConstants.TurnMotor.kMinOutput,
+                ControlConstants.TurnMotor.kMaxOutput
             );
 
             // idle mode

@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkBase;
+import com.studica.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Notifier;
@@ -21,6 +22,9 @@ public class Alerter {
     ArrayList<SparkBase> sparks = new ArrayList<>();
     ArrayList<String> sparkNames = new ArrayList<>();
     HashSet<Integer> alertedSparks = new HashSet<>();
+
+    AHRS gyro;
+    boolean gyroAlerted;
 
     Notifier vibrateStop = new Notifier(this::still);
 
@@ -99,6 +103,11 @@ public class Alerter {
         sparkNames.add(name);
     }
 
+    public void registerGyro(AHRS gyro) {
+        this.gyro = gyro;
+        this.gyroAlerted = false;
+    }
+
     public void update() {
         for (int i = 0; i < sparks.size(); i++) {
             SparkBase spark = sparks.get(i);
@@ -116,6 +125,26 @@ public class Alerter {
 
                 alertedSparks.add(can);
             }
+        }
+
+        if (!gyro.isConnected() && !gyroAlerted) {
+            Elastic.sendNotification(
+                new Elastic.Notification(
+                    NotificationLevel.WARNING,
+                    "Gyro has disconnected",
+                    "Using odometry as fallback - expect field-centric inaccuracies"
+                )
+            );
+            gyroAlerted = true;
+        } else if (gyro.isConnected() && gyroAlerted) {
+            Elastic.sendNotification(
+                new Elastic.Notification(
+                    NotificationLevel.INFO,
+                    "Gyro reconnected",
+                    "No longer using odometry as fallback"
+                )
+            );
+            gyroAlerted = false;
         }
     }
 }

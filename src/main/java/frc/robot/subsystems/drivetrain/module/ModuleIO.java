@@ -6,7 +6,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.*;
 import frc.robot.constants.ModuleConstants;
+import frc.robot.util.SwerveUtil;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -25,9 +27,6 @@ public abstract class ModuleIO {
         public Voltage turnVoltage = Volts.of(0);
         public Current turnCurrent = Amps.of(0);
 
-        public SwerveModuleState desired = new SwerveModuleState();
-        public AngularVelocity commanded = RadiansPerSecond.of(0);
-
         public LinearVelocity linearVelocity() {
             double angular = driveVelocity.in(RadiansPerSecond);
             double linear = angular * ModuleConstants.Wheel.kRadius;
@@ -42,6 +41,12 @@ public abstract class ModuleIO {
     }
 
     public final ModuleDataAutoLogged data = new ModuleDataAutoLogged();
+    public final int moduleId;
+
+    /** @param moduleId should be [1, 4] */
+    protected ModuleIO(int moduleId) {
+        this.moduleId = moduleId;
+    }
 
     public abstract void update();
 
@@ -51,9 +56,12 @@ public abstract class ModuleIO {
         desired.cosineScale(new Rotation2d(data.turnPosition));
 
         double commanded = desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius;
-        setStateSetpoint(commanded, desired.angle.getRadians());
+        double turn = SwerveUtil.normalizeAngle(desired.angle.getRadians());
 
-        data.commanded = RadiansPerSecond.of(commanded);
+        setStateSetpoint(commanded, turn);
+
+        Logger.recordOutput("Drivetrain/Module/" + moduleId + "/DesiredSpeed", commanded);
+        Logger.recordOutput("Drivetrain/Module/" + moduleId + "/DesiredAngle", turn);
     }
 
     /** Set the desired state of the module. This includes velocity and position */

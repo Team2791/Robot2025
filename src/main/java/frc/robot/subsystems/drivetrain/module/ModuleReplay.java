@@ -4,7 +4,9 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 
 public class ModuleReplay extends ModuleIO {
     /** Keep constructors the same so I can use fn pointers without java screaming */
-    public ModuleReplay(int _id) { }
+    public ModuleReplay(int id) {
+        super(id);
+    }
 
     @Override
     public void update() { }

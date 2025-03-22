@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.align.Navigate;
 import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.align.StationAlign;
@@ -21,7 +23,6 @@ import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.util.AllianceUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
@@ -71,16 +72,16 @@ public class AutoManager {
         rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
-    public void follow(SwerveSample trajectory) {
+    public void follow(SwerveSample sample) {
         // get current pose
         Pose2d pose = drivetrain.getPose();
-        Pose2d wants = AllianceUtil.recenter(trajectory.getPose());
+        Pose2d wants = sample.getPose();
 
         // generate speeds
         ChassisSpeeds speeds = new ChassisSpeeds(
-            trajectory.vx + xController.calculate(pose.getX(), wants.getX()),
-            trajectory.vy + yController.calculate(pose.getY(), wants.getY()),
-            trajectory.omega + rotController.calculate(
+            sample.vx + xController.calculate(pose.getX(), wants.getX()),
+            sample.vy + yController.calculate(pose.getY(), wants.getY()),
+            sample.omega + rotController.calculate(
                 pose.getRotation().getRadians(),
                 wants.getRotation().getRadians()
             )
@@ -111,16 +112,19 @@ public class AutoManager {
 
     public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement, List<Integer> reefTags) {
         return Commands.sequence(
-            new ReefAlign(drivetrain, placement.offset),
-            new Elevate(elevator, placement.level).withTimeout(5.0),
+            new ReefAlign(drivetrain, placement.offset).withTimeout(6.0),
+            new Elevate(elevator, placement.level),
             new DispenseOut(dispenser, elevator),
+            new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(-0.01, 0, 0), Drivetrain.FieldRelativeMode.kOff)),
+            new WaitCommand(2.0),
+            new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0, 0), Drivetrain.FieldRelativeMode.kOff)),
             new Elevate(elevator, 0)
         ).withName("Auto: Align+Score");
     }
 
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
-            new StationAlign(drivetrain),
+            new StationAlign(drivetrain).withTimeout(6.0),
             new FullIntake(dispenser, elevator, intake)
         ).withName("Auto: Align+Intake");
     }

@@ -38,21 +38,16 @@ public class ModuleSpark extends ModuleIO {
      * @param id the module's id. [0, 3] corresponds to [fl, fr, bl, br]
      */
     public ModuleSpark(int id) {
-        int driveId = switch (id) {
-            case 0 -> IOConstants.Drivetrain.Drive.kFrontLeft;
-            case 1 -> IOConstants.Drivetrain.Drive.kFrontRight;
-            case 2 -> IOConstants.Drivetrain.Drive.kRearLeft;
-            case 3 -> IOConstants.Drivetrain.Drive.kRearRight;
+        super(switch (id) {
+            case 0 -> IOConstants.Drivetrain.Drive.kFrontLeft / 10;
+            case 1 -> IOConstants.Drivetrain.Drive.kFrontRight / 10;
+            case 2 -> IOConstants.Drivetrain.Drive.kRearLeft / 10;
+            case 3 -> IOConstants.Drivetrain.Drive.kRearRight / 10;
             default -> throw new IllegalArgumentException("Invalid module id: " + id);
-        };
+        });
 
-        int turnId = switch (id) {
-            case 0 -> IOConstants.Drivetrain.Turn.kFrontLeft;
-            case 1 -> IOConstants.Drivetrain.Turn.kFrontRight;
-            case 2 -> IOConstants.Drivetrain.Turn.kRearLeft;
-            case 3 -> IOConstants.Drivetrain.Turn.kRearRight;
-            default -> throw new IllegalArgumentException("Invalid module id: " + id);
-        };
+        int driveId = moduleId * 10;
+        int turnId = driveId + 5;
 
         angularOffset = switch (id) {
             case 0 -> ModuleConstants.AngularOffsets.kFrontLeft;
@@ -87,8 +82,8 @@ public class ModuleSpark extends ModuleIO {
         );
 
         // register with notifier
-        Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Drive", driveMotor);
-        Alerter.getInstance().registerSpark("Module" + driveId / 10 + "Turn", turnMotor);
+        Alerter.getInstance().registerSpark("Module" + moduleId + "Drive", driveMotor);
+        Alerter.getInstance().registerSpark("Module" + moduleId + "Turn", turnMotor);
     }
 
     @Override

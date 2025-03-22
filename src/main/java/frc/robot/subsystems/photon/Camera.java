@@ -18,4 +18,9 @@ public class Camera extends CameraIO {
     protected List<PhotonPipelineResult> results() {
         return camera.getAllUnreadResults();
     }
+
+    @Override
+    public void setDriverMode(boolean enabled) {
+        camera.setDriverMode(enabled);
+    }
 }

@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
+import frc.robot.util.Alerter;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
@@ -14,8 +15,10 @@ public class NavX extends GyroIO {
     Rotation2d offset = new Rotation2d();
 
     public NavX() {
-        this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort);
+        this.gyro = new AHRS(IOConstants.Drivetrain.kGyroPort, (byte) 50);
         this.gyro.enableLogging(true);
+
+        Alerter.getInstance().registerGyro(this.gyro);
     }
 
     Angle measure() {

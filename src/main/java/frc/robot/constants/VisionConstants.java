@@ -26,6 +26,7 @@ public final class VisionConstants {
     public static final class Names {
         public static final String kFront = "front";
         public static final String kRear = "rear";
+        public static final String kDriver = "driver";
         public static final String kOrpheus = "camera";
     }
 
@@ -50,15 +51,19 @@ public final class VisionConstants {
             new Translation3d(
                 Inches.of(14.75).in(Meters),
                 0,
-                0.3925
+                0.3475
             ),
-            new Rotation3d()
+            new Rotation3d(
+                Math.PI,
+                0,
+                0
+            )
         );
     }
 
     public static final class Align {
         public static final double kReefOffset = Inches.of(12.875).div(2).in(Meters);
-        public static final double kMaxDistance = 1.20;
+        public static final double kMaxDistance = 1.50;
         public static final double kDeadline = 6.0;
     }
 

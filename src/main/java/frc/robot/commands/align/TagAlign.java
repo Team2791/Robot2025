@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.util.Alerter;
+import frc.robot.util.Elastic;
+import frc.robot.util.MathUtil;
 
 import java.util.List;
 
@@ -36,14 +38,17 @@ public abstract class TagAlign extends SequentialCommandGroup {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private void updateTargetPose() {
         List<Integer> targetIds = getTagIds();
-        Pose2d robot = drivetrain.getPose();
+
+        if (targetIds == null) return;
+
+        Pose2d robotPose = drivetrain.getPose();
         Pose2d tagPose = null;
 
         // get nearest tag
         double distance = Double.POSITIVE_INFINITY;
         for (int id : targetIds) {
             Pose2d pose = VisionConstants.AprilTag.kLayout.getTagPose(id).get().toPose2d();
-            double d = robot.getTranslation().getDistance(pose.getTranslation());
+            double d = robotPose.getTranslation().getDistance(pose.getTranslation());
 
             if (d < distance) {
                 distance = d;
@@ -58,14 +63,29 @@ public abstract class TagAlign extends SequentialCommandGroup {
             return;
         }
 
-        Transform2d toRobot = tagPose.minus(robot);
-        Transform2d offsetY = new Transform2d(toRobot.getX(), offset.getY(), offset.getRotation());
+        Transform2d tagToRobot = MathUtil.transformationOf(tagPose, robotPose);
+        Transform2d tagToRobotX = new Transform2d(tagToRobot.getX(), offset.getY(), offset.getRotation());
+        Transform2d tagToPose = new Transform2d(offset.getX(), offset.getY(), offset.getRotation());
 
-        targetY = tagPose.transformBy(offsetY);
-        targetFinal = tagPose.transformBy(offset);
+        targetY = tagPose.transformBy(tagToRobotX);
+        targetFinal = tagPose.transformBy(tagToPose);
 
-        if (robot.getTranslation().getDistance(targetFinal.getTranslation()) >= VisionConstants.Align.kMaxDistance) {
-            System.out.println("AlignClosest: target too far away:");
+        System.out.println(tagPose);
+        System.out.println(tagToRobot);
+        System.out.println(tagToRobotX);
+        System.out.println(targetY);
+
+        double dist = robotPose.getTranslation().getDistance(targetFinal.getTranslation());
+
+        if (dist >= VisionConstants.Align.kMaxDistance) {
+            Elastic.sendNotification(
+                new Elastic.Notification(
+                    Elastic.Notification.NotificationLevel.WARNING,
+                    "Alignment: Too far away",
+                    dist + "m > " + VisionConstants.Align.kMaxDistance + "m."
+                )
+            );
+
             tagId = -1;
             targetY = null;
             targetFinal = null;

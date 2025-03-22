@@ -448,7 +448,7 @@
             "x": 1568.0,
             "y": 400.0,
             "width": 336.0,
-            "height": 368.0,
+            "height": 240.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/Enabled",
@@ -462,16 +462,30 @@
             "ntStructMeta": null
           },
           {
-            "title": "photonvision_Port_1182_Output_MJPEG_Server",
+            "title": "Driver Camera",
             "x": 672.0,
             "y": 288.0,
             "width": 544.0,
             "height": 480.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
+            },
+            "ntStructMeta": null
+          },
+          {
+            "title": "Autonomous Command",
+            "x": 1568.0,
+            "y": 640.0,
+            "width": 336.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Chooser",
+              "period": 0.06,
+              "sort_options": false
             },
             "ntStructMeta": null
           }
@@ -483,20 +497,177 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Elevator",
-            "x": 864.0,
+            "title": "Motors",
+            "x": 1568.0,
             "y": 16.0,
-            "width": 272.0,
-            "height": 272.0,
+            "width": 336.0,
+            "height": 384.0,
             "type": "List Layout",
             "properties": {
-              "label_position": "TOP"
+              "label_position": "RIGHT"
+            },
+            "children": [
+              {
+                "title": "Dispenser Leader",
+                "x": 1200.0,
+                "y": 512.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/Dispenser/LeaderConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Dispenser Follower",
+                "x": 1168.0,
+                "y": 496.0,
+                "width": 224.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/Dispenser/FollowerConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Elevator Leader",
+                "x": 1168.0,
+                "y": 608.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/Elevator/LeaderConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Elevator Follower",
+                "x": 1248.0,
+                "y": 560.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/Elevator/FollowerConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Intake Leader",
+                "x": 1152.0,
+                "y": 656.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/Intake/LeftConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Intake Follower",
+                "x": 1168.0,
+                "y": 704.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/Intake/RightConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Algae Pivot",
+                "x": 1152.0,
+                "y": 688.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/AlgaeManipulator/TurnConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Algae Spin",
+                "x": 1200.0,
+                "y": 688.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/AlgaeManipulator/SpinConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              }
+            ]
+          },
+          {
+            "title": "Elevator",
+            "x": 1216.0,
+            "y": 352.0,
+            "width": 352.0,
+            "height": 240.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "RIGHT"
             },
             "children": [
               {
                 "title": "Setpoint",
-                "x": 0.0,
-                "y": 0.0,
+                "x": 688.0,
+                "y": 144.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Number Bar",
@@ -514,8 +685,8 @@
               },
               {
                 "title": "Actual",
-                "x": 0.0,
-                "y": 0.0,
+                "x": 768.0,
+                "y": 144.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Number Bar",
@@ -534,11 +705,11 @@
             ]
           },
           {
-            "title": "Coral State",
-            "x": 1136.0,
-            "y": 16.0,
-            "width": 256.0,
-            "height": 256.0,
+            "title": "Coral Status",
+            "x": 1216.0,
+            "y": 592.0,
+            "width": 352.0,
+            "height": 176.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -546,10 +717,10 @@
             "children": [
               {
                 "title": "In Intake",
-                "x": 1216.0,
-                "y": 448.0,
-                "width": 288.0,
-                "height": 128.0,
+                "x": 448.0,
+                "y": 672.0,
+                "width": 96.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/AdvantageKit/Intake/Broken",
@@ -564,10 +735,10 @@
               },
               {
                 "title": "In Scoral",
-                "x": 0.0,
-                "y": 0.0,
+                "x": 448.0,
+                "y": 720.0,
                 "width": 128.0,
-                "height": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/AdvantageKit/Dispenser/Broken",
@@ -584,10 +755,10 @@
           },
           {
             "title": "Connections",
-            "x": 1616.0,
-            "y": 368.0,
-            "width": 288.0,
-            "height": 256.0,
+            "x": 1216.0,
+            "y": 16.0,
+            "width": 352.0,
+            "height": 176.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -595,8 +766,8 @@
             "children": [
               {
                 "title": "Field Management (FMS)",
-                "x": 0.0,
-                "y": 0.0,
+                "x": 1232.0,
+                "y": 128.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
@@ -613,31 +784,13 @@
               },
               {
                 "title": "Radio",
-                "x": 0.0,
-                "y": 0.0,
+                "x": 1296.0,
+                "y": 192.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/AdvantageKit/RadioStatus/Connected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                },
-                "ntStructMeta": null
-              },
-              {
-                "title": "Robot Enabled",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/DriverStation/Enabled",
                   "period": 0.06,
                   "data_type": "boolean",
                   "true_color": 4283215696,
@@ -655,8 +808,8 @@
             "title": "SwerveDrive",
             "x": 320.0,
             "y": 16.0,
-            "width": 288.0,
-            "height": 304.0,
+            "width": 352.0,
+            "height": 384.0,
             "type": "SwerveDrive",
             "properties": {
               "topic": "/SmartDashboard/SwerveDrive",
@@ -689,10 +842,10 @@
           },
           {
             "title": "Match Time",
-            "x": 1616.0,
+            "x": 672.0,
             "y": 16.0,
-            "width": 288.0,
-            "height": 192.0,
+            "width": 544.0,
+            "height": 272.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -705,29 +858,11 @@
             "ntStructMeta": null
           },
           {
-            "title": "Alliance",
-            "x": 1616.0,
-            "y": 224.0,
-            "width": 288.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/FMSInfo/IsRedAlliance",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4294198070,
-              "false_color": 4279256207,
-              "true_icon": "None",
-              "false_icon": "None"
-            },
-            "ntStructMeta": null
-          },
-          {
             "title": "Velocity",
             "x": 320.0,
-            "y": 320.0,
-            "width": 288.0,
-            "height": 304.0,
+            "y": 400.0,
+            "width": 352.0,
+            "height": 368.0,
             "type": "Radial Gauge",
             "properties": {
               "topic": "/AdvantageKit/Drivetrain/SwerveModule/10.0/Desired",
@@ -781,10 +916,10 @@
           },
           {
             "title": "Battery Voltage",
-            "x": 1136.0,
-            "y": 272.0,
-            "width": 256.0,
-            "height": 144.0,
+            "x": 1216.0,
+            "y": 192.0,
+            "width": 352.0,
+            "height": 160.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
@@ -799,11 +934,43 @@
             "ntStructMeta": null
           },
           {
-            "title": "Chooser",
-            "x": 320.0,
-            "y": 624.0,
-            "width": 288.0,
-            "height": 144.0,
+            "title": "Robot Enabled",
+            "x": 1568.0,
+            "y": 400.0,
+            "width": 336.0,
+            "height": 240.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/DriverStation/Enabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            },
+            "ntStructMeta": null
+          },
+          {
+            "title": "Driver Camera",
+            "x": 672.0,
+            "y": 288.0,
+            "width": 544.0,
+            "height": 480.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            },
+            "ntStructMeta": null
+          },
+          {
+            "title": "Autonomous Command",
+            "x": 1568.0,
+            "y": 640.0,
+            "width": 336.0,
+            "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/Chooser",

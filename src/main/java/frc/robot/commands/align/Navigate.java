@@ -15,6 +15,8 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
 
+import static frc.robot.constants.MathConstants.kTau;
+
 
 public abstract class Navigate extends Command {
     public static class Supplied extends Navigate {
@@ -35,27 +37,27 @@ public abstract class Navigate extends Command {
         }
     }
 
-    final HolonomicDriveController controller = new HolonomicDriveController(
-        new PIDController(
-            ControlConstants.Align.kOrthoP,
-            ControlConstants.Align.kOrthoI,
-            ControlConstants.Align.kOrthoD
-        ),
-        new PIDController(
-            ControlConstants.Align.kOrthoP,
-            ControlConstants.Align.kOrthoI,
-            ControlConstants.Align.kOrthoD
-        ),
-        new ProfiledPIDController(
-            ControlConstants.Align.kTurnP,
-            ControlConstants.Align.kTurnI,
-            ControlConstants.Align.kTurnD,
-            new TrapezoidProfile.Constraints(
-                ControlConstants.Align.kMaxTurnVelocity,
-                ControlConstants.Align.kMaxTurnAcceleration
-            )
+    PIDController xController = new PIDController(
+        ControlConstants.Align.kOrthoP,
+        ControlConstants.Align.kOrthoI,
+        ControlConstants.Align.kOrthoD
+    );
+    PIDController yController = new PIDController(
+        ControlConstants.Align.kOrthoP,
+        ControlConstants.Align.kOrthoI,
+        ControlConstants.Align.kOrthoD
+    );
+    ProfiledPIDController rotController = new ProfiledPIDController(
+        ControlConstants.Align.kTurnP,
+        ControlConstants.Align.kTurnI,
+        ControlConstants.Align.kTurnD,
+        new TrapezoidProfile.Constraints(
+            ControlConstants.Align.kMaxTurnVelocity,
+            ControlConstants.Align.kMaxTurnAcceleration
         )
     );
+
+    final HolonomicDriveController controller;
 
     final Drivetrain drivetrain;
     Pose2d currentTarget;
@@ -64,8 +66,11 @@ public abstract class Navigate extends Command {
 
     public Navigate(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
+        this.controller = new HolonomicDriveController(xController, yController, rotController);
 
+        rotController.enableContinuousInput(0, kTau);
         controller.setTolerance(ControlConstants.Align.kTolerance);
+
         addRequirements(drivetrain);
     }
 
@@ -87,10 +92,11 @@ public abstract class Navigate extends Command {
 
     @Override
     public final void execute() {
-        Pose2d robot = drivetrain.getPose();
-        ChassisSpeeds speeds = controller.calculate(robot, currentTarget, 0, currentTarget.getRotation());
+        if (currentTarget == null) return;
 
-        drivetrain.drive(speeds, Drivetrain.FieldRelativeMode.kFixedOrigin);
+        Pose2d robot = drivetrain.getPose();
+        ChassisSpeeds speeds = controller.calculate(robot, currentTarget, 0.01, currentTarget.getRotation());
+        drivetrain.drive(speeds, Drivetrain.FieldRelativeMode.kOff);
     }
 
     @Override

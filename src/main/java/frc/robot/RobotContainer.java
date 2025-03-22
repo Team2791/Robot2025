@@ -3,7 +3,9 @@ package frc.robot;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autos.AutoManager;
 import frc.robot.commands.align.ReefAlign;
@@ -95,20 +97,19 @@ public class RobotContainer {
 
     private void configureBindings() {
         FullIntake.registerNearby(dispenser, elevator, intake);
-        Elevate.registerRetract(elevator);
+        // Elevate.registerRetract(elevator);
 
         Command joystickDrive = new RunCommand(() -> drivetrain.drive(driverctl), drivetrain);
         drivetrain.setDefaultCommand(joystickDrive);
-        driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro));
-
+        driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro).ignoringDisable(true));
         driverctl.x().onTrue(new Elevate(elevator, 3));
         driverctl.y().onTrue(new Elevate(elevator, 4));
         driverctl.a().onTrue(new Elevate(elevator, 1));
         driverctl.b().onTrue(new Elevate(elevator, 2));
 
 
-        driverctl.rightBumper().toggleOnTrue(new ReefAlign(drivetrain, 1));
-        driverctl.leftBumper().toggleOnTrue(new ReefAlign(drivetrain, -1));
+        driverctl.rightBumper().whileTrue(new ReefAlign(drivetrain, 1));
+        driverctl.leftBumper().whileTrue(new ReefAlign(drivetrain, -1));
 
         driverctl.rightTrigger().onTrue(new DispenseOut(dispenser, elevator));
         driverctl.leftTrigger().toggleOnTrue(new SequentialCommandGroup(
@@ -143,13 +144,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.run(
-            () -> drivetrain.drive(
-                0.25,
-                0.0,
-                0.0,
-                Drivetrain.FieldRelativeMode.kOff
-            ), drivetrain
-        ).withDeadline(new WaitCommand(3));
+        return autoChooser.selectedCommand();
     }
 }

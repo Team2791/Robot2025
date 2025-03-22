@@ -23,6 +23,8 @@ public class ModuleSim extends ModuleIO {
     boolean openLoop = false;
 
     public ModuleSim(SwerveModuleSimulation moduleSim) {
+        super(0);
+
         driveController = new PIDController(
             ControlConstants.DriveMotor.kP,
             ControlConstants.DriveMotor.kI,

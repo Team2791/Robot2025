@@ -45,7 +45,11 @@ public class Elevate extends FunctionWrapper {
             boolean zeroed = elevator.atLevel(0);
             boolean auto = DriverStation.isAutonomous();
 
-            if (auto || !useRetract) return;
+            if (auto || !useRetract) {
+                if (instance.isScheduled()) instance.cancel();
+                return;
+            }
+            
             if (outside && !scheduled && !zeroed) scheduler.schedule(instance);
         });
     }

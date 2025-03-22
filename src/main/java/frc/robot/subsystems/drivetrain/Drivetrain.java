@@ -5,11 +5,14 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import edu.wpi.first.hal.FRCNetComm;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -130,7 +133,7 @@ public class Drivetrain extends SubsystemBase {
                     {
                         builder.addDoubleProperty(
                             label + " Angle",
-                            () -> AllianceUtil.recenter(module.getState().angle).getRadians(),
+                            () -> module.getState().angle.getRadians(),
                             null
                         );
                         builder.addDoubleProperty(
@@ -149,9 +152,10 @@ public class Drivetrain extends SubsystemBase {
             }
         );
 
+        HAL.report(FRCNetComm.tResourceType.kResourceType_RobotDrive, FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
         AutoLogOutputManager.addObject(this);
 
-        EventRegistry.poseReset.register(field::setRobotPose);
+        EventRegistry.poseUpdate.register(field::setRobotPose);
         EventRegistry.poseReset.register(p -> odometry.resetPosition(gyro.heading(), modulePositions(), p));
     }
 
@@ -175,6 +179,7 @@ public class Drivetrain extends SubsystemBase {
     /**
      * @return A list of all swerve module states on the robot. In the same order as {@link #modules()}.
      */
+    @AutoLogOutput
     public SwerveModuleState[] moduleStates() {
         return Arrays.stream(modules()).map(ModuleIO::getState).toArray(SwerveModuleState[]::new);
     }
@@ -182,6 +187,7 @@ public class Drivetrain extends SubsystemBase {
     /**
      * @return The speeds of the entire chassis
      */
+    @AutoLogOutput
     public ChassisSpeeds getChassisSpeeds() { return ModuleConstants.kKinematics.toChassisSpeeds(moduleStates()); }
 
     /**
@@ -191,6 +197,11 @@ public class Drivetrain extends SubsystemBase {
         // according to delphi, this should remove some skew
         ChassisSpeeds discrete = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] states = ModuleConstants.kKinematics.toSwerveModuleStates(discrete);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, ModuleConstants.MaxSpeed.kLinear);
+
+        Logger.recordOutput("Drivetrain/StateSetpoints", states);
+        Logger.recordOutput("Drivetrain/SpeedSetpoint", discrete);
+
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
     }
 
@@ -267,9 +278,9 @@ public class Drivetrain extends SubsystemBase {
      */
     public void drive(CommandXboxController controller) {
         // [-1..1] inputs w/ deadband
-        final double xspeed = MathUtil.applyDeadband(controller.getLeftX(), IOConstants.Controller.kDeadband);
-        final double yspeed = MathUtil.applyDeadband(controller.getLeftY(), IOConstants.Controller.kDeadband);
-        final double rot = MathUtil.applyDeadband(controller.getRightX(), IOConstants.Controller.kDeadband);
+        double xspeed = MathUtil.applyDeadband(controller.getLeftX(), IOConstants.Controller.kDeadband);
+        double yspeed = MathUtil.applyDeadband(controller.getLeftY(), IOConstants.Controller.kDeadband);
+        double rot = MathUtil.applyDeadband(controller.getRightX(), IOConstants.Controller.kDeadband);
 
         // do a rate limit
         RateLimiter.Outputs outputs = slew.calculate(xspeed, yspeed, rot);
@@ -277,6 +288,7 @@ public class Drivetrain extends SubsystemBase {
         // build into a vector with max mag 1 to enforce max speeds correctly
         Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
         if (velocity.getMagnitude() > 1) velocity.normalize();
+        Vector2 velocity2 = velocity.multiply(velocity.getMagnitudeSquared());
 
         /*
          * Time to explain some wpilib strangeness
@@ -288,7 +300,7 @@ public class Drivetrain extends SubsystemBase {
          * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
          * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
          */
-        drive(-velocity.y, -velocity.x, -outputs.rot());
+        drive(-velocity2.y, -velocity2.x, -outputs.rot());
     }
 
     /**
@@ -310,16 +322,6 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Runs feedforward/SysId characterization
-     */
-    public void characterize(double output) {
-        for (ModuleIO module : modules()) {
-            module.driveOpenLoop(output);
-            module.zeroTurn();
-        }
-    }
-
-    /**
      * Get Field widget
      */
     public Field2d getField() {
@@ -334,10 +336,13 @@ public class Drivetrain extends SubsystemBase {
         // update all modules
         Arrays.stream(modules()).forEach(ModuleIO::update);
 
+        // get heading, use odometry as fallback
+        Rotation2d heading = gyro.data.connected
+            ? gyro.heading()
+            : getHeading().plus(new Rotation2d(ModuleConstants.kKinematics.toTwist2d(modulePositions()).dtheta));
+
         // update odometry
-        try {
-            odometry.update(gyro.heading(), modulePositions());
-        } catch (Exception ignored) { }
+        try { odometry.update(heading, modulePositions()); } catch (Exception ignored) { }
 
         EventRegistry.poseUpdate.emit(getPose());
 
@@ -346,8 +351,7 @@ public class Drivetrain extends SubsystemBase {
             Arrays.stream(modules()),
             (idx, module) ->
             {
-                final double driveCan = (40 - (idx * 10));
-                final String path = "Drivetrain/SwerveModule/" + driveCan;
+                final String path = "Drivetrain/SwerveModule/" + module.moduleId;
                 Logger.processInputs(path, module.data);
             }
         );
