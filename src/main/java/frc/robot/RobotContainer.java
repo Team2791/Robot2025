@@ -1,8 +1,6 @@
 package frc.robot;
 
-import choreo.auto.AutoChooser;
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -45,6 +43,7 @@ import frc.robot.subsystems.photon.CameraSim;
 import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
+import frc.robot.util.PathChooser;
 import frc.robot.util.WorldSimulator;
 
 public class RobotContainer {
@@ -80,17 +79,14 @@ public class RobotContainer {
 
     // autos
     final AutoManager autoManager = new AutoManager(drivetrain);
-    final AutoChooser autoChooser;
+    final PathChooser pathChooser = new PathChooser();
 
     public RobotContainer() {
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
-        this.autoChooser = new AutoChooser();
-        this.autoChooser.addRoutine("Default Routine", () -> this.autoManager.routine(dispenser, elevator, intake));
 
         configureBindings();
 
-        SmartDashboard.putData("Chooser", autoChooser);
         Alerter.getInstance().provideControllers(driverctl, operctl);
         CameraServer.startAutomaticCapture();
     }
@@ -144,6 +140,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.selectedCommand();
+        return autoManager.routine(dispenser, elevator, intake, pathChooser.trajectories()).cmd();
     }
 }
