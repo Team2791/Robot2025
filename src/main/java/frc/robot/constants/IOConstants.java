@@ -33,7 +33,7 @@ public final class IOConstants {
             public static final int kRearRight = 15;
         }
 
-        public static final NavXComType kGyroPort = NavXComType.kMXP_SPI;
+        public static final NavXComType kGyroPort = NavXComType.kUSB1;
     }
 
     public static final class Elevator {

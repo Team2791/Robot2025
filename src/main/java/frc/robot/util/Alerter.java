@@ -132,7 +132,7 @@ public class Alerter {
                 new Elastic.Notification(
                     NotificationLevel.WARNING,
                     "Gyro has disconnected",
-                    "Using odometry as fallback - expect field-centric inaccuracies"
+                    "Using robot-centric mode"
                 )
             );
             gyroAlerted = true;
@@ -141,7 +141,7 @@ public class Alerter {
                 new Elastic.Notification(
                     NotificationLevel.INFO,
                     "Gyro reconnected",
-                    "No longer using odometry as fallback"
+                    "Field centric is now being used"
                 )
             );
             gyroAlerted = false;

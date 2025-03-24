@@ -40,7 +40,6 @@ public final class ModuleConstants {
 
         /** Idle mode, can be either brake or coast */
         public static final IdleMode kIdleMode = IdleMode.kBrake;
-
     }
 
     public static final class TurnMotor {

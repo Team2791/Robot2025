@@ -11,7 +11,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -331,16 +330,11 @@ public class Drivetrain extends SubsystemBase {
         // update all modules
         Arrays.stream(modules()).forEach(ModuleIO::update);
 
-        // get heading, use odometry as fallback
+        // get heading, use robot-centric as fallback
         Rotation2d heading;
 
-        if (gyro.data.connected) {
-            heading = gyro.heading();
-        } else {
-            Twist2d twist = ModuleConstants.kKinematics.toTwist2d(modulePositions());
-            heading = new Rotation2d(gyro.data.heading).plus(new Rotation2d(twist.dtheta));
-            gyro.data.heading = heading.getMeasure();
-        }
+        if (gyro.data.connected) heading = gyro.heading();
+        else heading = AllianceUtil.recenter(new Rotation2d());
 
         // update odometry
         try { odometry.update(heading, modulePositions()); } catch (Exception ignored) { }
