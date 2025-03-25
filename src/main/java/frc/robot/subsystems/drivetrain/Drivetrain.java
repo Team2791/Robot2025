@@ -153,8 +153,11 @@ public class Drivetrain extends SubsystemBase {
         );
 
         // template code stuff
-        HAL.report(FRCNetComm.tResourceType.kResourceType_RobotDrive, FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
         AutoLogOutputManager.addObject(this);
+        HAL.report(
+            FRCNetComm.tResourceType.kResourceType_RobotDrive,
+            FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit
+        );
 
         // setup event emitter stuff
         EventRegistry.poseUpdate.register(field::setRobotPose);

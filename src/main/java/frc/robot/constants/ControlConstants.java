@@ -41,13 +41,13 @@ public final class ControlConstants {
     }
 
     public static final class Align {
-        public static final double kOrthoP = 2.75;
+        public static final double kOrthoP = 4.75;
         public static final double kOrthoI = 0.00;
         public static final double kOrthoD = 0.00;
 
-        public static final double kTurnP = 1.30;
+        public static final double kTurnP = 2.60;
         public static final double kTurnI = 0.00;
-        public static final double kTurnD = 0.00;
+        public static final double kTurnD = 0.04;
 
         public static final double kMaxTurnVelocity = kTau;
         public static final double kMaxTurnAcceleration = kTau;

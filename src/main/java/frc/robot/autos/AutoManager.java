@@ -7,9 +7,7 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.align.Navigate;
 import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.align.StationAlign;
@@ -87,10 +85,7 @@ public class AutoManager {
         ChassisSpeeds speeds = new ChassisSpeeds(
             sample.vx + xController.calculate(pose.getX(), wants.getX()),
             sample.vy + yController.calculate(pose.getY(), wants.getY()),
-            sample.omega + rotController.calculate(
-                pose.getRotation().getRadians(),
-                wants.getRotation().getRadians()
-            )
+            sample.omega + rotController.calculate(pose.getRotation().getRadians(), wants.getRotation().getRadians())
         );
 
         // field-relative drive
@@ -119,9 +114,12 @@ public class AutoManager {
     public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement) {
         return Commands.sequence(
             new ReefAlign(drivetrain, placement.offset).withTimeout(6.0),
+            new WaitCommand(0.25),
             new Elevate(elevator, placement.level),
+            new WaitCommand(0.25),
             new DispenseOut(dispenser, elevator),
-            new WaitCommand(2.0),
+            new RunCommand(() -> drivetrain.drive(-0.1, 0, 0, Drivetrain.FieldRelativeMode.kOff)).withTimeout(1.0),
+            new InstantCommand(() -> drivetrain.drive(0, 0, 0), drivetrain),
             new Elevate(elevator, 0)
         ).withName("Auto: Align+Score");
     }
@@ -181,7 +179,7 @@ public class AutoManager {
                 dispenser,
                 elevator,
                 new ScoreLocation(
-                    new ScorePlacement(1, 4),
+                    new ScorePlacement(-1, 4),
                     routine.trajectory(trajectories.get(0))
                 )
             ),

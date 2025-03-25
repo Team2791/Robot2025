@@ -92,7 +92,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        FullIntake.registerNearby(dispenser, elevator, intake);
+        // FullIntake.registerNearby(dispenser, elevator, intake);
         // Elevate.registerRetract(elevator);
 
         Command joystickDrive = new RunCommand(() -> drivetrain.drive(driverctl), drivetrain);

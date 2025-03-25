@@ -73,7 +73,7 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         elevator.update();
-        
+
         Logger.processInputs("Elevator", elevator.data);
         AdvantageUtil.logActiveCommand(this);
     }

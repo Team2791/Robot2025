@@ -16,7 +16,7 @@ public class DispenseOut extends ParallelDeadlineGroup {
      */
     public DispenseOut(Dispenser dispenser, Elevator elevator) {
         super(
-            new WaitCommand(0.5),
+            new WaitCommand(0.75),
             new FunctionWrapper(
                 () -> dispenser.dispense(
                     elevator.atLevel(1)

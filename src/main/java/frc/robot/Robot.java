@@ -86,6 +86,8 @@ public class Robot extends LoggedRobot {
         // setup pp pathfinder (currently not being used, we'll see later)
         Pathfinding.setPathfinder(new ADStar());
         FollowPathCommand.warmupCommand().schedule();
+
+        Elastic.selectTab("Autonomous");
     }
 
     @Override
