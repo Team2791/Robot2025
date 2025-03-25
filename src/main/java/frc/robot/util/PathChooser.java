@@ -15,9 +15,9 @@ public class PathChooser {
         score = new SendableChooser<>();
         intake = new SendableChooser<>();
 
-        starting.addOption("Far Position", "far");
-        starting.addOption("Middle Position", "mid");
-        starting.addOption("Near Position", "near");
+        starting.addOption("Position 1", "1");
+        starting.addOption("Position 2", "2");
+        starting.addOption("Position 3", "3");
 
         starting.setDefaultOption("Disable", "disable");
         score.setDefaultOption("Disable", "disable");
@@ -32,15 +32,15 @@ public class PathChooser {
 
     void updateScoreOptions(String starting) {
         score = new SendableChooser<>();
-        score.addOption("Back Left", "blscore");
-        score.addOption("Back", "bscore");
         score.addOption("Back Right", "brscore");
         score.addOption("Back Left", "blscore");
+        score.addOption("Front Right", "frscore");
         score.setDefaultOption("Front Left", "flscore");
+        score.addOption("Back", "bscore");
 
         SmartDashboard.putData("Score Path", score);
-
         score.onChange(this::updateIntakeOptions);
+
         this.updateIntakeOptions("flscore");
     }
 
