@@ -127,7 +127,10 @@ public class AutoManager {
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
             new StationAlign(drivetrain).withTimeout(4.0),
-            new FullIntake(dispenser, elevator, intake)
+            new ParallelDeadlineGroup(
+                new FullIntake(dispenser, elevator, intake),
+                new RunCommand(() -> drivetrain.drive(-0.125, 0, 0, Drivetrain.FieldRelativeMode.kOff)).withTimeout(1.0)
+            )
         ).withName("Auto: Align+Intake");
     }
 

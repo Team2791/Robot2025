@@ -284,8 +284,13 @@ public class Drivetrain extends SubsystemBase {
 
         // build into a vector with max mag 1 to enforce max speeds correctly
         Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
-        if (velocity.getMagnitude() > 1) velocity.normalize();
-        Vector2 velocity2 = velocity.multiply(velocity.getMagnitudeSquared());
+
+        // square the magnitude (with max of 1)
+        double magnitude = velocity.normalize();
+        Vector2 velocity2 = velocity.multiply(Math.pow(Math.min(magnitude, 1), 2));
+
+        // square rotation keeping sign
+        double rot2 = Math.copySign(Math.pow(Math.abs(outputs.rot()), 2), outputs.rot());
 
         /*
          * Time to explain some wpilib strangeness
