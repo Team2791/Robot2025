@@ -32,7 +32,11 @@ public final class VisionConstants {
 
     public static final class Transforms {
         public static final Transform3d kFront = new Transform3d(
-            new Translation3d(Inches.of(25).div(2).minus(Inches.of(5)).plus(Inches.of(7.0 / 8.0)).in(Meters), 0, Inches.of(12.75).in(Meters)),
+            new Translation3d(
+                Inches.of(25).div(2).minus(Inches.of(5)).plus(Inches.of(7.0 / 8.0)).in(Meters),
+                0,
+                Inches.of(12.75).in(Meters)
+            ),
             new Rotation3d()
         );
         public static final Transform3d kRear = new Transform3d(

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.AdvantageConstants;
 import frc.robot.event.EventRegistry;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 
@@ -109,6 +110,10 @@ public class Alerter {
     }
 
     public void update() {
+        if (AdvantageConstants.kCurrentMode != AdvantageConstants.AdvantageMode.Real) {
+            return;
+        }
+
         for (int i = 0; i < sparks.size(); i++) {
             SparkBase spark = sparks.get(i);
             String name = sparkNames.get(i);

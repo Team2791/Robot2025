@@ -35,4 +35,12 @@ public class AllianceUtil {
         if (invert()) return SwerveUtil.normalizeAngle(rotation.plus(Rotation2d.kPi));
         else return rotation;
     }
+
+    public static Pose2d[] recenter(Pose2d[] poses) {
+        Pose2d[] recentered = new Pose2d[poses.length];
+        for (int i = 0; i < poses.length; i++) {
+            recentered[i] = recenter(poses[i]);
+        }
+        return recentered;
+    }
 }

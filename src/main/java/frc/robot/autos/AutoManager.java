@@ -7,9 +7,7 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.align.Navigate;
 import frc.robot.commands.align.ReefAlign;
 import frc.robot.commands.align.StationAlign;
@@ -22,6 +20,7 @@ import frc.robot.subsystems.dispenser.Dispenser;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.util.AllianceUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
@@ -29,9 +28,7 @@ import java.util.List;
 public class AutoManager {
     public record ScorePlacement(int offset, int level) { }
 
-    public record ScoreTrajectories(AutoTrajectory toIntake, AutoTrajectory toScore) { }
-
-    public record ScoreLocation(ScorePlacement placement, ScoreTrajectories trajectories, List<Integer> reefTags) { }
+    public record ScoreLocation(ScorePlacement placement, AutoTrajectory trajectory) { }
 
     final PIDController xController = new PIDController(
         ControlConstants.Auto.kOrthoP,
@@ -62,9 +59,15 @@ public class AutoManager {
             this::follow,
             true,
             drivetrain,
-            (sample, isStart) -> {
-                Logger.recordOutput("Auto/CurrentTrajectory", sample.getPoses());
-                drivetrain.getField().getObject("Auto/CurrentTrajectory").setPoses(sample.getPoses());
+            (traj, starting) -> {
+                if (starting) {
+                    Pose2d[] recentered = AllianceUtil.recenter(traj.getPoses());
+                    Logger.recordOutput("Auto/CurrentTrajectory", recentered);
+                    drivetrain.getField().getObject("Auto/CurrentTrajectory").setPoses(recentered);
+                } else {
+                    Logger.recordOutput("Auto/CurrentTrajectory", new Pose2d[0]);
+                    drivetrain.getField().getObject("Auto/CurrentTrajectory").setPoses();
+                }
             }
         );
 
@@ -76,14 +79,13 @@ public class AutoManager {
         Pose2d pose = drivetrain.getPose();
         Pose2d wants = sample.getPose();
 
+        Logger.recordOutput("Auto/CurrentPose", pose);
+
         // generate speeds
         ChassisSpeeds speeds = new ChassisSpeeds(
             sample.vx + xController.calculate(pose.getX(), wants.getX()),
             sample.vy + yController.calculate(pose.getY(), wants.getY()),
-            sample.omega + rotController.calculate(
-                pose.getRotation().getRadians(),
-                wants.getRotation().getRadians()
-            )
+            sample.omega + rotController.calculate(pose.getRotation().getRadians(), wants.getRotation().getRadians())
         );
 
         // field-relative drive
@@ -109,12 +111,15 @@ public class AutoManager {
         ).withName("Pathfind and Follow");
     }
 
-    public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement, List<Integer> reefTags) {
+    public Command score(Dispenser dispenser, Elevator elevator, ScorePlacement placement) {
         return Commands.sequence(
             new ReefAlign(drivetrain, placement.offset).withTimeout(6.0),
+            new WaitCommand(0.25),
             new Elevate(elevator, placement.level),
+            new WaitCommand(0.25),
             new DispenseOut(dispenser, elevator),
-            new WaitCommand(2.0),
+            new RunCommand(() -> drivetrain.drive(-0.1, 0, 0, Drivetrain.FieldRelativeMode.kOff)).withTimeout(1.0),
+            new InstantCommand(() -> drivetrain.drive(0, 0, 0), drivetrain),
             new Elevate(elevator, 0)
         ).withName("Auto: Align+Score");
     }
@@ -126,89 +131,66 @@ public class AutoManager {
         ).withName("Auto: Align+Intake");
     }
 
-    public Command initialScoreIntake(
+    public Command initialScore(
         Dispenser dispenser,
         Elevator elevator,
         ScoreLocation location
     ) {
         return Commands.sequence(
-            resetFollow(location.trajectories.toScore),
-            score(dispenser, elevator, location.placement, location.reefTags),
-            navigateFollow(location.trajectories.toIntake)
-        ).withName("Auto: Initial Score+Intake");
+            resetFollow(location.trajectory),
+            score(dispenser, elevator, location.placement)
+        ).withName("Auto: Initial Score");
     }
 
-    public Command intakeScoreLoop(
+    public Command initialIntake(
+        Intake intake,
         Dispenser dispenser,
         Elevator elevator,
-        Intake intake,
-        List<ScoreLocation> scoring
+        AutoTrajectory trajectory
     ) {
-        Command[] commands = new Command[4 * scoring.size()];
-
-        int i = 0;
-        for (ScoreLocation location : scoring) {
-            commands[i] = intake(dispenser, elevator, intake);
-            commands[i + 1] = navigateFollow(location.trajectories.toScore);
-            commands[i + 2] = score(dispenser, elevator, location.placement, location.reefTags);
-            commands[i + 3] = navigateFollow(location.trajectories.toIntake);
-
-            i += 4;
-        }
-
-        return Commands.sequence(commands).withName("Auto: Intake+Score Loop");
+        return Commands.sequence(
+            navigateFollow(trajectory),
+            intake(dispenser, elevator, intake)
+        ).withName("Auto: Initial Intake");
     }
 
-    public void clearTrajectory() {
-        drivetrain.getField().getObject("AutoPath").setPoses();
-        Logger.recordOutput("Auto/CurrentTrajectory", new Pose2d[0]);
-    }
-
-    public AutoRoutine routine(Dispenser dispenser, Elevator elevator, Intake intake) {
+    public AutoRoutine routine(Dispenser dispenser, Elevator elevator, Intake intake, List<String> trajectories) {
         AutoRoutine routine = factory.newRoutine("Main Routine");
 
-        AutoTrajectory startingScore = routine.trajectory("far_flscore");
-        AutoTrajectory startingIntake = routine.trajectory("flscore_lintake");
-        AutoTrajectory secondScore = routine.trajectory("lintake_flscore");
+        if (trajectories.isEmpty()) {
+            routine.active().onTrue(Commands.print("Auto Started: No Trajectory Selected"));
+            return routine;
+        }
 
-        startingScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
-        startingIntake.done().onTrue(Commands.runOnce(this::clearTrajectory));
-        secondScore.done().onTrue(Commands.runOnce(this::clearTrajectory));
+        if (trajectories.size() == 1) {
+            routine.active().onTrue(initialScore(
+                dispenser,
+                elevator,
+                new ScoreLocation(
+                    new ScorePlacement(1, 4),
+                    routine.trajectory(trajectories.get(0))
+                )
+            ));
+            return routine;
+        }
 
         routine.active().onTrue(Commands.sequence(
-            initialScoreIntake(
+            initialScore(
                 dispenser,
                 elevator,
                 new ScoreLocation(
                     new ScorePlacement(-1, 4),
-                    new ScoreTrajectories(startingIntake, startingScore),
-                    List.of(19, 6)
+                    routine.trajectory(trajectories.get(0))
                 )
             ),
-            intakeScoreLoop(
+            initialIntake(
+                intake,
                 dispenser,
                 elevator,
-                intake,
-                List.of(
-                    new ScoreLocation(
-                        new ScorePlacement(1, 4),
-                        new ScoreTrajectories(startingIntake, secondScore),
-                        List.of(19, 6)
-                    )
-                )
+                routine.trajectory(trajectories.get(1))
             )
-        ).withName("Auto: Main Routine"));
+        ));
 
-        return routine;
-    }
-
-    public AutoRoutine straight() {
-        AutoRoutine routine = factory.newRoutine("Straight");
-
-        AutoTrajectory begin = routine.trajectory("straight");
-        begin.done().onTrue(Commands.runOnce(this::clearTrajectory));
-
-        routine.active().onTrue(routine.cmd());
         return routine;
     }
 }

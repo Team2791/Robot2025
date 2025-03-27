@@ -448,7 +448,7 @@
             "x": 1568.0,
             "y": 400.0,
             "width": 336.0,
-            "height": 240.0,
+            "height": 368.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/Enabled",
@@ -458,20 +458,6 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
-            },
-            "ntStructMeta": null
-          },
-          {
-            "title": "Autonomous Command",
-            "x": 1568.0,
-            "y": 640.0,
-            "width": 336.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Chooser",
-              "period": 0.06,
-              "sort_options": false
             },
             "ntStructMeta": null
           },
@@ -498,9 +484,9 @@
         "layouts": [
           {
             "title": "Motors",
-            "x": 1568.0,
+            "x": 1552.0,
             "y": 16.0,
-            "width": 336.0,
+            "width": 352.0,
             "height": 384.0,
             "type": "List Layout",
             "properties": {
@@ -654,10 +640,114 @@
             ]
           },
           {
+            "title": "Auto Path Chooser",
+            "x": 1552.0,
+            "y": 400.0,
+            "width": 352.0,
+            "height": 240.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Starting",
+                "x": 1280.0,
+                "y": 896.0,
+                "width": 336.0,
+                "height": 112.0,
+                "type": "ComboBox Chooser",
+                "properties": {
+                  "topic": "/SmartDashboard/Starting Position",
+                  "period": 0.06,
+                  "sort_options": false
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Score   ",
+                "x": 1232.0,
+                "y": 944.0,
+                "width": 336.0,
+                "height": 112.0,
+                "type": "ComboBox Chooser",
+                "properties": {
+                  "topic": "/SmartDashboard/Score Path",
+                  "period": 0.06,
+                  "sort_options": false
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Intake  ",
+                "x": 1296.0,
+                "y": 992.0,
+                "width": 336.0,
+                "height": 112.0,
+                "type": "ComboBox Chooser",
+                "properties": {
+                  "topic": "/SmartDashboard/Intake Path",
+                  "period": 0.06,
+                  "sort_options": false
+                },
+                "ntStructMeta": null
+              }
+            ]
+          },
+          {
+            "title": "Connections",
+            "x": 1216.0,
+            "y": 16.0,
+            "width": 336.0,
+            "height": 176.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Field Management (FMS)",
+                "x": 1232.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/DriverStation/FMSAttached",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              },
+              {
+                "title": "Radio",
+                "x": 1296.0,
+                "y": 192.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RadioStatus/Connected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                },
+                "ntStructMeta": null
+              }
+            ]
+          },
+          {
             "title": "Elevator",
             "x": 1216.0,
             "y": 352.0,
-            "width": 352.0,
+            "width": 336.0,
             "height": 240.0,
             "type": "List Layout",
             "properties": {
@@ -708,7 +798,7 @@
             "title": "Coral Status",
             "x": 1216.0,
             "y": 592.0,
-            "width": 352.0,
+            "width": 336.0,
             "height": 176.0,
             "type": "List Layout",
             "properties": {
@@ -742,55 +832,6 @@
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/AdvantageKit/Dispenser/Broken",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                },
-                "ntStructMeta": null
-              }
-            ]
-          },
-          {
-            "title": "Connections",
-            "x": 1216.0,
-            "y": 16.0,
-            "width": 352.0,
-            "height": 176.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Field Management (FMS)",
-                "x": 1232.0,
-                "y": 128.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/DriverStation/FMSAttached",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                },
-                "ntStructMeta": null
-              },
-              {
-                "title": "Radio",
-                "x": 1296.0,
-                "y": 192.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/AdvantageKit/RadioStatus/Connected",
                   "period": 0.06,
                   "data_type": "boolean",
                   "true_color": 4283215696,
@@ -918,7 +959,7 @@
             "title": "Battery Voltage",
             "x": 1216.0,
             "y": 192.0,
-            "width": 352.0,
+            "width": 336.0,
             "height": 160.0,
             "type": "Voltage View",
             "properties": {
@@ -935,10 +976,10 @@
           },
           {
             "title": "Robot Enabled",
-            "x": 1568.0,
-            "y": 400.0,
-            "width": 336.0,
-            "height": 240.0,
+            "x": 1552.0,
+            "y": 640.0,
+            "width": 352.0,
+            "height": 128.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/Enabled",
@@ -959,6 +1000,28 @@
             "height": 480.0,
             "type": "Camera Stream",
             "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            },
+            "ntStructMeta": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "ElectronVision",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "photonvision_Port_1184_Output_MJPEG_Server",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 1008.0,
+            "height": 784.0,
+            "type": "Camera Stream",
+            "properties": {
               "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
@@ -966,16 +1029,16 @@
             "ntStructMeta": null
           },
           {
-            "title": "Autonomous Command",
-            "x": 1568.0,
-            "y": 640.0,
-            "width": 336.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
+            "title": "photonvision_Port_1186_Output_MJPEG_Server",
+            "x": 1008.0,
+            "y": 0.0,
+            "width": 992.0,
+            "height": 784.0,
+            "type": "Camera Stream",
             "properties": {
-              "topic": "/SmartDashboard/Chooser",
+              "topic": "/CameraPublisher/photonvision_Port_1186_Output_MJPEG_Server",
               "period": 0.06,
-              "sort_options": false
+              "rotation_turns": 0
             },
             "ntStructMeta": null
           }

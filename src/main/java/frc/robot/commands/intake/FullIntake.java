@@ -42,7 +42,7 @@ public class FullIntake extends SequentialCommandGroup {
                 .handleInterrupt(() -> new SequentialCommandGroup(
                     new Dislodge(intake, dispenser),
                     new FullIntake(dispenser, elevator, intake)
-                ))
+                ).schedule())
                 .withTimeout(5.0),
             new FunctionWrapper(Alerter.getInstance()::rumble)
         );

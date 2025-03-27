@@ -49,7 +49,7 @@ public class Elevate extends FunctionWrapper {
                 if (instance.isScheduled()) instance.cancel();
                 return;
             }
-            
+
             if (outside && !scheduled && !zeroed) scheduler.schedule(instance);
         });
     }

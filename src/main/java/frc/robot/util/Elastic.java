@@ -338,6 +338,7 @@ public final class Elastic {
             ERROR
         }
     }
+
     private static final StringTopic notificationTopic =
         NetworkTableInstance.getDefault().getStringTopic("/Elastic/RobotNotifications");
     private static final StringPublisher notificationPublisher =

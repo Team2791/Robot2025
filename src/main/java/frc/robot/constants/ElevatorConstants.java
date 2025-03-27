@@ -37,7 +37,7 @@ public final class ElevatorConstants {
         public static final double kL1 = 0.13275;
         public static final double kL2 = 0.37968;
         public static final double kL3 = 0.77311;
-        public static final double kL4 = 1.42750;
+        public static final double kL4 = 1.43750;
         public static final double[] kLevels = { kIntake, kL1, kL2, kL3, kL4 };
         public static final double kTolerance = Inches.of(0.75).in(Meters);
     }
