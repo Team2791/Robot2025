@@ -9,6 +9,25 @@ import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.constants.MathConstants.kTau;
 
 public final class ModuleConstants {
+    public record ModuleInfo(
+        int driveId,
+        int turnId,
+        int moduleId,
+        Translation2d translation,
+        double angularOffset
+    )
+    {
+        public int ordinal() {
+            return switch (moduleId) {
+                case IOConstants.Drivetrain.ModuleId.kFrontLeft -> 0;
+                case IOConstants.Drivetrain.ModuleId.kFrontRight -> 1;
+                case IOConstants.Drivetrain.ModuleId.kRearLeft -> 2;
+                case IOConstants.Drivetrain.ModuleId.kRearRight -> 3;
+                default -> throw new IllegalArgumentException("Invalid module ID");
+            };
+        }
+    }
+
     public static final class AngularOffsets {
         public static final double kFrontLeft = -Math.PI / 2;
         public static final double kFrontRight = 0;
@@ -116,6 +135,38 @@ public final class ModuleConstants {
             kRearRight
         };
     }
+
+    public static final ModuleInfo kFrontLeft = new ModuleInfo(
+        IOConstants.Drivetrain.Drive.kFrontLeft,
+        IOConstants.Drivetrain.Turn.kFrontLeft,
+        IOConstants.Drivetrain.ModuleId.kFrontLeft,
+        Translations.kFrontLeft,
+        AngularOffsets.kFrontLeft
+    );
+
+    public static final ModuleInfo kFrontRight = new ModuleInfo(
+        IOConstants.Drivetrain.Drive.kFrontRight,
+        IOConstants.Drivetrain.Turn.kFrontRight,
+        IOConstants.Drivetrain.ModuleId.kFrontRight,
+        Translations.kFrontRight,
+        AngularOffsets.kFrontRight
+    );
+
+    public static final ModuleInfo kRearLeft = new ModuleInfo(
+        IOConstants.Drivetrain.Drive.kRearLeft,
+        IOConstants.Drivetrain.Turn.kRearLeft,
+        IOConstants.Drivetrain.ModuleId.kRearLeft,
+        Translations.kRearLeft,
+        AngularOffsets.kRearLeft
+    );
+
+    public static final ModuleInfo kRearRight = new ModuleInfo(
+        IOConstants.Drivetrain.Drive.kRearRight,
+        IOConstants.Drivetrain.Turn.kRearRight,
+        IOConstants.Drivetrain.ModuleId.kRearRight,
+        Translations.kRearRight,
+        AngularOffsets.kRearRight
+    );
 
     public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(Translations.kModules);
 }

@@ -1,10 +1,10 @@
 package frc.robot.subsystems.drivetrain.module;
 
 import com.revrobotics.spark.config.SparkBaseConfig;
+import frc.robot.constants.ModuleConstants;
 
 public class ModuleReplay extends ModuleIO {
-    /** Keep constructors the same so I can use fn pointers without java screaming */
-    public ModuleReplay(int id) {
+    public ModuleReplay(ModuleConstants.ModuleInfo id) {
         super(id);
     }
 

@@ -28,6 +28,7 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.gyro.GyroReplay;
 import frc.robot.subsystems.drivetrain.gyro.NavX;
 import frc.robot.subsystems.drivetrain.module.ModuleReplay;
+import frc.robot.subsystems.drivetrain.module.ModuleSim;
 import frc.robot.subsystems.drivetrain.module.ModuleSpark;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorReplay;
@@ -54,11 +55,7 @@ public class RobotContainer {
     // subsystems
     final Drivetrain drivetrain = new Drivetrain(
         AdvantageUtil.matchReal(NavX::new, () -> WorldSimulator.getInstance().makeGyro(), GyroReplay::new),
-        AdvantageUtil.matchReal(
-            ModuleSpark::new,
-            (id) -> WorldSimulator.getInstance().makeModule(id),
-            ModuleReplay::new
-        )
+        AdvantageUtil.matchReal(ModuleSpark::new, ModuleSim::new, ModuleReplay::new)
     );
     final Intake intake = new Intake(
         AdvantageUtil.matchReal(IntakeSpark::new, IntakeSim::new, IntakeReplay::new)
@@ -94,7 +91,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         FullIntake.registerNearby(dispenser, elevator, intake);
-        // Elevate.registerRetract(elevator);
+        Elevate.registerRetract(elevator);
 
         Command joystickDrive = new RunCommand(() -> drivetrain.drive(driverctl), drivetrain);
         drivetrain.setDefaultCommand(joystickDrive);

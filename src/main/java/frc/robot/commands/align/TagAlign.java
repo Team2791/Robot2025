@@ -77,7 +77,7 @@ public abstract class TagAlign extends SequentialCommandGroup {
                 new Elastic.Notification(
                     Elastic.Notification.NotificationLevel.WARNING,
                     "Alignment: Too far away",
-                    dist + "m > " + VisionConstants.Align.kMaxDistance + "m."
+                    "%fm > %fm.".formatted(dist, VisionConstants.Align.kMaxDistance)
                 )
             );
 

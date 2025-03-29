@@ -6,7 +6,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.constants.ControlConstants;
+import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.MotorConstants;
+import frc.robot.util.WorldSimulator;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 
@@ -22,22 +24,22 @@ public class ModuleSim extends ModuleIO {
 
     boolean openLoop = false;
 
-    public ModuleSim(SwerveModuleSimulation moduleSim) {
-        super(0);
+    public ModuleSim(ModuleConstants.ModuleInfo info) {
+        super(info);
 
-        driveController = new PIDController(
+        this.driveController = new PIDController(
             ControlConstants.DriveMotor.kP,
             ControlConstants.DriveMotor.kI,
             ControlConstants.DriveMotor.kD
         );
 
-        turnController = new PIDController(
+        this.turnController = new PIDController(
             ControlConstants.TurnMotor.kP,
             ControlConstants.TurnMotor.kI,
             ControlConstants.TurnMotor.kD
         );
 
-        this.moduleSim = moduleSim;
+        this.moduleSim = WorldSimulator.getInstance().getModule(info);
 
         driveSim = moduleSim
             .useGenericMotorControllerForDrive()

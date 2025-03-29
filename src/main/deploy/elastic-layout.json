@@ -993,14 +993,14 @@
             "ntStructMeta": null
           },
           {
-            "title": "Driver Camera",
+            "title": "photonvision_Port_1184_Output_MJPEG_Server",
             "x": 672.0,
             "y": 288.0,
             "width": 544.0,
             "height": 480.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
             },
@@ -1015,28 +1015,28 @@
         "layouts": [],
         "containers": [
           {
-            "title": "photonvision_Port_1184_Output_MJPEG_Server",
+            "title": "photonvision_Port_1188_Output_MJPEG_Server",
             "x": 0.0,
             "y": 0.0,
             "width": 1008.0,
-            "height": 784.0,
+            "height": 800.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
+              "topic": "/CameraPublisher/photonvision_Port_1188_Output_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
             },
             "ntStructMeta": null
           },
           {
-            "title": "photonvision_Port_1186_Output_MJPEG_Server",
+            "title": "photonvision_Port_1182_Output_MJPEG_Server",
             "x": 1008.0,
             "y": 0.0,
             "width": 992.0,
-            "height": 784.0,
+            "height": 800.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/photonvision_Port_1186_Output_MJPEG_Server",
+              "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
             },
