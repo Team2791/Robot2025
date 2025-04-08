@@ -11,56 +11,56 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Volts;
 
 public class IntakeSpark extends IntakeIO {
-    final SparkMax leftMotor;
-    final SparkMax rightMotor;
+    final SparkMax leader;
+    final SparkMax follower;
 
     final SparkLimitSwitch beam;
 
     public IntakeSpark() {
-        leftMotor = new SparkMax(IOConstants.Intake.kLeft, SparkMax.MotorType.kBrushless);
-        rightMotor = new SparkMax(IOConstants.Intake.kRight, SparkMax.MotorType.kBrushless);
-        beam = leftMotor.getReverseLimitSwitch();
+        leader = new SparkMax(IOConstants.Intake.kLeft, SparkMax.MotorType.kBrushless);
+        follower = new SparkMax(IOConstants.Intake.kRight, SparkMax.MotorType.kBrushless);
+        beam = leader.getReverseLimitSwitch();
 
-        leftMotor.clearFaults();
-        rightMotor.clearFaults();
+        leader.clearFaults();
+        follower.clearFaults();
 
-        leftMotor.configure(
+        leader.configure(
             SparkConfigConstants.Intake.kLeft,
             SparkConfigConstants.kResetMode,
             SparkConfigConstants.kPersistMode
         );
 
-        rightMotor.configure(
+        follower.configure(
             SparkConfigConstants.Intake.kRight,
             SparkConfigConstants.kResetMode,
             SparkConfigConstants.kPersistMode
         );
 
-        Alerter.getInstance().registerSpark("IntakeLeader", leftMotor);
-        Alerter.getInstance().registerSpark("IntakeFollower", rightMotor);
+        Alerter.getInstance().registerSpark("IntakeLeader", leader);
+        Alerter.getInstance().registerSpark("IntakeFollower", follower);
     }
 
     @Override
     public void update() {
-        this.data.leftConnected = leftMotor.getLastError() == REVLibError.kOk;
-        this.data.leftVoltage = Volts.of(leftMotor.getBusVoltage() * leftMotor.getAppliedOutput());
-        this.data.leftCurrent = Amps.of(leftMotor.getOutputCurrent());
-        this.data.leftPower = leftMotor.getAppliedOutput();
+        this.data.leftConnected = leader.getLastError() == REVLibError.kOk;
+        this.data.leftVoltage = Volts.of(leader.getBusVoltage() * leader.getAppliedOutput());
+        this.data.leftCurrent = Amps.of(leader.getOutputCurrent());
+        this.data.leftPower = leader.getAppliedOutput();
 
-        this.data.rightConnected = rightMotor.getLastError() == REVLibError.kOk;
-        this.data.rightVoltage = Volts.of(rightMotor.getBusVoltage() * rightMotor.getAppliedOutput());
-        this.data.rightCurrent = Amps.of(rightMotor.getOutputCurrent());
-        this.data.rightPower = rightMotor.getAppliedOutput();
+        this.data.rightConnected = follower.getLastError() == REVLibError.kOk;
+        this.data.rightVoltage = Volts.of(follower.getBusVoltage() * follower.getAppliedOutput());
+        this.data.rightCurrent = Amps.of(follower.getOutputCurrent());
+        this.data.rightPower = follower.getAppliedOutput();
 
         this.data.broken = beam.isPressed();
     }
 
     @Override
     public void set(double left, double right) {
-        assert Math.abs(left) <= 1.0 : "Needed -1.0 <= left <= 1.0, got left=%f".formatted(left);
-        assert Math.abs(right) <= 1.0 : "Needed -1.0 <= right <= 1.0, got right=%f".formatted(right);
+        assert Math.abs(left) <= 1.0 : "Needed -1.0 <= left <= 1.0, got %f".formatted(left);
+        assert Math.abs(right) <= 1.0 : "Needed -1.0 <= right <= 1.0, got %f".formatted(right);
 
-        leftMotor.set(left);
-        rightMotor.set(right);
+        leader.set(left);
+        follower.set(right);
     }
 }

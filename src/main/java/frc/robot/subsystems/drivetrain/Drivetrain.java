@@ -56,16 +56,13 @@ public class Drivetrain extends SubsystemBase {
 
     final RateLimiter slew;
 
-    public Drivetrain(
-        GyroIO gyro,
-        Function<Integer, ModuleIO> moduleConstructor
-    ) {
+    public Drivetrain(GyroIO gyro, Function<ModuleConstants.ModuleInfo, ModuleIO> moduleFactory) {
         this.gyro = gyro;
 
-        frontLeft = moduleConstructor.apply(0);
-        frontRight = moduleConstructor.apply(1);
-        rearLeft = moduleConstructor.apply(2);
-        rearRight = moduleConstructor.apply(3);
+        frontLeft = moduleFactory.apply(ModuleConstants.kFrontLeft);
+        frontRight = moduleFactory.apply(ModuleConstants.kFrontRight);
+        rearLeft = moduleFactory.apply(ModuleConstants.kRearLeft);
+        rearRight = moduleFactory.apply(ModuleConstants.kRearRight);
 
         odometry = new SwerveDrivePoseEstimator(
             ModuleConstants.kKinematics,
@@ -284,8 +281,13 @@ public class Drivetrain extends SubsystemBase {
 
         // build into a vector with max mag 1 to enforce max speeds correctly
         Vector2 velocity = new Vector2(outputs.xspeed(), outputs.yspeed());
-        if (velocity.getMagnitude() > 1) velocity.normalize();
-        Vector2 velocity2 = velocity.multiply(velocity.getMagnitudeSquared());
+
+        // square the magnitude (with max of 1)
+        double magnitude = velocity.normalize();
+        Vector2 velocity2 = velocity.multiply(Math.pow(Math.min(magnitude, 1), 2));
+
+        // square rotation keeping sign (squaring makes sign positive)
+        double rot2 = Math.pow(outputs.rot(), 2) * Math.signum(outputs.rot());
 
         /*
          * Time to explain some wpilib strangeness
@@ -297,7 +299,7 @@ public class Drivetrain extends SubsystemBase {
          * so, we need to mutate x and y, so that +Xc becomes -Yw and +Yc becomes -Xw
          * also, WPIs rotation is ccw-positive and the controller is cw-positive, so we need to negate the rotation
          */
-        drive(-velocity2.y, -velocity2.x, -outputs.rot());
+        drive(-velocity2.y, -velocity2.x, -rot2);
     }
 
     /**
@@ -349,7 +351,7 @@ public class Drivetrain extends SubsystemBase {
             Arrays.stream(modules()),
             (idx, module) ->
             {
-                final String path = "Drivetrain/SwerveModule/" + module.moduleId;
+                final String path = "Drivetrain/SwerveModule/" + module.info.moduleId();
                 Logger.processInputs(path, module.data);
             }
         );

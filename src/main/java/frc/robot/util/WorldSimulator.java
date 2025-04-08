@@ -7,10 +7,10 @@ import frc.robot.constants.*;
 import frc.robot.constants.AdvantageConstants.AdvantageMode;
 import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.drivetrain.gyro.GyroSim;
-import frc.robot.subsystems.drivetrain.module.ModuleSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.VisionSystemSim;
@@ -77,9 +77,8 @@ public class WorldSimulator {
         assert AdvantageConstants.kCurrentMode == AdvantageMode.Sim : "Used simulation globals in real or replay mode";
     }
 
-    public ModuleSim makeModule(int id) {
-        assertSim();
-        return new ModuleSim(drivetrain.getModules()[id]);
+    public SwerveModuleSimulation getModule(ModuleConstants.ModuleInfo info) {
+        return drivetrain.getModules()[info.ordinal()];
     }
 
     public GyroSim makeGyro() {

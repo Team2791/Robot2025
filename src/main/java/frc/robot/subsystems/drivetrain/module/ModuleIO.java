@@ -41,11 +41,10 @@ public abstract class ModuleIO {
     }
 
     public final ModuleDataAutoLogged data = new ModuleDataAutoLogged();
-    public final int moduleId;
+    public final ModuleConstants.ModuleInfo info;
 
-    /** @param moduleId should be [1, 4] */
-    protected ModuleIO(int moduleId) {
-        this.moduleId = moduleId;
+    protected ModuleIO(ModuleConstants.ModuleInfo info) {
+        this.info = info;
     }
 
     public abstract void update();
@@ -60,8 +59,8 @@ public abstract class ModuleIO {
 
         setStateSetpoint(commanded, turn);
 
-        Logger.recordOutput("Drivetrain/Module/" + moduleId + "/DesiredSpeed", commanded);
-        Logger.recordOutput("Drivetrain/Module/" + moduleId + "/DesiredAngle", turn);
+        Logger.recordOutput("Drivetrain/Module/%d/DesiredSpeed".formatted(info.moduleId()), commanded);
+        Logger.recordOutput("Drivetrain/Module/%d/DesiredAngle".formatted(info.moduleId()), turn);
     }
 
     /** Set the desired state of the module. This includes velocity and position */

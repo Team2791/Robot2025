@@ -7,6 +7,7 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.align.Navigate;
 import frc.robot.commands.align.ReefAlign;
@@ -23,7 +24,9 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.AllianceUtil;
 import org.littletonrobotics.junction.Logger;
 
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class AutoManager {
     public record ScorePlacement(int offset, int level) { }
@@ -70,6 +73,13 @@ public class AutoManager {
                 }
             }
         );
+
+        String choreo = Filesystem.getDeployDirectory().getPath() + "/choreo";
+        for (File f : Objects.requireNonNull(new File(choreo).listFiles())) {
+            if (f.isFile() && f.getName().endsWith(".traj")) {
+                factory.cache().loadTrajectory(f.getName().replaceAll(".traj", ""));
+            }
+        }
 
         rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -127,7 +137,10 @@ public class AutoManager {
     public Command intake(Dispenser dispenser, Elevator elevator, Intake intake) {
         return Commands.sequence(
             new StationAlign(drivetrain).withTimeout(4.0),
-            new FullIntake(dispenser, elevator, intake)
+            new ParallelDeadlineGroup(
+                new FullIntake(dispenser, elevator, intake),
+                new RunCommand(() -> drivetrain.drive(-0.125, 0, 0, Drivetrain.FieldRelativeMode.kOff)).withTimeout(1.0)
+            )
         ).withName("Auto: Align+Intake");
     }
 

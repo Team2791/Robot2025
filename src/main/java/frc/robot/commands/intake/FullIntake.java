@@ -2,8 +2,9 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.dispenser.DispenseIn;
 import frc.robot.commands.dispenser.SlowBack;
 import frc.robot.commands.elevator.Elevate;
@@ -15,9 +16,10 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.Alerter;
 
+import java.util.function.Consumer;
+
 
 public class FullIntake extends SequentialCommandGroup {
-    private int stage = 0;
     private static boolean useNearby = true;
 
     /**
@@ -32,18 +34,17 @@ public class FullIntake extends SequentialCommandGroup {
      */
     public FullIntake(Dispenser dispenser, Elevator elevator, Intake intake) {
         addCommands(
-            new FunctionWrapper(() -> stage = 0),
             new Elevate(elevator, 0),
-            new FunctionWrapper(() -> stage = 1),
-            new ParallelCommandGroup(
-                new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, elevator)),
-                new SequentialCommandGroup(new DispenseIn(dispenser, elevator), new SlowBack(dispenser))
-            )
-                .handleInterrupt(() -> new SequentialCommandGroup(
+            new ParallelRaceGroup(
+                new SequentialCommandGroup(new TakeIn(intake), new ToDispenser(intake, elevator), new WaitCommand(2.0)),
+                new SequentialCommandGroup(
+                    new DispenseIn(dispenser, elevator),
+                    new SlowBack(dispenser)
+                ).handleInterrupt(() -> new SequentialCommandGroup(
                     new Dislodge(intake, dispenser),
                     new FullIntake(dispenser, elevator, intake)
                 ).schedule())
-                .withTimeout(5.0),
+            ),
             new FunctionWrapper(Alerter.getInstance()::rumble)
         );
     }
@@ -59,14 +60,28 @@ public class FullIntake extends SequentialCommandGroup {
         FullIntake instance = new FullIntake(dispenser, elevator, intake);
         CommandScheduler scheduler = CommandScheduler.getInstance();
 
-        EventRegistry.stationRange.register(distance -> {
-            boolean nearby = distance <= IntakeConstants.Range.kRunIntake;
-            boolean scheduled = scheduler.isScheduled(instance);
-            boolean auto = DriverStation.isAutonomous();
+        EventRegistry.stationRange.register(new Consumer<>() {
+            boolean wasScheduled = false;
 
-            if (auto || !useNearby) return;
-            if (nearby && !scheduled) scheduler.schedule(instance);
-            else if (!nearby && scheduled && instance.stage == 0) scheduler.cancel(instance);
+            @Override
+            public void accept(Double distance) {
+                boolean nearby = distance <= IntakeConstants.Range.kRunIntake;
+                boolean auto = DriverStation.isAutonomous();
+
+                if (auto || !useNearby) {
+                    return;
+                }
+
+                if (nearby && !wasScheduled) {
+                    scheduler.schedule(instance);
+                    wasScheduled = true;
+                }
+
+                if (!nearby && wasScheduled) {
+                    scheduler.cancel(instance);
+                    wasScheduled = false;
+                }
+            }
         });
     }
 

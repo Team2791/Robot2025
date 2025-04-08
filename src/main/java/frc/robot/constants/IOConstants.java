@@ -5,6 +5,13 @@ import com.studica.frc.AHRS.NavXComType;
 /** Yes, this is input/output not operator interface. CANId constants, mostly. */
 public final class IOConstants {
     public static final class Drivetrain {
+        public static final class ModuleId {
+            public static final int kFrontLeft = 3;
+            public static final int kFrontRight = 4;
+            public static final int kRearLeft = 2;
+            public static final int kRearRight = 1;
+        }
+
         public static final class Drive {
             // Orpheus:
             //            public static final int kFrontLeft = 10;
