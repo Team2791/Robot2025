@@ -53,6 +53,7 @@ public class RobotContainer {
     final CommandXboxController operctl;
 
     // subsystems
+    // makes sure that each component is matched to the proper use
     final Drivetrain drivetrain = new Drivetrain(
         AdvantageUtil.matchReal(NavX::new, () -> WorldSimulator.getInstance().makeGyro(), GyroReplay::new),
         AdvantageUtil.matchReal(ModuleSpark::new, ModuleSim::new, ModuleReplay::new)
@@ -74,10 +75,11 @@ public class RobotContainer {
         AdvantageUtil.matchReal(ManipulatorSpark::new, ManipulatorSim::new, ManipulatorReplay::new)
     );
 
-    // autos
+    // auto choosing utilities; sequencing and user interfaces in elastic
     final AutoManager autoManager = new AutoManager(drivetrain);
     final PathChooser pathChooser = new PathChooser();
 
+    /** initializes everything */
     public RobotContainer() {
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
@@ -89,6 +91,9 @@ public class RobotContainer {
         CameraServer.removeCamera("USB Camera 0"); // fix USB Camera 0 problem, but we still need to init CamServer
     }
 
+    /**
+     * Binds commands to buttons on driver/operator controllers.
+     */
     private void configureBindings() {
         FullIntake.registerNearby(dispenser, elevator, intake);
         Elevate.registerRetract(elevator);
@@ -105,10 +110,13 @@ public class RobotContainer {
         driverctl.leftBumper().whileTrue(new ReefAlign(drivetrain, -1));
 
         driverctl.rightTrigger().onTrue(new DispenseOut(dispenser, elevator));
-        driverctl.leftTrigger().toggleOnTrue(new SequentialCommandGroup(
-            new Dislodge(intake, dispenser),
-            new FullIntake(dispenser, elevator, intake)
-        ));
+        driverctl.leftTrigger()
+            .toggleOnTrue(
+                new SequentialCommandGroup(
+                    new Dislodge(intake, dispenser),
+                    new FullIntake(dispenser, elevator, intake)
+                )
+            );
 
         driverctl.rightStick().onTrue(new Elevate(elevator, 0));
 
