@@ -69,8 +69,8 @@ public class ModuleSpark extends ModuleIO {
     @Override
     public void update() {
         this.data.driveConnected = driveMotor.getLastError() == REVLibError.kOk;
-        this.data.drivePosition = Radians.of(driveEncoder.getPosition());
-        this.data.driveVelocity = RadiansPerSecond.of(driveEncoder.getVelocity());
+        this.data.drivePosition = Meters.of(driveEncoder.getPosition() * ModuleConstants.Wheel.kRadius);
+        this.data.driveVelocity = MetersPerSecond.of(driveEncoder.getVelocity() * ModuleConstants.Wheel.kRadius);
         this.data.driveVoltage = Volts.of(driveMotor.getBusVoltage() * driveMotor.getAppliedOutput());
         this.data.driveCurrent = Amps.of(driveMotor.getOutputCurrent());
 
@@ -92,7 +92,7 @@ public class ModuleSpark extends ModuleIO {
         double turnSetpoint = SwerveUtil.normalizeAngle(turnPosition + info.angularOffset());
 
         turnController.setReference(turnSetpoint, ControlType.kPosition);
-        driveController.setReference(driveVelocity, ControlType.kVelocity);
+        driveController.setReference(driveVelocity / ModuleConstants.Wheel.kRadius, ControlType.kVelocity);
     }
 
     @Override

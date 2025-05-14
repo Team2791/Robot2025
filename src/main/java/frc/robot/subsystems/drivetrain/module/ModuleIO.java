@@ -16,8 +16,8 @@ public abstract class ModuleIO {
     @AutoLog
     public static class ModuleData {
         public boolean driveConnected = false;
-        public Angle drivePosition = Radians.of(0); // wheel position
-        public AngularVelocity driveVelocity = RadiansPerSecond.of(0); // wheel velocity
+        public Distance drivePosition = Meters.of(0);
+        public LinearVelocity driveVelocity = MetersPerSecond.of(0);
         public Voltage driveVoltage = Volts.of(0);
         public Current driveCurrent = Amps.of(0);
 
@@ -26,18 +26,6 @@ public abstract class ModuleIO {
         public AngularVelocity turnVelocity = RadiansPerSecond.of(0);
         public Voltage turnVoltage = Volts.of(0);
         public Current turnCurrent = Amps.of(0);
-
-        public LinearVelocity linearVelocity() {
-            double angular = driveVelocity.in(RadiansPerSecond);
-            double linear = angular * ModuleConstants.Wheel.kRadius;
-            return MetersPerSecond.of(linear);
-        }
-
-        public Distance linearPosition() {
-            double angular = drivePosition.in(Radians);
-            double linear = angular * ModuleConstants.Wheel.kRadius;
-            return Meters.of(linear);
-        }
     }
 
     public final ModuleDataAutoLogged data = new ModuleDataAutoLogged();
@@ -54,7 +42,7 @@ public abstract class ModuleIO {
         desired.optimize(new Rotation2d(data.turnPosition));
         desired.cosineScale(new Rotation2d(data.turnPosition));
 
-        double commanded = desired.speedMetersPerSecond / ModuleConstants.Wheel.kRadius;
+        double commanded = desired.speedMetersPerSecond;
         double turn = SwerveUtil.normalizeAngle(desired.angle.getRadians());
 
         setStateSetpoint(commanded, turn);
@@ -77,14 +65,14 @@ public abstract class ModuleIO {
 
     public final SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            data.linearPosition(),
+            data.drivePosition,
             new Rotation2d(data.turnPosition)
         );
     }
 
     public final SwerveModuleState getState() {
         return new SwerveModuleState(
-            data.linearVelocity(),
+            data.driveVelocity,
             new Rotation2d(data.turnPosition)
         );
     }

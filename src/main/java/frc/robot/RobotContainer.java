@@ -96,6 +96,7 @@ public class RobotContainer {
         Command joystickDrive = new RunCommand(() -> drivetrain.drive(driverctl), drivetrain);
         drivetrain.setDefaultCommand(joystickDrive);
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro).ignoringDisable(true));
+
         driverctl.x().onTrue(new Elevate(elevator, 3));
         driverctl.y().onTrue(new Elevate(elevator, 4));
         driverctl.a().onTrue(new Elevate(elevator, 1));

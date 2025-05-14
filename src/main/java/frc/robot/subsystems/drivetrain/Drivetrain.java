@@ -359,6 +359,7 @@ public class Drivetrain extends SubsystemBase {
         Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
         Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());
         Logger.processInputs("Drivetrain/Gyro", gyro.data);
+
         AdvantageUtil.logActiveCommand(this);
 
         SmartDashboard.putData("Field", field);

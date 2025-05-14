@@ -8,9 +8,9 @@ import static frc.robot.constants.MathConstants.kTau;
 /** PID constants, mostly */
 public final class ControlConstants {
     public static final class DriveMotor {
-        public static final double kP = 0.00;
-        public static final double kI = 0.00;
-        public static final double kD = 0.00;
+        public static final double kP = 0.004;
+        public static final double kI = 1e-10;
+        public static final double kD = 0.0002;
         public static final double kF = 0.01;
 
         public static final double kMin = -1.0;
@@ -31,7 +31,7 @@ public final class ControlConstants {
     }
 
     public static final class Auto {
-        public static final double kOrthoP = 0.00;
+        public static final double kOrthoP = 1.25;
         public static final double kOrthoI = 0.00;
         public static final double kOrthoD = 0.00;
 
@@ -74,8 +74,8 @@ public final class ControlConstants {
     }
 
     public static final class SlewRateLimit {
-        public static final double kOrthogonal = 20.0;
-        public static final double kRotation = 4.5;
+        public static final double kOrthogonal = 1.667;
+        public static final double kRotation = 3.87;
     }
 
     public static final double kGyroFactor = -1.0;
