@@ -74,8 +74,8 @@ public final class ControlConstants {
     }
 
     public static final class SlewRateLimit {
-        public static final double kOrthogonal = 1.667;
-        public static final double kRotation = 3.87;
+        public static final double kOrthogonal = 1.25;
+        public static final double kRotation = 1.25;
     }
 
     public static final double kGyroFactor = -1.0;

@@ -106,8 +106,8 @@ public final class ModuleConstants {
     }
 
     public static final class MaxSpeed {
-        public static final double kLinear = 4.804;
-        public static final double kAngular = 12.440;
+        public static final double kLinear = 2;
+        public static final double kAngular = 6;
     }
 
 //    public static final class MaxAccel {
