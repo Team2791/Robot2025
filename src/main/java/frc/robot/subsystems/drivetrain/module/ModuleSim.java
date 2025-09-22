@@ -15,6 +15,8 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 import static edu.wpi.first.units.Units.*;
 
 public class ModuleSim extends ModuleIO {
+    // TODO: fix this entire thing it's so out of date omg
+
     final SwerveModuleSimulation moduleSim;
     final SimulatedMotorController.GenericMotorController driveSim;
     final SimulatedMotorController.GenericMotorController turnSim;
@@ -57,7 +59,7 @@ public class ModuleSim extends ModuleIO {
 
     @Override
     public void update() {
-        final double drivePow = driveController.calculate(this.data.driveVelocity.in(RadiansPerSecond));
+        final double drivePow = driveController.calculate(this.data.driveVelocity.in(MetersPerSecond));
         final double turnPow = turnController.calculate(this.data.turnPosition.in(Radians));
 
         // https://www.chiefdelphi.com/t/sparkmax-set-vs-setvoltage/415059/2
@@ -76,8 +78,8 @@ public class ModuleSim extends ModuleIO {
 
         // actually update the inputs
         data.driveConnected = true;
-        data.drivePosition = drivePos;
-        data.driveVelocity = driveVel;
+//        data.drivePosition = drivePos.in(Radians) ;
+//        data.driveVelocity = driveVel;
         data.driveVoltage = Volts.of(driveVolts);
         data.driveCurrent = moduleSim.getDriveMotorSupplyCurrent();
 

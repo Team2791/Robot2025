@@ -10,11 +10,11 @@ import static frc.robot.constants.MathConstants.kTau;
 
 public final class ModuleConstants {
     public record ModuleInfo(
-                             int driveId,
-                             int turnId,
-                             int moduleId,
-                             Translation2d translation,
-                             double angularOffset
+        int driveId,
+        int turnId,
+        int moduleId,
+        Translation2d translation,
+        double angularOffset
     )
     {
         public int ordinal() {
@@ -106,9 +106,14 @@ public final class ModuleConstants {
     }
 
     public static final class MaxSpeed {
-        public static final double kLinear = 3.26 * 0.75;
-        public static final double kAngular = 8.87 * 0.75;
+        public static final double kLinear = 4.804;
+        public static final double kAngular = 12.440;
     }
+
+//    public static final class MaxAccel {
+//        public static final double kLinear = 8.007;
+//        public static final double kAngular = 48.074;
+//    }
 
     /** Translation2d's to each module */
     public static final class Translations {

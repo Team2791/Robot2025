@@ -29,7 +29,7 @@ public class Robot extends LoggedRobot {
     Command autoCommand;
 
     public Robot() {
-        // setup logger constants. this helps determine which log files to pull.
+        // setup logger constants.
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -87,6 +87,7 @@ public class Robot extends LoggedRobot {
         Pathfinding.setPathfinder(new ADStar());
         FollowPathCommand.warmupCommand().schedule();
 
+        // give drivers the auto tab at the beginning of the game
         Elastic.selectTab("Autonomous");
     }
 
@@ -108,6 +109,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() { }
 
+    /** Find and schedule the autonomous command */
     @Override
     public void autonomousInit() {
         Elastic.selectTab("Autonomous");
