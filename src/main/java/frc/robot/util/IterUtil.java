@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 public class IterUtil {
-    private IterUtil() { }
+    private IterUtil() {}
 
     /**
      * Zips two streams together, applying a consumer to each pair of elements.
@@ -44,12 +43,8 @@ public class IterUtil {
     public static <T, K> Stream<Entry<T, K>> zip(Stream<T> a, Stream<K> b) {
         Iterator<T> aIterator = a.iterator();
         Iterator<K> bIterator = b.iterator();
-        return Stream.iterate(
-                true,
-                i -> aIterator.hasNext() && bIterator.hasNext(),
-                i -> i
-            )
-            .map(i -> Map.entry(aIterator.next(), bIterator.next()));
+        return Stream.iterate(true, i -> aIterator.hasNext() && bIterator.hasNext(), i -> i)
+                .map(i -> Map.entry(aIterator.next(), bIterator.next()));
     }
 
     /**
@@ -61,12 +56,7 @@ public class IterUtil {
      */
     public static <T> Stream<Entry<Integer, T>> enumerate(Stream<T> a) {
         Iterator<T> aIterator = a.iterator();
-        return Stream.iterate(
-                0,
-                i -> aIterator.hasNext(),
-                i -> i + 1
-            )
-            .map(i -> Map.entry(i, aIterator.next()));
+        return Stream.iterate(0, i -> aIterator.hasNext(), i -> i + 1).map(i -> Map.entry(i, aIterator.next()));
     }
 
     /**

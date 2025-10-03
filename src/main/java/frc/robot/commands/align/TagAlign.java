@@ -9,7 +9,6 @@ import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.util.Alerter;
 import frc.robot.util.Elastic;
 import frc.robot.util.MathUtil;
-
 import java.util.List;
 
 public abstract class TagAlign extends SequentialCommandGroup {
@@ -26,11 +25,10 @@ public abstract class TagAlign extends SequentialCommandGroup {
         this.drivetrain = drivetrain;
 
         addCommands(
-            new InstantCommand(this::updateTargetPose),
-            new Navigate.Supplied(drivetrain, () -> targetY),
-            new Navigate.Supplied(drivetrain, () -> targetFinal),
-            new InstantCommand(Alerter.getInstance()::rumble)
-        );
+                new InstantCommand(this::updateTargetPose),
+                new Navigate.Supplied(drivetrain, () -> targetY),
+                new Navigate.Supplied(drivetrain, () -> targetFinal),
+                new InstantCommand(Alerter.getInstance()::rumble));
     }
 
     protected abstract List<Integer> getTagIds();
@@ -73,13 +71,10 @@ public abstract class TagAlign extends SequentialCommandGroup {
         double dist = robotPose.getTranslation().getDistance(targetFinal.getTranslation());
 
         if (dist >= VisionConstants.Align.kMaxDistance) {
-            Elastic.sendNotification(
-                new Elastic.Notification(
+            Elastic.sendNotification(new Elastic.Notification(
                     Elastic.Notification.NotificationLevel.WARNING,
                     "Alignment: Too far away",
-                    "%fm > %fm.".formatted(dist, VisionConstants.Align.kMaxDistance)
-                )
-            );
+                    "%fm > %fm.".formatted(dist, VisionConstants.Align.kMaxDistance)));
 
             tagId = -1;
             targetY = null;

@@ -9,17 +9,17 @@ public class ModuleReplay extends ModuleIO {
     }
 
     @Override
-    public void update() { }
+    public void update() {}
 
     @Override
-    public void setIdleMode(SparkBaseConfig.IdleMode mode) { }
+    public void setIdleMode(SparkBaseConfig.IdleMode mode) {}
 
     @Override
-    public void setStateSetpoint(double driveVelocity, double turnPosition) { }
+    public void setStateSetpoint(double driveVelocity, double turnPosition) {}
 
     @Override
-    public void driveOpenLoop(double output) { }
+    public void driveOpenLoop(double output) {}
 
     @Override
-    public void zeroTurn() { }
+    public void zeroTurn() {}
 }

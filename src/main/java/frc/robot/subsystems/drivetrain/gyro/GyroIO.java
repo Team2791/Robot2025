@@ -1,12 +1,12 @@
 package frc.robot.subsystems.drivetrain.gyro;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import org.littletonrobotics.junction.AutoLog;
-
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 public abstract class GyroIO {
     @AutoLog
@@ -36,4 +36,3 @@ public abstract class GyroIO {
         return new Rotation2d(this.data.heading);
     }
 }
-

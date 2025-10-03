@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivetrain.module;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -9,8 +11,6 @@ import frc.robot.constants.ModuleConstants;
 import frc.robot.util.SwerveUtil;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
-
-import static edu.wpi.first.units.Units.*;
 
 public abstract class ModuleIO {
     @AutoLog
@@ -64,16 +64,10 @@ public abstract class ModuleIO {
     public abstract void zeroTurn();
 
     public final SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(
-            data.drivePosition,
-            new Rotation2d(data.turnPosition)
-        );
+        return new SwerveModulePosition(data.drivePosition, new Rotation2d(data.turnPosition));
     }
 
     public final SwerveModuleState getState() {
-        return new SwerveModuleState(
-            data.driveVelocity,
-            new Rotation2d(data.turnPosition)
-        );
+        return new SwerveModuleState(data.driveVelocity, new Rotation2d(data.turnPosition));
     }
 }

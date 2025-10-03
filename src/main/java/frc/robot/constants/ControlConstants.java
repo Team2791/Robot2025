@@ -1,9 +1,9 @@
 package frc.robot.constants;
 
+import static frc.robot.constants.MathConstants.kTau;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
-import static frc.robot.constants.MathConstants.kTau;
 
 /** PID constants, mostly */
 public final class ControlConstants {
@@ -53,24 +53,6 @@ public final class ControlConstants {
         public static final double kMaxTurnAcceleration = kTau;
 
         public static final Pose2d kTolerance = new Pose2d(0.03, 0.03, new Rotation2d(0.05));
-    }
-
-    public static final class Elevator {
-        public static final double kP = 0.25;
-        public static final double kI = 0.00;
-        public static final double kD = 0.00;
-        public static final double kF = 0.0;
-        public static final double kMin = -1.0;
-        public static final double kMax = 1.0;
-    }
-
-    public static final class AlgaeManipulator {
-        public static final double kP = 0.1;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0004;
-        public static final double kF = 0.0;
-        public static final double kMin = -1.0;
-        public static final double kMax = 1.0;
     }
 
     public static final class SlewRateLimit {

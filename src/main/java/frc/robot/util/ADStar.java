@@ -8,13 +8,12 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class ADStar implements Pathfinder {
     private final ADStarIO io = new ADStarIO();
@@ -92,10 +91,7 @@ public class ADStar implements Pathfinder {
      *                        position of the path to properly avoid obstacles
      */
     @Override
-    public void setDynamicObstacles(
-        List<Pair<Translation2d, Translation2d>> obs,
-        Translation2d currentRobotPos
-    ) {
+    public void setDynamicObstacles(List<Pair<Translation2d, Translation2d>> obs, Translation2d currentRobotPos) {
         if (!Logger.hasReplaySource()) {
             io.adStar.setDynamicObstacles(obs, currentRobotPos);
         }

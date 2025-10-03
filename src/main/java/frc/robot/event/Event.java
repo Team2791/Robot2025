@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 public sealed class Event<T> permits VoidEvent {
     private final ArrayList<Consumer<T>> callbacks = new ArrayList<>();
 
-    Event() { }
+    Event() {}
 
     @SafeVarargs
     Event(Event<T>... triggers) {

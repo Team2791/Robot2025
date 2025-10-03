@@ -3,7 +3,6 @@ package frc.robot.subsystems.photon;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.VisionConstants;
 import frc.robot.event.EventRegistry;
-
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -19,9 +18,8 @@ public class Photon {
     final CameraIO driver;
 
     public Photon(
-        Consumer<CameraIO.VisionMeasurement> measurementConsumer,
-        BiFunction<String, Transform3d, CameraIO> cameraFactory
-    ) {
+            Consumer<CameraIO.VisionMeasurement> measurementConsumer,
+            BiFunction<String, Transform3d, CameraIO> cameraFactory) {
         this.measurementConsumer = measurementConsumer;
         this.front = cameraFactory.apply(VisionConstants.Names.kFront, VisionConstants.Transforms.kFront);
         this.rear = cameraFactory.apply(VisionConstants.Names.kRear, VisionConstants.Transforms.kRear);

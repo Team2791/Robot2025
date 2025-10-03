@@ -1,9 +1,8 @@
 package frc.robot.subsystems.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
-import org.photonvision.targeting.PhotonPipelineResult;
-
 import java.util.List;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 public class CameraReplay extends CameraIO {
     public CameraReplay(String name, Transform3d bot2cam) {
@@ -16,5 +15,5 @@ public class CameraReplay extends CameraIO {
     }
 
     @Override
-    public void setDriverMode(boolean enabled) { }
+    public void setDriverMode(boolean enabled) {}
 }

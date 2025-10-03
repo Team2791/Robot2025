@@ -1,5 +1,7 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -10,11 +12,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.util.AllianceUtil;
-import org.photonvision.simulation.SimCameraProperties;
-
 import java.util.List;
-
-import static edu.wpi.first.units.Units.*;
+import org.photonvision.simulation.SimCameraProperties;
 
 public final class VisionConstants {
     public static final SimCameraProperties kSimCameraProps;
@@ -32,21 +31,23 @@ public final class VisionConstants {
 
     public static final class Transforms {
         public static final Transform3d kFront = new Transform3d(
-            new Translation3d(
-                Inches.of(25).div(2).minus(Inches.of(5)).plus(Inches.of(7.0 / 8.0)).in(Meters),
-                0,
-                Inches.of(12.75).in(Meters)
-            ),
-            new Rotation3d()
-        );
+                new Translation3d(
+                        Inches.of(25)
+                                .div(2)
+                                .minus(Inches.of(5))
+                                .plus(Inches.of(7.0 / 8.0))
+                                .in(Meters),
+                        0,
+                        Inches.of(12.75).in(Meters)),
+                new Rotation3d());
         public static final Transform3d kRear = new Transform3d(
-            new Translation3d(Inches.of(-12).in(Meters), 0, Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)),
-            new Rotation3d(0, Degrees.of(27).in(Radians), Math.PI)
-        );
+                new Translation3d(
+                        Inches.of(-12).in(Meters),
+                        0,
+                        Inches.of(4.75).plus(Inches.of(28.75)).in(Meters)),
+                new Rotation3d(0, Degrees.of(27).in(Radians), Math.PI));
         public static final Transform3d kOrpheus = new Transform3d(
-            new Translation3d(Inches.of(14.75).in(Meters), 0, 0.3475),
-            new Rotation3d(Math.PI, 0, 0)
-        );
+                new Translation3d(Inches.of(14.75).in(Meters), 0, 0.3475), new Rotation3d(Math.PI, 0, 0));
     }
 
     public static final class Align {
@@ -56,7 +57,8 @@ public final class VisionConstants {
     }
 
     public static final class AprilTag {
-        public static final AprilTagFieldLayout kLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+        public static final AprilTagFieldLayout kLayout =
+                AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
         public static final List<Integer> kRedStations = List.of(1, 2);
         public static final List<Integer> kBlueStations = List.of(12, 13);

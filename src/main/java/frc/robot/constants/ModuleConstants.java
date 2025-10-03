@@ -1,22 +1,15 @@
 package frc.robot.constants;
 
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.constants.MathConstants.kTau;
 
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+
 public final class ModuleConstants {
-    public record ModuleInfo(
-        int driveId,
-        int turnId,
-        int moduleId,
-        Translation2d translation,
-        double angularOffset
-    )
-    {
+    public record ModuleInfo(int driveId, int turnId, int moduleId, Translation2d translation, double angularOffset) {
         public int ordinal() {
             return switch (moduleId) {
                 case IOConstants.Drivetrain.ModuleId.kFrontLeft -> 0;
@@ -110,68 +103,47 @@ public final class ModuleConstants {
         public static final double kAngular = 12.440;
     }
 
-//    public static final class MaxAccel {
-//        public static final double kLinear = 8.007;
-//        public static final double kAngular = 48.074;
-//    }
-
-    /** Translation2d's to each module */
+    /** Translation2ds to each module */
     public static final class Translations {
-        public static final Translation2d kFrontLeft = new Translation2d(
-            RobotConstants.DriveBase.kWheelBase / 2,
-            RobotConstants.DriveBase.kTrackWidth / 2
-        );
-        public static final Translation2d kFrontRight = new Translation2d(
-            RobotConstants.DriveBase.kWheelBase / 2,
-            -RobotConstants.DriveBase.kTrackWidth / 2
-        );
-        public static final Translation2d kRearLeft = new Translation2d(
-            -RobotConstants.DriveBase.kWheelBase / 2,
-            RobotConstants.DriveBase.kTrackWidth / 2
-        );
-        public static final Translation2d kRearRight = new Translation2d(
-            -RobotConstants.DriveBase.kWheelBase / 2,
-            -RobotConstants.DriveBase.kTrackWidth / 2
-        );
-        public static final Translation2d[] kModules = new Translation2d[]{
-            kFrontLeft,
-            kFrontRight,
-            kRearLeft,
-            kRearRight
-        };
+        public static final Translation2d kFrontLeft =
+                new Translation2d(RobotConstants.DriveBase.kWheelBase / 2, RobotConstants.DriveBase.kTrackWidth / 2);
+        public static final Translation2d kFrontRight =
+                new Translation2d(RobotConstants.DriveBase.kWheelBase / 2, -RobotConstants.DriveBase.kTrackWidth / 2);
+        public static final Translation2d kRearLeft =
+                new Translation2d(-RobotConstants.DriveBase.kWheelBase / 2, RobotConstants.DriveBase.kTrackWidth / 2);
+        public static final Translation2d kRearRight =
+                new Translation2d(-RobotConstants.DriveBase.kWheelBase / 2, -RobotConstants.DriveBase.kTrackWidth / 2);
+        public static final Translation2d[] kModules =
+                new Translation2d[] {kFrontLeft, kFrontRight, kRearLeft, kRearRight};
     }
 
     public static final ModuleInfo kFrontLeft = new ModuleInfo(
-        IOConstants.Drivetrain.Drive.kFrontLeft,
-        IOConstants.Drivetrain.Turn.kFrontLeft,
-        IOConstants.Drivetrain.ModuleId.kFrontLeft,
-        Translations.kFrontLeft,
-        AngularOffsets.kFrontLeft
-    );
+            IOConstants.Drivetrain.Drive.kFrontLeft,
+            IOConstants.Drivetrain.Turn.kFrontLeft,
+            IOConstants.Drivetrain.ModuleId.kFrontLeft,
+            Translations.kFrontLeft,
+            AngularOffsets.kFrontLeft);
 
     public static final ModuleInfo kFrontRight = new ModuleInfo(
-        IOConstants.Drivetrain.Drive.kFrontRight,
-        IOConstants.Drivetrain.Turn.kFrontRight,
-        IOConstants.Drivetrain.ModuleId.kFrontRight,
-        Translations.kFrontRight,
-        AngularOffsets.kFrontRight
-    );
+            IOConstants.Drivetrain.Drive.kFrontRight,
+            IOConstants.Drivetrain.Turn.kFrontRight,
+            IOConstants.Drivetrain.ModuleId.kFrontRight,
+            Translations.kFrontRight,
+            AngularOffsets.kFrontRight);
 
     public static final ModuleInfo kRearLeft = new ModuleInfo(
-        IOConstants.Drivetrain.Drive.kRearLeft,
-        IOConstants.Drivetrain.Turn.kRearLeft,
-        IOConstants.Drivetrain.ModuleId.kRearLeft,
-        Translations.kRearLeft,
-        AngularOffsets.kRearLeft
-    );
+            IOConstants.Drivetrain.Drive.kRearLeft,
+            IOConstants.Drivetrain.Turn.kRearLeft,
+            IOConstants.Drivetrain.ModuleId.kRearLeft,
+            Translations.kRearLeft,
+            AngularOffsets.kRearLeft);
 
     public static final ModuleInfo kRearRight = new ModuleInfo(
-        IOConstants.Drivetrain.Drive.kRearRight,
-        IOConstants.Drivetrain.Turn.kRearRight,
-        IOConstants.Drivetrain.ModuleId.kRearRight,
-        Translations.kRearRight,
-        AngularOffsets.kRearRight
-    );
+            IOConstants.Drivetrain.Drive.kRearRight,
+            IOConstants.Drivetrain.Turn.kRearRight,
+            IOConstants.Drivetrain.ModuleId.kRearRight,
+            Translations.kRearRight,
+            AngularOffsets.kRearRight);
 
     public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(Translations.kModules);
 }

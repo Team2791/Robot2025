@@ -12,6 +12,7 @@ import frc.robot.constants.BuildConstants;
 import frc.robot.event.EventRegistry;
 import frc.robot.util.ADStar;
 import frc.robot.util.Elastic;
+import java.util.Date;
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -21,15 +22,12 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
-import java.util.Date;
-
 public class Robot extends LoggedRobot {
     final RobotContainer container;
 
     Command autoCommand;
 
     public Robot() {
-        // setup logger constants.
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -107,7 +105,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledPeriodic() { }
+    public void disabledPeriodic() {}
 
     /** Find and schedule the autonomous command */
     @Override
@@ -121,7 +119,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() { }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
@@ -134,7 +132,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void teleopPeriodic() { }
+    public void teleopPeriodic() {}
 
     @Override
     public void testInit() {
@@ -142,7 +140,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void testPeriodic() { }
+    public void testPeriodic() {}
 
     @Override
     public void simulationPeriodic() {

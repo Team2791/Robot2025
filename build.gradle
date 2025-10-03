@@ -4,6 +4,7 @@ plugins {
     id "java"
     id "com.peterabeles.gversion" version "1.10"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
+    id 'com.diffplug.spotless' version '6.23.3'
 }
 
 java {
@@ -168,3 +169,17 @@ task(autocommit) {
     }
 }
 project.deployfrcJavaroborio.dependsOn(autocommit)
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        palantirJavaFormat('2.39.0')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.named("build") {
+    dependsOn("spotlessApply")
+}

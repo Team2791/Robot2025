@@ -1,7 +1,7 @@
 package frc.robot.event;
 
 public non-sealed class VoidEvent extends Event<Void> {
-    public VoidEvent() { }
+    public VoidEvent() {}
 
     public void emit() {
         super.emit(null);

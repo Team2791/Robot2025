@@ -1,5 +1,7 @@
 package frc.robot.commands.align;
 
+import static frc.robot.constants.MathConstants.kTau;
+
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -11,12 +13,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.ControlConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import org.littletonrobotics.junction.Logger;
-
 import java.util.function.Supplier;
-
-import static frc.robot.constants.MathConstants.kTau;
-
+import org.littletonrobotics.junction.Logger;
 
 public abstract class Navigate extends Command {
     public static class Supplied extends Navigate {
@@ -27,10 +25,6 @@ public abstract class Navigate extends Command {
             this.target = target;
         }
 
-        public Supplied(Drivetrain drivetrain, Pose2d target) {
-            this(drivetrain, () -> target);
-        }
-
         @Override
         protected Pose2d getTargetPose() {
             return target.get();
@@ -38,24 +32,15 @@ public abstract class Navigate extends Command {
     }
 
     PIDController xController = new PIDController(
-        ControlConstants.Align.kOrthoP,
-        ControlConstants.Align.kOrthoI,
-        ControlConstants.Align.kOrthoD
-    );
+            ControlConstants.Align.kOrthoP, ControlConstants.Align.kOrthoI, ControlConstants.Align.kOrthoD);
     PIDController yController = new PIDController(
-        ControlConstants.Align.kOrthoP,
-        ControlConstants.Align.kOrthoI,
-        ControlConstants.Align.kOrthoD
-    );
+            ControlConstants.Align.kOrthoP, ControlConstants.Align.kOrthoI, ControlConstants.Align.kOrthoD);
     ProfiledPIDController rotController = new ProfiledPIDController(
-        ControlConstants.Align.kTurnP,
-        ControlConstants.Align.kTurnI,
-        ControlConstants.Align.kTurnD,
-        new TrapezoidProfile.Constraints(
-            ControlConstants.Align.kMaxTurnVelocity,
-            ControlConstants.Align.kMaxTurnAcceleration
-        )
-    );
+            ControlConstants.Align.kTurnP,
+            ControlConstants.Align.kTurnI,
+            ControlConstants.Align.kTurnD,
+            new TrapezoidProfile.Constraints(
+                    ControlConstants.Align.kMaxTurnVelocity, ControlConstants.Align.kMaxTurnAcceleration));
 
     final HolonomicDriveController controller;
 
@@ -105,6 +90,7 @@ public abstract class Navigate extends Command {
         // effectively remove target from field
         drivetrain.getField().getObject("Nearby/Target").setPose(new Pose2d(-1, -1, new Rotation2d()));
         Logger.recordOutput("Nearby/Target", new Pose2d(-1, -1, new Rotation2d()));
+
         drivetrain.drive(new ChassisSpeeds());
     }
 

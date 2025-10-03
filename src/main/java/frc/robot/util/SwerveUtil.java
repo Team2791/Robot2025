@@ -1,15 +1,14 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-
 import static frc.robot.constants.MathConstants.kTau;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public final class SwerveUtil {
     /**
      * Prevent instantiation.
      */
-    private SwerveUtil() {
-    }
+    private SwerveUtil() {}
 
     /**
      * Steps towards a target value.

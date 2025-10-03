@@ -3,7 +3,7 @@ package frc.robot.util;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 public class RateLimiter {
-    public record Outputs(double xspeed, double yspeed, double rot) { }
+    public record Outputs(double xspeed, double yspeed, double rot) {}
 
     final SlewRateLimiter xLimiter;
     final SlewRateLimiter yLimiter;
@@ -23,10 +23,6 @@ public class RateLimiter {
      * @param rot    the [-1, 1] value from the controller for rotation
      */
     public Outputs calculate(double xspeed, double yspeed, double rot) {
-        return new Outputs(
-            xLimiter.calculate(xspeed),
-            yLimiter.calculate(yspeed),
-            rotLimiter.calculate(rot)
-        );
+        return new Outputs(xLimiter.calculate(xspeed), yLimiter.calculate(yspeed), rotLimiter.calculate(rot));
     }
 }

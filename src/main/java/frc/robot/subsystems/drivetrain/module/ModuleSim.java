@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivetrain.module;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.revrobotics.spark.config.SparkBaseConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
@@ -11,8 +13,6 @@ import frc.robot.constants.MotorConstants;
 import frc.robot.util.WorldSimulator;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
-
-import static edu.wpi.first.units.Units.*;
 
 public class ModuleSim extends ModuleIO {
     // TODO: fix this entire thing it's so out of date omg
@@ -30,31 +30,22 @@ public class ModuleSim extends ModuleIO {
         super(info);
 
         this.driveController = new PIDController(
-            ControlConstants.DriveMotor.kP,
-            ControlConstants.DriveMotor.kI,
-            ControlConstants.DriveMotor.kD
-        );
+                ControlConstants.DriveMotor.kP, ControlConstants.DriveMotor.kI, ControlConstants.DriveMotor.kD);
 
         this.turnController = new PIDController(
-            ControlConstants.TurnMotor.kP,
-            ControlConstants.TurnMotor.kI,
-            ControlConstants.TurnMotor.kD
-        );
+                ControlConstants.TurnMotor.kP, ControlConstants.TurnMotor.kI, ControlConstants.TurnMotor.kD);
 
         this.moduleSim = WorldSimulator.getInstance().getModule(info);
 
         driveSim = moduleSim
-            .useGenericMotorControllerForDrive()
-            .withCurrentLimit(Amps.of(MotorConstants.Neo.kCurrentLimit));
+                .useGenericMotorControllerForDrive()
+                .withCurrentLimit(Amps.of(MotorConstants.Neo.kCurrentLimit));
 
-        turnSim = moduleSim
-            .useGenericControllerForSteer()
-            .withCurrentLimit(Amps.of(MotorConstants.Neo550.kCurrentLimit));
+        turnSim =
+                moduleSim.useGenericControllerForSteer().withCurrentLimit(Amps.of(MotorConstants.Neo550.kCurrentLimit));
 
         turnController.enableContinuousInput(
-            ControlConstants.TurnMotor.kMinInput,
-            ControlConstants.TurnMotor.kMaxInput
-        );
+                ControlConstants.TurnMotor.kMinInput, ControlConstants.TurnMotor.kMaxInput);
     }
 
     @Override
@@ -78,8 +69,8 @@ public class ModuleSim extends ModuleIO {
 
         // actually update the inputs
         data.driveConnected = true;
-//        data.drivePosition = drivePos.in(Radians) ;
-//        data.driveVelocity = driveVel;
+        //        data.drivePosition = drivePos.in(Radians) ;
+        //        data.driveVelocity = driveVel;
         data.driveVoltage = Volts.of(driveVolts);
         data.driveCurrent = moduleSim.getDriveMotorSupplyCurrent();
 
@@ -109,5 +100,5 @@ public class ModuleSim extends ModuleIO {
     }
 
     @Override
-    public void setIdleMode(SparkBaseConfig.IdleMode mode) { }
+    public void setIdleMode(SparkBaseConfig.IdleMode mode) {}
 }

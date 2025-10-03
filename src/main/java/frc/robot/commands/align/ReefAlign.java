@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-
 import java.util.List;
 
 public class ReefAlign extends TagAlign {
@@ -17,13 +16,11 @@ public class ReefAlign extends TagAlign {
      */
     public ReefAlign(Drivetrain drivetrain, int direction) {
         super(
-            drivetrain,
-            new Transform2d(
-                0.5 * RobotConstants.DriveBase.kBumperLength - 0.05,
-                VisionConstants.Align.kReefOffset * direction,
-                Rotation2d.kPi
-            )
-        );
+                drivetrain,
+                new Transform2d(
+                        0.5 * RobotConstants.DriveBase.kBumperLength - 0.05,
+                        VisionConstants.Align.kReefOffset * direction,
+                        Rotation2d.kPi));
     }
 
     @Override

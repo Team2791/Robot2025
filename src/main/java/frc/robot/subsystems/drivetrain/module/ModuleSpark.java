@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivetrain.module;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
@@ -14,8 +16,6 @@ import frc.robot.constants.ModuleConstants;
 import frc.robot.constants.SparkConfigConstants;
 import frc.robot.util.Alerter;
 import frc.robot.util.SwerveUtil;
-
-import static edu.wpi.first.units.Units.*;
 
 public class ModuleSpark extends ModuleIO {
     final SparkMax driveMotor;
@@ -51,15 +51,13 @@ public class ModuleSpark extends ModuleIO {
 
         // apply and burn configs
         driveMotor.configure(
-            SparkConfigConstants.Drivetrain.kDrive,
-            SparkConfigConstants.kResetMode,
-            SparkConfigConstants.kPersistMode
-        );
+                SparkConfigConstants.Drivetrain.kDrive,
+                SparkConfigConstants.kResetMode,
+                SparkConfigConstants.kPersistMode);
         turnMotor.configure(
-            SparkConfigConstants.Drivetrain.kTurn,
-            SparkConfigConstants.kResetMode,
-            SparkConfigConstants.kPersistMode
-        );
+                SparkConfigConstants.Drivetrain.kTurn,
+                SparkConfigConstants.kResetMode,
+                SparkConfigConstants.kPersistMode);
 
         // register with notifier
         Alerter.getInstance().registerSpark("Module%dDrive".formatted(info.moduleId()), driveMotor);
@@ -113,4 +111,3 @@ public class ModuleSpark extends ModuleIO {
         turnController.setReference(info.angularOffset(), ControlType.kPosition);
     }
 }
-

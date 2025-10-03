@@ -3,11 +3,10 @@ package frc.robot.subsystems.photon;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.WorldSimulator;
+import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.targeting.PhotonPipelineResult;
-
-import java.util.List;
 
 public class CameraSim extends CameraIO {
     final PhotonCamera camera;

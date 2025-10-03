@@ -1,5 +1,8 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Kilogram;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -15,9 +18,6 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.VisionSystemSim;
 
-import static edu.wpi.first.units.Units.Kilogram;
-import static edu.wpi.first.units.Units.Meters;
-
 public class WorldSimulator {
     static WorldSimulator instance;
 
@@ -28,29 +28,23 @@ public class WorldSimulator {
         assertSim();
 
         DriveTrainSimulationConfig config = DriveTrainSimulationConfig.Default()
-            .withGyro(COTS.ofNav2X())
-            .withTrackLengthTrackWidth(
-                Meters.of(RobotConstants.DriveBase.kTrackWidth),
-                Meters.of(RobotConstants.DriveBase.kWheelBase)
-            )
-            .withSwerveModule(
-                COTS.ofMAXSwerve(
-                    DCMotor.getNEO(1),
-                    DCMotor.getNeo550(1),
-                    ModuleConstants.Wheel.kFrictionCoefficient,
-                    switch ((int) ModuleConstants.DriveMotor.kPinionTeeth) {
-                        case 12 -> 1;
-                        case 13 -> 2;
-                        case 14 -> 3;
-                        default -> throw new IllegalArgumentException("Invalid pinion teeth");
-                    }
-                )
-            )
-            .withBumperSize(
-                Meters.of(RobotConstants.DriveBase.kBumperLength),
-                Meters.of(RobotConstants.DriveBase.kBumperWidth)
-            )
-            .withRobotMass(Kilogram.of(RobotConstants.kMass));
+                .withGyro(COTS.ofNav2X())
+                .withTrackLengthTrackWidth(
+                        Meters.of(RobotConstants.DriveBase.kTrackWidth), Meters.of(RobotConstants.DriveBase.kWheelBase))
+                .withSwerveModule(COTS.ofMAXSwerve(
+                        DCMotor.getNEO(1),
+                        DCMotor.getNeo550(1),
+                        ModuleConstants.Wheel.kFrictionCoefficient,
+                        switch ((int) ModuleConstants.DriveMotor.kPinionTeeth) {
+                            case 12 -> 1;
+                            case 13 -> 2;
+                            case 14 -> 3;
+                            default -> throw new IllegalArgumentException("Invalid pinion teeth");
+                        }))
+                .withBumperSize(
+                        Meters.of(RobotConstants.DriveBase.kBumperLength),
+                        Meters.of(RobotConstants.DriveBase.kBumperWidth))
+                .withRobotMass(Kilogram.of(RobotConstants.kMass));
 
         drivetrain = new SwerveDriveSimulation(config, GameConstants.kInitialPose);
         vision = new VisionSystemSim("caspian");
@@ -61,7 +55,6 @@ public class WorldSimulator {
 
         EventRegistry.poseReset.register(this::resetPose);
         EventRegistry.periodic.register(() -> this.vision.update(this.drivetrain.getSimulatedDriveTrainPose()));
-
     }
 
     public static WorldSimulator getInstance() {

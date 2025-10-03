@@ -29,14 +29,13 @@ import frc.robot.util.AdvantageUtil;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.IterUtil;
 import frc.robot.util.RateLimiter;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.dyn4j.geometry.Vector2;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
-
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class Drivetrain extends SubsystemBase {
     public enum FieldRelativeMode {
@@ -65,96 +64,69 @@ public class Drivetrain extends SubsystemBase {
         rearRight = moduleFactory.apply(ModuleConstants.kRearRight);
 
         odometry = new SwerveDrivePoseEstimator(
-            ModuleConstants.kKinematics,
-            gyro.heading(),
-            modulePositions(),
-            GameConstants.kInitialPose
-        );
+                ModuleConstants.kKinematics, gyro.heading(), modulePositions(), GameConstants.kInitialPose);
 
         slew = new RateLimiter(
-            ControlConstants.SlewRateLimit.kOrthogonal,
-            ControlConstants.SlewRateLimit.kOrthogonal,
-            ControlConstants.SlewRateLimit.kRotation
-        );
+                ControlConstants.SlewRateLimit.kOrthogonal,
+                ControlConstants.SlewRateLimit.kOrthogonal,
+                ControlConstants.SlewRateLimit.kRotation);
 
         field = new Field2d();
 
         this.gyro.reset(new Rotation2d());
 
         AutoBuilder.configure(
-            this::getPose,
-            EventRegistry.poseReset::emit,
-            this::getChassisSpeeds,
-            s -> this.drive(s, FieldRelativeMode.kOff),
-            new PPHolonomicDriveController(
-                new PIDConstants(
-                    ControlConstants.Auto.kOrthoP,
-                    ControlConstants.Auto.kOrthoI,
-                    ControlConstants.Auto.kOrthoD
-                ),
-                new PIDConstants(
-                    ControlConstants.Auto.kTurnP,
-                    ControlConstants.Auto.kTurnI,
-                    ControlConstants.Auto.kTurnD
-                )
-            ),
-            new RobotConfig(
-                RobotConstants.kMass,
-                RobotConstants.kMoI,
-                new ModuleConfig(
-                    ModuleConstants.Wheel.kRadius,
-                    ModuleConstants.MaxSpeed.kLinear,
-                    ModuleConstants.Wheel.kFrictionCoefficient,
-                    DCMotor.getNEO(1),
-                    1.0 / ModuleConstants.DriveMotor.kReduction,
-                    MotorConstants.Neo.kCurrentLimit,
-                    1
-                ),
-                ModuleConstants.Translations.kModules
-            ),
-            AllianceUtil::invert,
-            this
-        );
+                this::getPose,
+                EventRegistry.poseReset::emit,
+                this::getChassisSpeeds,
+                s -> this.drive(s, FieldRelativeMode.kOff),
+                new PPHolonomicDriveController(
+                        new PIDConstants(
+                                ControlConstants.Auto.kOrthoP,
+                                ControlConstants.Auto.kOrthoI,
+                                ControlConstants.Auto.kOrthoD),
+                        new PIDConstants(
+                                ControlConstants.Auto.kTurnP,
+                                ControlConstants.Auto.kTurnI,
+                                ControlConstants.Auto.kTurnD)),
+                new RobotConfig(
+                        RobotConstants.kMass,
+                        RobotConstants.kMoI,
+                        new ModuleConfig(
+                                ModuleConstants.Wheel.kRadius,
+                                ModuleConstants.MaxSpeed.kLinear,
+                                ModuleConstants.Wheel.kFrictionCoefficient,
+                                DCMotor.getNEO(1),
+                                1.0 / ModuleConstants.DriveMotor.kReduction,
+                                MotorConstants.Neo.kCurrentLimit,
+                                1),
+                        ModuleConstants.Translations.kModules),
+                AllianceUtil::invert,
+                this);
 
         // Elastic SwerveDrive widget
-        SmartDashboard.putData(
-            "SwerveDrive",
-            builder ->
-            {
-                builder.setSmartDashboardType("SwerveDrive");
+        SmartDashboard.putData("SwerveDrive", builder -> {
+            builder.setSmartDashboardType("SwerveDrive");
 
-                IterUtil.zipThen(
+            IterUtil.zipThen(
                     Arrays.stream(modules()),
                     Stream.of("Front Left", "Front Right", "Back Left", "Back Right"),
-                    (module, label) ->
-                    {
+                    (module, label) -> {
                         builder.addDoubleProperty(
-                            label + " Angle",
-                            () -> module.getState().angle.getRadians(),
-                            null
-                        );
+                                label + " Angle", () -> module.getState().angle.getRadians(), null);
                         builder.addDoubleProperty(
-                            label + " Velocity",
-                            () -> module.getState().speedMetersPerSecond,
-                            null
-                        );
-                    }
-                );
+                                label + " Velocity", () -> module.getState().speedMetersPerSecond, null);
+                    });
 
-                builder.addDoubleProperty(
-                    "Robot Angle",
-                    () -> AllianceUtil.recenter(getHeading()).getRadians(),
-                    null
-                );
-            }
-        );
+            builder.addDoubleProperty(
+                    "Robot Angle", () -> AllianceUtil.recenter(getHeading()).getRadians(), null);
+        });
 
         // template code stuff
         AutoLogOutputManager.addObject(this);
         HAL.report(
-            FRCNetComm.tResourceType.kResourceType_RobotDrive,
-            FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit
-        );
+                FRCNetComm.tResourceType.kResourceType_RobotDrive,
+                FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
 
         // setup event emitter stuff
         EventRegistry.poseUpdate.register(field::setRobotPose);
@@ -165,7 +137,7 @@ public class Drivetrain extends SubsystemBase {
      * @return A list of all swerve modules on the robot. frontLeft, frontRight, rearLeft, rearRight in that order.
      */
     public ModuleIO[] modules() {
-        return new ModuleIO[]{ frontLeft, frontRight, rearLeft, rearRight };
+        return new ModuleIO[] {frontLeft, frontRight, rearLeft, rearRight};
     }
 
     /**
@@ -186,7 +158,9 @@ public class Drivetrain extends SubsystemBase {
 
     /** @return The speeds of the entire chassis */
     @AutoLogOutput
-    public ChassisSpeeds getChassisSpeeds() { return ModuleConstants.kKinematics.toChassisSpeeds(moduleStates()); }
+    public ChassisSpeeds getChassisSpeeds() {
+        return ModuleConstants.kKinematics.toChassisSpeeds(moduleStates());
+    }
 
     /** @param speeds The desired speeds for the robot to move at */
     private void setDesiredSpeeds(ChassisSpeeds speeds) {
@@ -203,9 +177,13 @@ public class Drivetrain extends SubsystemBase {
 
     /** @return The estimated pose of the robot */
     @AutoLogOutput
-    public Pose2d getPose() { return odometry.getEstimatedPosition(); }
+    public Pose2d getPose() {
+        return odometry.getEstimatedPosition();
+    }
 
-    public Rotation2d getHeading() { return getPose().getRotation(); }
+    public Rotation2d getHeading() {
+        return getPose().getRotation();
+    }
 
     /**
      * Swerve drive control
@@ -217,11 +195,10 @@ public class Drivetrain extends SubsystemBase {
         switch (fieldRelative) {
             case kFixedOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
             case kAllianceOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
-                speeds.vxMetersPerSecond * AllianceUtil.factor(),
-                speeds.vyMetersPerSecond * AllianceUtil.factor(),
-                speeds.omegaRadiansPerSecond,
-                getHeading()
-            ));
+                    speeds.vxMetersPerSecond * AllianceUtil.factor(),
+                    speeds.vyMetersPerSecond * AllianceUtil.factor(),
+                    speeds.omegaRadiansPerSecond,
+                    getHeading()));
             case kOff -> setDesiredSpeeds(speeds);
         }
     }
@@ -342,19 +319,18 @@ public class Drivetrain extends SubsystemBase {
         else heading = AllianceUtil.recenter(new Rotation2d());
 
         // update odometry
-        try { odometry.update(heading, modulePositions()); } catch (Exception ignored) { }
+        try {
+            odometry.update(heading, modulePositions());
+        } catch (Exception ignored) {
+        }
 
         EventRegistry.poseUpdate.emit(getPose());
 
         // log to akit
-        IterUtil.enumerateThen(
-            Arrays.stream(modules()),
-            (idx, module) ->
-            {
-                final String path = "Drivetrain/SwerveModule/" + module.info.moduleId();
-                Logger.processInputs(path, module.data);
-            }
-        );
+        IterUtil.enumerateThen(Arrays.stream(modules()), (idx, module) -> {
+            final String path = "Drivetrain/SwerveModule/" + module.info.moduleId();
+            Logger.processInputs(path, module.data);
+        });
 
         Logger.recordOutput("Drivetrain/ModuleStates", moduleStates());
         Logger.recordOutput("Drivetrain/ChassisSpeeds", getChassisSpeeds());

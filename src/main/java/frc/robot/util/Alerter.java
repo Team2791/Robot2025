@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.event.EventRegistry;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -120,35 +119,23 @@ public class Alerter {
             int can = spark.getDeviceId();
 
             if (!alertedSparks.contains(can) && spark.getLastError() != REVLibError.kOk) {
-                Elastic.sendNotification(
-                    new Elastic.Notification(
+                Elastic.sendNotification(new Elastic.Notification(
                         NotificationLevel.ERROR,
                         "Spark has failed",
-                        name + "(CanId " + can + ") has failed with error: " + makeHumanReadable(spark.getLastError())
-                    )
-                );
+                        name + "(CanId " + can + ") has failed with error: "
+                                + makeHumanReadable(spark.getLastError())));
 
                 alertedSparks.add(can);
             }
         }
 
         if (!gyro.isConnected() && !gyroAlerted) {
-            Elastic.sendNotification(
-                new Elastic.Notification(
-                    NotificationLevel.WARNING,
-                    "Gyro has disconnected",
-                    "Using robot-centric mode"
-                )
-            );
+            Elastic.sendNotification(new Elastic.Notification(
+                    NotificationLevel.WARNING, "Gyro has disconnected", "Using robot-centric mode"));
             gyroAlerted = true;
         } else if (gyro.isConnected() && gyroAlerted) {
-            Elastic.sendNotification(
-                new Elastic.Notification(
-                    NotificationLevel.INFO,
-                    "Gyro reconnected",
-                    "Field centric is now being used"
-                )
-            );
+            Elastic.sendNotification(new Elastic.Notification(
+                    NotificationLevel.INFO, "Gyro reconnected", "Field centric is now being used"));
             gyroAlerted = false;
         }
     }

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivetrain.gyro;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.studica.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -7,12 +9,9 @@ import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.constants.ControlConstants;
 import frc.robot.constants.IOConstants;
 import frc.robot.util.Alerter;
-
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static edu.wpi.first.units.Units.*;
 
 public class NavX extends GyroIO {
     final AHRS gyro;

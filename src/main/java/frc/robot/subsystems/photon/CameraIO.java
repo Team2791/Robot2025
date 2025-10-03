@@ -9,15 +9,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.VisionConstants;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalDouble;
 
 public abstract class CameraIO {
     public record VisionMeasurement(Pose3d estimate, Matrix<N3, N1> stdDevs, double timestamp) {
@@ -34,10 +33,9 @@ public abstract class CameraIO {
     public CameraIO(String name, Transform3d bot2cam) {
         this.name = name;
         this.estimator = new PhotonPoseEstimator(
-            VisionConstants.AprilTag.kLayout,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            bot2cam
-        );
+                VisionConstants.AprilTag.kLayout,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                bot2cam);
     }
 
     private final PhotonPoseEstimator estimator;
@@ -60,10 +58,7 @@ public abstract class CameraIO {
 
         estimation.ifPresent(estimatedRobotPose -> {
             data.measurement = new VisionMeasurement(
-                estimatedRobotPose.estimatedPose,
-                stdDevs,
-                estimatedRobotPose.timestampSeconds
-            );
+                    estimatedRobotPose.estimatedPose, stdDevs, estimatedRobotPose.timestampSeconds);
         });
         latestResult = results.isEmpty() ? null : results.get(0);
     }
@@ -74,8 +69,9 @@ public abstract class CameraIO {
         if (latestResult == null) return Double.MAX_VALUE;
 
         OptionalDouble min = latestResult.targets.stream()
-            .mapToDouble(c -> c.bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d()))
-            .min();
+                .mapToDouble(c ->
+                        c.bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d()))
+                .min();
 
         if (min.isEmpty()) return Double.MAX_VALUE;
         else return min.getAsDouble();
@@ -95,9 +91,9 @@ public abstract class CameraIO {
 
                 numTags++;
                 double dist = tagPose.get()
-                    .toPose2d()
-                    .getTranslation()
-                    .getDistance(estimation.get().estimatedPose.toPose2d().getTranslation());
+                        .toPose2d()
+                        .getTranslation()
+                        .getDistance(estimation.get().estimatedPose.toPose2d().getTranslation());
 
                 avgDist += dist;
             }
@@ -120,5 +116,7 @@ public abstract class CameraIO {
      *
      * @return the latest result from the camera
      */
-    public PhotonPipelineResult getLatestResult() { return latestResult; }
+    public PhotonPipelineResult getLatestResult() {
+        return latestResult;
+    }
 }

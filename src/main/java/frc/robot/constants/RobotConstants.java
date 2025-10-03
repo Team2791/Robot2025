@@ -10,10 +10,12 @@ public class RobotConstants {
     public static final class DriveBase {
         /** length and width between swerve modules */
         public static final double kWheelBase = Inches.of(21.5).in(Meters);
+
         public static final double kTrackWidth = Inches.of(21.5).in(Meters);
 
         /** Length and width between bumpers */
         public static final double kBumperWidth = Inches.of(31.5).in(Meters); // from design
+
         public static final double kBumperLength = Inches.of(31.5).in(Meters);
 
         /** Drive base radius */

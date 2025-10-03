@@ -1,10 +1,9 @@
 package frc.robot.subsystems.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
+import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
-
-import java.util.List;
 
 public class Camera extends CameraIO {
     final PhotonCamera camera;

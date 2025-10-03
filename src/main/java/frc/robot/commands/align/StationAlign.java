@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-
 import java.util.List;
 
 public class StationAlign extends TagAlign {
@@ -15,14 +14,7 @@ public class StationAlign extends TagAlign {
      * @param drivetrain the drivetrain subsystem
      */
     public StationAlign(Drivetrain drivetrain) {
-        super(
-            drivetrain,
-            new Transform2d(
-                0.5 * RobotConstants.DriveBase.kBumperLength - 0.05,
-                0,
-                new Rotation2d()
-            )
-        );
+        super(drivetrain, new Transform2d(0.5 * RobotConstants.DriveBase.kBumperLength - 0.05, 0, new Rotation2d()));
     }
 
     @Override
