@@ -7,15 +7,15 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.constants.ControlConstants;
-import frc.robot.event.EventRegistry;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainIO;
 import frc.robot.util.AllianceUtil;
+import org.littletonrobotics.junction.Logger;
+
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import org.littletonrobotics.junction.Logger;
 
 public class AutoManager {
     final PIDController xController = new PIDController(
@@ -33,12 +33,7 @@ public class AutoManager {
     public AutoManager(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         this.factory = new AutoFactory(
-                drivetrain::getPose,
-                EventRegistry.poseReset::emit,
-                this::follow,
-                true,
-                drivetrain,
-                (traj, starting) -> {
+                drivetrain::getPose, drivetrain::resetPose, this::follow, true, drivetrain, (traj, starting) -> {
                     if (starting) {
                         Pose2d[] recentered = AllianceUtil.recenter(traj.getPoses());
                         Logger.recordOutput("Auto/CurrentTrajectory", recentered);
@@ -82,7 +77,7 @@ public class AutoManager {
                                 wants.getRotation().getRadians()));
 
         // field-relative drive
-        drivetrain.drive(speeds, Drivetrain.FieldRelativeMode.kFixedOrigin);
+        drivetrain.drive(speeds, DrivetrainIO.DriveMode.kFieldRelative);
     }
 
     public AutoRoutine routine(List<String> trajectories) {

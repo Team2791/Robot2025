@@ -2,11 +2,11 @@ package frc.robot.subsystems.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.VisionConstants;
-import frc.robot.util.WorldSimulator;
-import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+import java.util.List;
 
 public class CameraSim extends CameraIO {
     final PhotonCamera camera;
@@ -18,7 +18,7 @@ public class CameraSim extends CameraIO {
         camera = new PhotonCamera(name);
         cameraSim = new PhotonCameraSim(camera, VisionConstants.kSimCameraProps);
 
-        WorldSimulator.getInstance().addCamera(cameraSim, bot2cam);
+        //        WorldSimulator.getInstance().addCamera(cameraSim, bot2cam);
 
         cameraSim.enableDrawWireframe(true);
     }

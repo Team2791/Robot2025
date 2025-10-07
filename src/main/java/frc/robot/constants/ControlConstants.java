@@ -1,33 +1,14 @@
 package frc.robot.constants;
 
-import static frc.robot.constants.MathConstants.kTau;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import static frc.robot.constants.MathConstants.kTau;
+
 /** PID constants, mostly */
 public final class ControlConstants {
-    public static final class DriveMotor {
-        public static final double kP = 0.004;
-        public static final double kI = 1e-10;
-        public static final double kD = 0.0002;
-        public static final double kF = 0.01;
-
-        public static final double kMin = -1.0;
-        public static final double kMax = 1.0;
-    }
-
-    public static final class TurnMotor {
-        public static final double kP = 2.00;
-        public static final double kI = 0.00;
-        public static final double kD = 0.00;
-        public static final double kF = 0.00;
-
-        public static final double kMinOutput = -1.0;
-        public static final double kMaxOutput = 1.0;
-
-        public static final double kMinInput = 0;
-        public static final double kMaxInput = kTau;
+    public static final class Drivetrain {
+        public static double kMaxSpeed = 4.804;
     }
 
     public static final class Auto {
@@ -55,10 +36,8 @@ public final class ControlConstants {
         public static final Pose2d kTolerance = new Pose2d(0.03, 0.03, new Rotation2d(0.05));
     }
 
-    public static final class SlewRateLimit {
+    public static final class RateLimits {
         public static final double kOrthogonal = 1.667;
         public static final double kRotation = 3.87;
     }
-
-    public static final double kGyroFactor = -1.0;
 }

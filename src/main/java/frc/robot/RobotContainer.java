@@ -8,11 +8,7 @@ import frc.robot.autos.AutoManager;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.gyro.GyroReplay;
-import frc.robot.subsystems.drivetrain.gyro.NavX;
-import frc.robot.subsystems.drivetrain.module.ModuleReplay;
-import frc.robot.subsystems.drivetrain.module.ModuleSim;
-import frc.robot.subsystems.drivetrain.module.ModuleSpark;
+import frc.robot.subsystems.drivetrain.DrivetrainSim;
 import frc.robot.subsystems.photon.Camera;
 import frc.robot.subsystems.photon.CameraReplay;
 import frc.robot.subsystems.photon.CameraSim;
@@ -20,7 +16,8 @@ import frc.robot.subsystems.photon.Photon;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
 import frc.robot.util.PathChooser;
-import frc.robot.util.WorldSimulator;
+
+import java.io.IOException;
 
 public class RobotContainer {
     // controllers
@@ -28,10 +25,7 @@ public class RobotContainer {
     final CommandXboxController operctl;
 
     // subsystems
-    final Drivetrain drivetrain = new Drivetrain(
-            AdvantageUtil.matchReal(
-                    NavX::new, () -> WorldSimulator.getInstance().makeGyro(), GyroReplay::new),
-            AdvantageUtil.matchReal(ModuleSpark::new, ModuleSim::new, ModuleReplay::new));
+    final Drivetrain drivetrain = new Drivetrain(new DrivetrainSim());
     final Photon photon = new Photon(
             drivetrain::addVisionMeasurement, AdvantageUtil.matchReal(Camera::new, CameraSim::new, CameraReplay::new));
 
@@ -39,7 +33,7 @@ public class RobotContainer {
     final AutoManager autoManager = new AutoManager(drivetrain);
     final PathChooser pathChooser = new PathChooser();
 
-    public RobotContainer() {
+    public RobotContainer() throws IOException {
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
         this.operctl = new CommandXboxController(IOConstants.Controller.kOperator);
 

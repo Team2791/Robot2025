@@ -2,7 +2,7 @@ package frc.robot.subsystems.photon;
 
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.constants.VisionConstants;
-import frc.robot.event.EventRegistry;
+
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -25,8 +25,6 @@ public class Photon {
         this.rear = cameraFactory.apply(VisionConstants.Names.kRear, VisionConstants.Transforms.kRear);
         this.driver = cameraFactory.apply(VisionConstants.Names.kDriver, new Transform3d());
         this.driver.setDriverMode(true);
-
-        EventRegistry.periodic.register(this::periodic);
     }
 
     public void periodic() {

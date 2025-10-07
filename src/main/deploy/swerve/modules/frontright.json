@@ -1,0 +1,28 @@
+{
+  "drive": {
+    "type": "neo",
+    "id": 30,
+    "canbus": null
+  },
+  "angle": {
+    "type": "neo550",
+    "id": 35,
+    "canbus": null
+  },
+  "encoder": {
+    "type": "attached",
+    "id": 0,
+    "canbus": null
+  },
+  "inverted": {
+    "drive": false,
+    "angle": false
+  },
+  "absoluteEncoderInverted": true,
+  "absoluteEncoderOffset": 123.456,
+  "location": {
+    "front": 10.75,
+    "left": -10.75
+  },
+  "useCosineCompensator": true
+}

@@ -1,7 +1,5 @@
 package frc.robot.commands.align;
 
-import static frc.robot.constants.MathConstants.kTau;
-
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -13,24 +11,16 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.ControlConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
-import java.util.function.Supplier;
+import frc.robot.subsystems.drivetrain.DrivetrainIO;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.Supplier;
+
+import static frc.robot.constants.MathConstants.kTau;
+
 public abstract class Navigate extends Command {
-    public static class Supplied extends Navigate {
-        final Supplier<Pose2d> target;
-
-        public Supplied(Drivetrain drivetrain, Supplier<Pose2d> target) {
-            super(drivetrain);
-            this.target = target;
-        }
-
-        @Override
-        protected Pose2d getTargetPose() {
-            return target.get();
-        }
-    }
-
+    final HolonomicDriveController controller;
+    final Drivetrain drivetrain;
     PIDController xController = new PIDController(
             ControlConstants.Align.kOrthoP, ControlConstants.Align.kOrthoI, ControlConstants.Align.kOrthoD);
     PIDController yController = new PIDController(
@@ -41,12 +31,7 @@ public abstract class Navigate extends Command {
             ControlConstants.Align.kTurnD,
             new TrapezoidProfile.Constraints(
                     ControlConstants.Align.kMaxTurnVelocity, ControlConstants.Align.kMaxTurnAcceleration));
-
-    final HolonomicDriveController controller;
-
-    final Drivetrain drivetrain;
     Pose2d currentTarget;
-
     boolean exit = false;
 
     public Navigate(Drivetrain drivetrain) {
@@ -79,9 +64,9 @@ public abstract class Navigate extends Command {
     public final void execute() {
         if (currentTarget == null) return;
 
-        Pose2d robot = drivetrain.getPose();
+        Pose2d robot = drivetrain.getData().pose;
         ChassisSpeeds speeds = controller.calculate(robot, currentTarget, 0.01, currentTarget.getRotation());
-        drivetrain.drive(speeds, Drivetrain.FieldRelativeMode.kOff);
+        drivetrain.drive(speeds, DrivetrainIO.DriveMode.kRobotRelative);
     }
 
     @Override
@@ -91,11 +76,25 @@ public abstract class Navigate extends Command {
         drivetrain.getField().getObject("Nearby/Target").setPose(new Pose2d(-1, -1, new Rotation2d()));
         Logger.recordOutput("Nearby/Target", new Pose2d(-1, -1, new Rotation2d()));
 
-        drivetrain.drive(new ChassisSpeeds());
+        drivetrain.drive(new ChassisSpeeds(), DrivetrainIO.DriveMode.kRobotRelative);
     }
 
     @Override
     public boolean isFinished() {
         return controller.atReference();
+    }
+
+    public static class Supplied extends Navigate {
+        final Supplier<Pose2d> target;
+
+        public Supplied(Drivetrain drivetrain, Supplier<Pose2d> target) {
+            super(drivetrain);
+            this.target = target;
+        }
+
+        @Override
+        protected Pose2d getTargetPose() {
+            return target.get();
+        }
     }
 }

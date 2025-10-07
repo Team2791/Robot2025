@@ -1,11 +1,8 @@
 package frc.robot.util;
 
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Unit;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
@@ -57,40 +54,6 @@ public class IterUtil {
     public static <T> Stream<Entry<Integer, T>> enumerate(Stream<T> a) {
         Iterator<T> aIterator = a.iterator();
         return Stream.iterate(0, i -> aIterator.hasNext(), i -> i + 1).map(i -> Map.entry(i, aIterator.next()));
-    }
-
-    /**
-     * Convert uom stream to a double array
-     *
-     * @param <U> The unit, e.g. Meter
-     * @param <M> The type of the stream, e.g. Distance
-     * @param a   The stream
-     * @return A stream of doubles
-     */
-    public static <U extends Unit, M extends Measure<U>> double[] toDoubleArray(Stream<M> a, U unit) {
-        return a.mapToDouble(m -> m.in(unit)).toArray();
-    }
-
-    /**
-     * Convert Double stream to double array
-     *
-     * @param a The stream
-     * @return A stream of doubles
-     */
-    public static double[] toDoubleArray(Stream<Double> a) {
-        return a.mapToDouble(Double::doubleValue).toArray();
-    }
-
-    /**
-     * Convert boolean stream to booleans array
-     *
-     * @param a The stream
-     * @return A stream of booleans
-     */
-    public static boolean[] toBoolArray(Queue<Boolean> a) {
-        boolean[] arr = new boolean[a.size()];
-        IterUtil.enumerateThen(a.stream(), (i, b) -> arr[i] = b);
-        return arr;
     }
 
     /**

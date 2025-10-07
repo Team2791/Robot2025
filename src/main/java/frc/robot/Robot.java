@@ -9,10 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
-import frc.robot.event.EventRegistry;
 import frc.robot.util.ADStar;
 import frc.robot.util.Elastic;
-import java.util.Date;
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -21,6 +19,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
+
+import java.io.IOException;
+import java.util.Date;
 
 public class Robot extends LoggedRobot {
     final RobotContainer container;
@@ -76,7 +77,11 @@ public class Robot extends LoggedRobot {
         WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
         // setup everything else
-        this.container = new RobotContainer();
+        try {
+            this.container = new RobotContainer();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to construct RobotContainer", e);
+        }
     }
 
     @Override
@@ -94,11 +99,11 @@ public class Robot extends LoggedRobot {
         // Performance: give ourselves very high priority
         Threads.setCurrentThreadPriority(true, 99);
 
+        // Run vision periodic
+        container.photon.periodic();
+
         // Run the robot for a tick
         CommandScheduler.getInstance().run();
-
-        // Run event emitter periodic event
-        EventRegistry.periodic.emit();
 
         // High prio no longer needed
         Threads.setCurrentThreadPriority(false, 10);
