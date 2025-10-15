@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.IOConstants;
-import frc.robot.subsystems.photon.CameraIO;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.AllianceUtil;
 import org.dyn4j.geometry.Vector2;
@@ -26,12 +25,14 @@ public class Drivetrain extends SubsystemBase {
 
         AutoLogOutputManager.addObject(this);
         HAL.report(
-                FRCNetComm.tResourceType.kResourceType_RobotDrive,
-                FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
+            FRCNetComm.tResourceType.kResourceType_RobotDrive,
+            FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit
+        );
     }
 
     /**
      * Reset the robot's pose
+     * 
      * @param pose the new pose
      */
     public void resetPose(Pose2d pose) {
@@ -40,14 +41,14 @@ public class Drivetrain extends SubsystemBase {
 
     /**
      * Get the robot's pose
+     * 
      * @return the robot's pose
      */
-    public Pose2d getPose() {
-        return this.io.data.pose;
-    }
+    public Pose2d getPose() { return this.io.data.pose; }
 
     /**
      * Swerve drive control
+     * 
      * @param speeds The desired speeds for the robot to move at.
      * @param mode   The drive mode to use.
      */
@@ -57,6 +58,7 @@ public class Drivetrain extends SubsystemBase {
 
     /**
      * Controller-based swerve drive control
+     * 
      * @param controller The controller to get input from.
      */
     public void drive(CommandXboxController controller) {
@@ -102,23 +104,11 @@ public class Drivetrain extends SubsystemBase {
         this.io.resetHeading(reset);
     }
 
-    /**
-     * Updates the odometry using a vision measurement
-     * @param measurement the vision measurement
-     */
-    public void addVisionMeasurement(CameraIO.VisionMeasurement measurement) {
-        this.io.addVisionMeasurement(measurement.estimate2(), measurement.timestamp(), measurement.stdDevs());
-    }
-
     /** Get Field widget */
-    public Field2d getField() {
-        return this.io.getField2d();
-    }
+    public Field2d getField() { return this.io.getField2d(); }
 
     /** input data */
-    public DrivetrainIO.DrivetrainData getData() {
-        return this.io.data;
-    }
+    public DrivetrainIO.DrivetrainData getData() { return this.io.data; }
 
     @Override
     public void periodic() {

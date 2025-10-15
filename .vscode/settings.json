@@ -41,7 +41,6 @@
 		"org.mockito.Answers.*",
 		"edu.wpi.first.units.Units.*"
 	],
-	"java.format.settings.url": ".vscode/fmt.xml",
 	"[java]": {
 		"editor.defaultFormatter": "redhat.java",
 		"editor.formatOnSave": true,

@@ -12,9 +12,7 @@ public class AllianceUtil {
         return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
     }
 
-    public static boolean isRed() {
-        return invert();
-    }
+    public static boolean isRed() { return invert(); }
 
     public static Pose2d recenter(Pose2d pose) {
         if (invert()) return pose.relativeTo(GameConstants.kRedOrigin);
@@ -31,7 +29,7 @@ public class AllianceUtil {
     }
 
     public static Rotation2d recenter(Rotation2d rotation) {
-        if (invert()) return SwerveUtil.normalizeAngle(rotation.plus(Rotation2d.kPi));
+        if (invert()) return rotation.plus(Rotation2d.kPi);
         else return rotation;
     }
 

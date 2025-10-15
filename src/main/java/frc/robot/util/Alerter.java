@@ -6,9 +6,10 @@ import com.studica.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.AdvantageConstants;
-import frc.robot.event.EventRegistry;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,7 +31,7 @@ public class Alerter {
 
     private Alerter() {
         vibrateStop.setName("VibrateStop");
-        EventRegistry.periodic.register(this::update);
+        CommandScheduler.getInstance().schedule(new RunCommand(this::update));
     }
 
     public static Alerter getInstance() {
