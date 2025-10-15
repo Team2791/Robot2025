@@ -1,7 +1,5 @@
 package frc.robot;
 
-import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Threads;
@@ -9,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.AdvantageConstants;
 import frc.robot.constants.BuildConstants;
-import frc.robot.util.ADStar;
 import frc.robot.util.Elastic;
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -86,10 +83,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-        // setup pp pathfinder (currently not being used, we'll see later)
-        Pathfinding.setPathfinder(new ADStar());
-        FollowPathCommand.warmupCommand().schedule();
-
         // give drivers the auto tab at the beginning of the game
         Elastic.selectTab("Autonomous");
     }
@@ -98,9 +91,6 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         // Performance: give ourselves very high priority
         Threads.setCurrentThreadPriority(true, 99);
-
-        // Run vision periodic
-        container.photon.periodic();
 
         // Run the robot for a tick
         CommandScheduler.getInstance().run();

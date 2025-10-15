@@ -14,7 +14,6 @@ import frc.robot.util.AllianceUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
 
 public class AutoManager {
@@ -80,7 +79,7 @@ public class AutoManager {
         drivetrain.drive(speeds, DrivetrainIO.DriveMode.kFieldRelative);
     }
 
-    public AutoRoutine routine(List<String> trajectories) {
+    public AutoRoutine routine() {
         AutoRoutine routine = factory.newRoutine("Main Routine");
 
         // TODO: autos

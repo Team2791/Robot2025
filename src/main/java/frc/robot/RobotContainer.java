@@ -9,13 +9,7 @@ import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainSim;
-import frc.robot.subsystems.photon.Camera;
-import frc.robot.subsystems.photon.CameraReplay;
-import frc.robot.subsystems.photon.CameraSim;
-import frc.robot.subsystems.photon.Photon;
-import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
-import frc.robot.util.PathChooser;
 
 import java.io.IOException;
 
@@ -26,12 +20,9 @@ public class RobotContainer {
 
     // subsystems
     final Drivetrain drivetrain = new Drivetrain(new DrivetrainSim());
-    final Photon photon = new Photon(
-            drivetrain::addVisionMeasurement, AdvantageUtil.matchReal(Camera::new, CameraSim::new, CameraReplay::new));
 
     // autos
     final AutoManager autoManager = new AutoManager(drivetrain);
-    final PathChooser pathChooser = new PathChooser();
 
     public RobotContainer() throws IOException {
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
@@ -51,6 +42,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoManager.routine(pathChooser.trajectories()).cmd();
+        return autoManager.routine().cmd();
     }
 }
