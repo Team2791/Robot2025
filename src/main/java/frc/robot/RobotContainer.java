@@ -8,6 +8,7 @@ import frc.robot.autos.AutoManager;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainReplay;
 import frc.robot.subsystems.drivetrain.DrivetrainSim;
 import frc.robot.subsystems.drivetrain.DrivetrainYAGSL;
 import frc.robot.subsystems.intake.Intake;
@@ -25,9 +26,7 @@ public class RobotContainer {
 
     // subsystems
     final Drivetrain drivetrain =
-            new Drivetrain(AdvantageUtil.matchReal(DrivetrainYAGSL::new, DrivetrainSim::new, () -> {
-                throw new IllegalStateException("Replay not yet implemented");
-            }));
+            new Drivetrain(AdvantageUtil.matchReal(DrivetrainYAGSL::new, DrivetrainSim::new, DrivetrainReplay::new));
 
     final Intake intake = new Intake(AdvantageUtil.matchReal(
             IntakeSpark::new,
