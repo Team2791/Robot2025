@@ -8,7 +8,10 @@ import frc.robot.autos.AutoManager;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainReplay;
 import frc.robot.subsystems.drivetrain.DrivetrainSim;
+import frc.robot.subsystems.drivetrain.DrivetrainYAGSL;
+import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
 
 import java.io.IOException;
@@ -19,7 +22,8 @@ public class RobotContainer {
     final CommandXboxController operctl;
 
     // subsystems
-    final Drivetrain drivetrain = new Drivetrain(new DrivetrainSim());
+    final Drivetrain drivetrain =
+            new Drivetrain(AdvantageUtil.matchReal(DrivetrainYAGSL::new, DrivetrainSim::new, DrivetrainReplay::new));
 
     // autos
     final AutoManager autoManager = new AutoManager(drivetrain);

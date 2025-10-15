@@ -1,11 +1,8 @@
 package frc.robot.subsystems.drivetrain;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -35,15 +32,6 @@ public abstract class DrivetrainIO {
     public void resetHeading(Rotation2d heading) {
         resetPose(new Pose2d(this.data.pose.getTranslation(), heading));
     }
-
-    /**
-     * Updates the odometry using a vision measurement
-     *
-     * @param measurement the vision measurement
-     * @param timestamp   the timestamp of the measurement
-     * @param stddevs     the standard deviations of the measurement (x, y, theta)
-     */
-    public abstract void addVisionMeasurement(Pose2d measurement, double timestamp, Matrix<N3, N1> stddevs);
 
     /** Things to do periodically */
     public abstract void update();
