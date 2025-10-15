@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.util.MotorState;
 import org.littletonrobotics.junction.AutoLog;
 
 public abstract class DrivetrainIO {
@@ -69,12 +70,6 @@ public abstract class DrivetrainIO {
         public record GyroState(boolean connected, double heading, double velocity) {
             public static GyroState defaultState() {
                 return new GyroState(false, 0, 0);
-            }
-        }
-
-        public record MotorState(boolean connected, double position, double velocity, double voltage, double current) {
-            public static MotorState defaultState() {
-                return new MotorState(false, 0, 0, 0, 0);
             }
         }
 

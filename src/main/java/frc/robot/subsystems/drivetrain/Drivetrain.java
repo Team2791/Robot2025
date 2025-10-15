@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.IOConstants;
-import frc.robot.subsystems.photon.CameraIO;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.AllianceUtil;
 import org.dyn4j.geometry.Vector2;
@@ -100,14 +99,6 @@ public class Drivetrain extends SubsystemBase {
     public void resetGyro() {
         Rotation2d reset = AllianceUtil.facingDriver();
         this.io.resetHeading(reset);
-    }
-
-    /**
-     * Updates the odometry using a vision measurement
-     * @param measurement the vision measurement
-     */
-    public void addVisionMeasurement(CameraIO.VisionMeasurement measurement) {
-        this.io.addVisionMeasurement(measurement.estimate2(), measurement.timestamp(), measurement.stdDevs());
     }
 
     /** Get Field widget */

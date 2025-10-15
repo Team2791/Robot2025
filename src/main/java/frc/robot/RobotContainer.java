@@ -9,6 +9,11 @@ import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainSim;
+import frc.robot.subsystems.drivetrain.DrivetrainYAGSL;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeReplay;
+import frc.robot.subsystems.intake.IntakeSpark;
+import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
 
 import java.io.IOException;
@@ -19,7 +24,17 @@ public class RobotContainer {
     final CommandXboxController operctl;
 
     // subsystems
-    final Drivetrain drivetrain = new Drivetrain(new DrivetrainSim());
+    final Drivetrain drivetrain =
+            new Drivetrain(AdvantageUtil.matchReal(DrivetrainYAGSL::new, DrivetrainSim::new, () -> {
+                throw new IllegalStateException("Replay not yet implemented");
+            }));
+
+    final Intake intake = new Intake(AdvantageUtil.matchReal(
+            IntakeSpark::new,
+            () -> {
+                throw new IllegalStateException("Simulation not yet implemented");
+            },
+            IntakeReplay::new));
 
     // autos
     final AutoManager autoManager = new AutoManager(drivetrain);

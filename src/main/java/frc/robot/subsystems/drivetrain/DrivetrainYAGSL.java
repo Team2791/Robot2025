@@ -14,13 +14,13 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.constants.ControlConstants;
+import frc.robot.util.MotorState;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
 import swervelib.motors.SwerveMotor;
 import swervelib.parser.SwerveParser;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static edu.wpi.first.units.Units.*;
@@ -30,16 +30,19 @@ public class DrivetrainYAGSL extends DrivetrainIO {
 
     /**
      * Constructs a Drivetrain using the YAGSL library.
-     * @throws IOException if a file doesn't exist
      */
-    public DrivetrainYAGSL() throws IOException {
-        this.swerve = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"))
+    public DrivetrainYAGSL()  {
+        try {
+            this.swerve = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"))
                 .createSwerveDrive(ControlConstants.Drivetrain.kMaxSpeed);
 
-        this.swerve.swerveController.addSlewRateLimiters(
+            this.swerve.swerveController.addSlewRateLimiters(
                 new SlewRateLimiter(ControlConstants.RateLimits.kOrthogonal),
                 new SlewRateLimiter(ControlConstants.RateLimits.kOrthogonal),
                 new SlewRateLimiter(ControlConstants.RateLimits.kRotation));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Field2d getField2d() {
@@ -80,13 +83,13 @@ public class DrivetrainYAGSL extends DrivetrainIO {
                     SparkMax angleSpark = (SparkMax) angle.getMotor();
 
                     return new DrivetrainData.ModuleState(
-                            new DrivetrainData.MotorState(
+                            new MotorState(
                                     driveSpark.getLastError() == REVLibError.kOk,
                                     drive.getPosition(),
                                     drive.getVelocity(),
                                     drive.getVoltage(),
                                     driveSpark.getOutputCurrent()),
-                            new DrivetrainData.MotorState(
+                            new MotorState(
                                     angleSpark.getLastError() == REVLibError.kOk,
                                     angle.getPosition(),
                                     angle.getVelocity(),

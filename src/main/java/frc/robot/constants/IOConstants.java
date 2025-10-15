@@ -6,6 +6,10 @@ public final class IOConstants {
         // TODO: Arm CAN IDs and constants
     }
 
+    public static final class Intake {
+        public static final int kId = 11;
+    }
+
     public static final class Controller {
         public static final int kDriver = 0;
         public static final int kOperator = 1;

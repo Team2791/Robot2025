@@ -1,12 +1,12 @@
 package frc.robot.subsystems.drivetrain;
 
 import frc.robot.util.IterUtil;
+import frc.robot.util.MotorState;
 import org.ironmaple.simulation.drivesims.GyroSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import swervelib.SwerveModule;
 
-import java.io.IOException;
 import java.util.List;
 
 import static edu.wpi.first.units.Units.*;
@@ -14,9 +14,8 @@ import static edu.wpi.first.units.Units.*;
 public class DrivetrainSim extends DrivetrainYAGSL {
     /**
      * Constructs a simulation Drivetrain using the YAGSL library.
-     * @throws IOException if a file doesn't exist
      */
-    public DrivetrainSim() throws IOException {
+    public DrivetrainSim() {
         super();
 
         super.swerve.setHeadingCorrection(false);
@@ -40,13 +39,13 @@ public class DrivetrainSim extends DrivetrainYAGSL {
                     SwerveModule module = modules.getValue();
 
                     return new DrivetrainData.ModuleState(
-                            new DrivetrainData.MotorState(
+                            new MotorState(
                                     true,
                                     module.getPosition().distanceMeters,
                                     module.getState().speedMetersPerSecond,
                                     sim.getDriveMotorAppliedVoltage().in(Volts),
                                     sim.getDriveMotorSupplyCurrent().in(Amps)),
-                            new DrivetrainData.MotorState(
+                            new MotorState(
                                     true,
                                     module.getPosition().angle.getRadians(),
                                     sim.getSteerAbsoluteEncoderSpeed().in(RadiansPerSecond),
