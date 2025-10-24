@@ -31,7 +31,7 @@ public class AllianceUtil {
     }
 
     public static Rotation2d recenter(Rotation2d rotation) {
-        if (invert()) return SwerveUtil.normalizeAngle(rotation.plus(Rotation2d.kPi));
+        if (invert()) return rotation.plus(Rotation2d.kPi);
         else return rotation;
     }
 

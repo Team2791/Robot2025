@@ -7,7 +7,8 @@ public final class IOConstants {
     }
 
     public static final class Intake {
-        public static final int kId = 11;
+        public static final int kIntake = 22;
+        public static final int kPivot = 33;
     }
 
     public static final class Controller {

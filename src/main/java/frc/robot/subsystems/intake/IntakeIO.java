@@ -8,10 +8,14 @@ public abstract class IntakeIO {
 
     public abstract void update();
 
-    public abstract void set(double power);
+    public abstract void intake(double power);
+
+    public abstract void pivot(double power);
+
 
     @AutoLog
     public static class IntakeData {
         public MotorState intake = MotorState.defaultState();
+        public MotorState pivot = MotorState.defaultState();
     }
 }

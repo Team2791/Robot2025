@@ -7,24 +7,31 @@ import frc.robot.constants.IOConstants;
 import frc.robot.util.MotorState;
 
 public class IntakeSpark extends IntakeIO {
-    final SparkMax motor;
+    final SparkMax intake;
+    final SparkMax pivot;
 
     public IntakeSpark() {
-        this.motor = new SparkMax(IOConstants.Intake.kId, MotorType.kBrushless);
+        this.intake = new SparkMax(IOConstants.Intake.kIntake, MotorType.kBrushless);
+        this.pivot = new SparkMax(IOConstants.Intake.kIntake, MotorType.kBrushless);
     }
 
     @Override
-    public void set(double power) {
-        motor.set(power);
+    public void intake(double power) {
+        intake.set(power);
+    }
+
+    @Override
+    public void pivot(double power) {
+        pivot.set(power);
     }
 
     @Override
     public void update() {
         this.data.intake = new MotorState(
-                this.motor.getLastError() == REVLibError.kOk,
-                this.motor.getEncoder().getPosition(),
-                this.motor.getEncoder().getVelocity(),
-                this.motor.getAppliedOutput() * this.motor.getBusVoltage(),
-                this.motor.getOutputCurrent());
+                this.intake.getLastError() == REVLibError.kOk,
+                this.intake.getEncoder().getPosition(),
+                this.intake.getEncoder().getVelocity(),
+                this.intake.getAppliedOutput() * this.intake.getBusVoltage(),
+                this.intake.getOutputCurrent());
     }
 }

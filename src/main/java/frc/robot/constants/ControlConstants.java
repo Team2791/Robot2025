@@ -1,6 +1,6 @@
 package frc.robot.constants;
 
-/** PID constants, mostly */
+/** PID constants, etc */
 public final class ControlConstants {
     public static final class Drivetrain {
         public static double kMaxSpeed = 4.804;
@@ -19,5 +19,13 @@ public final class ControlConstants {
     public static final class RateLimits {
         public static final double kOrthogonal = 1.667;
         public static final double kRotation = 3.87;
+    }
+
+    public static final class Intake {
+        public static final class Power {
+            public static final double kIntake = 0.8;
+            public static final double kOuttake = -0.8;
+            public static final double kPivot = 0.5;
+        }
     }
 }
