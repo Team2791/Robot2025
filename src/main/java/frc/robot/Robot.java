@@ -50,7 +50,7 @@ public class Robot extends LoggedRobot {
         switch (AdvantageConstants.kCurrentMode) {
             case Real:
                 String date = new Date().toString().replaceAll(" ", "_").replaceAll(":", "-"); // imagine windows
-                String log = String.format("/U/logs/akit_%s_%s.wpilog", date, BuildConstants.GIT_SHA);
+                String log = String.format("/home/.lvuser/.akit/akit_%s_%s.wpilog", date, BuildConstants.GIT_SHA);
 
                 Logger.addDataReceiver(new WPILOGWriter(log));
                 Logger.addDataReceiver(new NT4Publisher());

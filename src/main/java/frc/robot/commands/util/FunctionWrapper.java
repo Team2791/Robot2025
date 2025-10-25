@@ -38,7 +38,7 @@ public class FunctionWrapper extends Command {
      * @param requirements subsystem requirements
      */
     public FunctionWrapper(Runnable begin, Runnable end, Subsystem... requirements) {
-        this(begin, () -> true, end, requirements);
+        this(begin, () -> false, end, requirements);
     }
 
     /**
@@ -63,6 +63,7 @@ public class FunctionWrapper extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("we cancelled. and we shouldn't have, probably.");
         end.run();
     }
 

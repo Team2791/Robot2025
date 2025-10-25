@@ -191,3 +191,5 @@ src/main/java/frc/robot/constants/BuildConstants.java
 
 # akit logs
 !logs/
+
+.direnv

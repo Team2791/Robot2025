@@ -4,23 +4,18 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.autos.AutoManager;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.drivetrain.gyro.GyroReplay;
 import frc.robot.subsystems.drivetrain.gyro.NavX;
 import frc.robot.subsystems.drivetrain.module.ModuleReplay;
-import frc.robot.subsystems.drivetrain.module.ModuleSim;
 import frc.robot.subsystems.drivetrain.module.ModuleSpark;
-import frc.robot.subsystems.photon.Camera;
-import frc.robot.subsystems.photon.CameraReplay;
-import frc.robot.subsystems.photon.CameraSim;
-import frc.robot.subsystems.photon.Photon;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeReplay;
+import frc.robot.subsystems.intake.IntakeSpark;
 import frc.robot.util.AdvantageUtil;
 import frc.robot.util.Alerter;
-import frc.robot.util.PathChooser;
-import frc.robot.util.WorldSimulator;
 
 public class RobotContainer {
     // controllers
@@ -30,14 +25,24 @@ public class RobotContainer {
     // subsystems
     final Drivetrain drivetrain = new Drivetrain(
             AdvantageUtil.matchReal(
-                    NavX::new, () -> WorldSimulator.getInstance().makeGyro(), GyroReplay::new),
-            AdvantageUtil.matchReal(ModuleSpark::new, ModuleSim::new, ModuleReplay::new));
-    final Photon photon = new Photon(
-            drivetrain::addVisionMeasurement, AdvantageUtil.matchReal(Camera::new, CameraSim::new, CameraReplay::new));
+                    NavX::new,
+                    () -> {
+                        throw new UnsupportedOperationException("No intake simulation available");
+                    },
+                    GyroReplay::new),
+            AdvantageUtil.matchReal(
+                    ModuleSpark::new,
+                    (a) -> {
+                        throw new UnsupportedOperationException("No intake simulation available");
+                    },
+                    ModuleReplay::new));
 
-    // autos
-    final AutoManager autoManager = new AutoManager(drivetrain);
-    final PathChooser pathChooser = new PathChooser();
+    final Intake intake = new Intake(AdvantageUtil.matchReal(
+            IntakeSpark::new,
+            () -> {
+                throw new UnsupportedOperationException("No intake simulation available");
+            },
+            IntakeReplay::new));
 
     public RobotContainer() {
         this.driverctl = new CommandXboxController(IOConstants.Controller.kDriver);
@@ -54,9 +59,30 @@ public class RobotContainer {
         Command joystickDrive = new RunCommand(() -> drivetrain.drive(driverctl), drivetrain);
         drivetrain.setDefaultCommand(joystickDrive);
         driverctl.start().onTrue(new FunctionWrapper(drivetrain::resetGyro).ignoringDisable(true));
+
+        driverctl
+                .leftBumper()
+                .whileTrue(new FunctionWrapper(
+                        () -> intake.intake(Intake.IntakeState.Intake),
+                        () -> intake.intake(Intake.IntakeState.Hold),
+                        intake));
+
+        driverctl.rightBumper().onTrue(new FunctionWrapper(() -> intake.intake(Intake.IntakeState.Outtake), intake));
+
+        driverctl
+                .a()
+                .whileTrue(new FunctionWrapper(
+                        () -> intake.pivot(Intake.PivotState.Up), () -> intake.pivot(Intake.PivotState.Stop), intake));
+
+        driverctl
+                .y()
+                .whileTrue(new FunctionWrapper(
+                        () -> intake.pivot(Intake.PivotState.Down),
+                        () -> intake.pivot(Intake.PivotState.Stop),
+                        intake));
     }
 
     public Command getAutonomousCommand() {
-        return autoManager.routine(pathChooser.trajectories()).cmd();
+        return null;
     }
 }

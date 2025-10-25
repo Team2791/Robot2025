@@ -1,58 +1,44 @@
 package frc.robot.subsystems.drivetrain;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.constants.*;
-import frc.robot.event.EventRegistry;
+import frc.robot.constants.ControlConstants;
+import frc.robot.constants.GameConstants;
+import frc.robot.constants.IOConstants;
+import frc.robot.constants.ModuleConstants;
 import frc.robot.subsystems.drivetrain.gyro.GyroIO;
 import frc.robot.subsystems.drivetrain.module.ModuleIO;
-import frc.robot.subsystems.photon.CameraIO;
 import frc.robot.util.AdvantageUtil;
-import frc.robot.util.AllianceUtil;
 import frc.robot.util.IterUtil;
 import frc.robot.util.RateLimiter;
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import org.dyn4j.geometry.Vector2;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
 
-public class Drivetrain extends SubsystemBase {
-    public enum FieldRelativeMode {
-        kOff,
-        kFixedOrigin,
-        kAllianceOrigin,
-    }
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
+public class Drivetrain extends SubsystemBase {
     final ModuleIO frontLeft;
     final ModuleIO frontRight;
     final ModuleIO rearLeft;
     final ModuleIO rearRight;
     final GyroIO gyro;
-
     final SwerveDrivePoseEstimator odometry;
     final Field2d field;
-
     final RateLimiter slew;
 
     public Drivetrain(GyroIO gyro, Function<ModuleConstants.ModuleInfo, ModuleIO> moduleFactory) {
@@ -75,35 +61,6 @@ public class Drivetrain extends SubsystemBase {
 
         this.gyro.reset(new Rotation2d());
 
-        AutoBuilder.configure(
-                this::getPose,
-                EventRegistry.poseReset::emit,
-                this::getChassisSpeeds,
-                s -> this.drive(s, FieldRelativeMode.kOff),
-                new PPHolonomicDriveController(
-                        new PIDConstants(
-                                ControlConstants.Auto.kOrthoP,
-                                ControlConstants.Auto.kOrthoI,
-                                ControlConstants.Auto.kOrthoD),
-                        new PIDConstants(
-                                ControlConstants.Auto.kTurnP,
-                                ControlConstants.Auto.kTurnI,
-                                ControlConstants.Auto.kTurnD)),
-                new RobotConfig(
-                        RobotConstants.kMass,
-                        RobotConstants.kMoI,
-                        new ModuleConfig(
-                                ModuleConstants.Wheel.kRadius,
-                                ModuleConstants.MaxSpeed.kLinear,
-                                ModuleConstants.Wheel.kFrictionCoefficient,
-                                DCMotor.getNEO(1),
-                                1.0 / ModuleConstants.DriveMotor.kReduction,
-                                MotorConstants.Neo.kCurrentLimit,
-                                1),
-                        ModuleConstants.Translations.kModules),
-                AllianceUtil::invert,
-                this);
-
         // Elastic SwerveDrive widget
         SmartDashboard.putData("SwerveDrive", builder -> {
             builder.setSmartDashboardType("SwerveDrive");
@@ -117,9 +74,6 @@ public class Drivetrain extends SubsystemBase {
                         builder.addDoubleProperty(
                                 label + " Velocity", () -> module.getState().speedMetersPerSecond, null);
                     });
-
-            builder.addDoubleProperty(
-                    "Robot Angle", () -> AllianceUtil.recenter(getHeading()).getRadians(), null);
         });
 
         // template code stuff
@@ -127,10 +81,6 @@ public class Drivetrain extends SubsystemBase {
         HAL.report(
                 FRCNetComm.tResourceType.kResourceType_RobotDrive,
                 FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
-
-        // setup event emitter stuff
-        EventRegistry.poseUpdate.register(field::setRobotPose);
-        EventRegistry.poseReset.register(p -> odometry.resetPosition(gyro.heading(), modulePositions(), p));
     }
 
     /**
@@ -175,14 +125,8 @@ public class Drivetrain extends SubsystemBase {
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
     }
 
-    /** @return The estimated pose of the robot */
-    @AutoLogOutput
-    public Pose2d getPose() {
-        return odometry.getEstimatedPosition();
-    }
-
     public Rotation2d getHeading() {
-        return getPose().getRotation();
+        return this.gyro.heading();
     }
 
     /**
@@ -193,12 +137,7 @@ public class Drivetrain extends SubsystemBase {
      */
     public void drive(ChassisSpeeds speeds, FieldRelativeMode fieldRelative) {
         switch (fieldRelative) {
-            case kFixedOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
-            case kAllianceOrigin -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(
-                    speeds.vxMetersPerSecond * AllianceUtil.factor(),
-                    speeds.vyMetersPerSecond * AllianceUtil.factor(),
-                    speeds.omegaRadiansPerSecond,
-                    getHeading()));
+            case kOn -> setDesiredSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getHeading()));
             case kOff -> setDesiredSpeeds(speeds);
         }
     }
@@ -209,7 +148,7 @@ public class Drivetrain extends SubsystemBase {
      * @param speeds The desired speeds for the robot to move at.
      */
     public void drive(ChassisSpeeds speeds) {
-        drive(speeds, FieldRelativeMode.kAllianceOrigin);
+        drive(speeds, FieldRelativeMode.kOn);
     }
 
     /**
@@ -239,7 +178,7 @@ public class Drivetrain extends SubsystemBase {
      * @param rotPower The desired rotational power. +R is ccw, must be [-1, 1]
      */
     public void drive(double xPower, double yPower, double rotPower) {
-        drive(xPower, yPower, rotPower, FieldRelativeMode.kAllianceOrigin);
+        drive(xPower, yPower, rotPower, FieldRelativeMode.kOn);
     }
 
     /**
@@ -283,25 +222,7 @@ public class Drivetrain extends SubsystemBase {
      * Reset the gyro
      */
     public void resetGyro() {
-        Rotation2d reset = AllianceUtil.facingDriver();
-        gyro.reset(reset);
-        EventRegistry.poseReset.emit(new Pose2d(getPose().getTranslation(), reset));
-    }
-
-    /**
-     * Add vision measurement
-     *
-     * @param measurement The vision measurement to add.
-     */
-    public void addVisionMeasurement(CameraIO.VisionMeasurement measurement) {
-        odometry.addVisionMeasurement(measurement.estimate2(), measurement.timestamp(), measurement.stdDevs());
-    }
-
-    /**
-     * Get Field widget
-     */
-    public Field2d getField() {
-        return field;
+        gyro.reset(new Rotation2d());
     }
 
     @Override
@@ -316,15 +237,13 @@ public class Drivetrain extends SubsystemBase {
         Rotation2d heading;
 
         if (gyro.data.connected) heading = gyro.heading();
-        else heading = AllianceUtil.recenter(new Rotation2d());
+        else heading = new Rotation2d();
 
         // update odometry
         try {
             odometry.update(heading, modulePositions());
         } catch (Exception ignored) {
         }
-
-        EventRegistry.poseUpdate.emit(getPose());
 
         // log to akit
         IterUtil.enumerateThen(Arrays.stream(modules()), (idx, module) -> {
@@ -339,5 +258,10 @@ public class Drivetrain extends SubsystemBase {
         AdvantageUtil.logActiveCommand(this);
 
         SmartDashboard.putData("Field", field);
+    }
+
+    public enum FieldRelativeMode {
+        kOff,
+        kOn,
     }
 }
