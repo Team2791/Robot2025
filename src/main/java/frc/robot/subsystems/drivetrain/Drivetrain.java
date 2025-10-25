@@ -125,6 +125,7 @@ public class Drivetrain extends SubsystemBase {
         IterUtil.zipThen(Arrays.stream(modules()), Arrays.stream(states), ModuleIO::setDesiredState);
     }
 
+    @AutoLogOutput
     public Rotation2d getHeading() {
         return this.gyro.heading();
     }

@@ -87,9 +87,9 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return Commands.parallel(
                 Commands.deadline(
-                        new WaitCommand(3.0), new RunCommand(() -> drivetrain.drive(0.0, 0.25, 0.0), drivetrain)),
+                        new WaitCommand(1.5), new RunCommand(() -> drivetrain.drive(0.25, 0.0, 0.0), drivetrain)),
                 Commands.deadline(
-                        new WaitCommand(5.0),
+                        new WaitCommand(4.5),
                         new FunctionWrapper(
                                 () -> intake.pivot(Intake.PivotState.Down),
                                 () -> intake.pivot(Intake.PivotState.Stop),

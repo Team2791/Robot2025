@@ -49,7 +49,7 @@ public final class ControlConstants {
             public static final double kIntake = 0.50;
             public static final double kHold = 0.075;
             public static final double kOuttake = -0.1;
-            public static final double kPivot = 0.1;
+            public static final double kPivot = 0.2;
         }
     }
 }

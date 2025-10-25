@@ -133,7 +133,7 @@ public final class ModuleConstants {
     /** Translation2ds to each module */
     public static final class Translations {
         public static final Translation2d kGyroOffset =
-                new Translation2d(Inches.of(2).in(Meters), 0);
+                new Translation2d(Inches.of(0).in(Meters), 0);
 
         public static final Translation2d kFrontLeft = new Translation2d(
                 (RobotConstants.DriveBase.kWheelBase / 2) - kGyroOffset.getX(),
