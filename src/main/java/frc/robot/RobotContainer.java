@@ -2,7 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.util.FunctionWrapper;
 import frc.robot.constants.IOConstants;
@@ -83,6 +85,14 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return null;
+        return Commands.parallel(
+                Commands.deadline(
+                        new WaitCommand(3.0), new RunCommand(() -> drivetrain.drive(0.0, 0.25, 0.0), drivetrain)),
+                Commands.deadline(
+                        new WaitCommand(5.0),
+                        new FunctionWrapper(
+                                () -> intake.pivot(Intake.PivotState.Down),
+                                () -> intake.pivot(Intake.PivotState.Stop),
+                                intake)));
     }
 }
