@@ -1,14 +1,41 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static frc.robot.constants.MathConstants.kTau;
-
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.constants.MathConstants.kTau;
+
 public final class ModuleConstants {
+    public static final ModuleInfo kFrontLeft = new ModuleInfo(
+            IOConstants.Drivetrain.Drive.kFrontLeft,
+            IOConstants.Drivetrain.Turn.kFrontLeft,
+            IOConstants.Drivetrain.ModuleId.kFrontLeft,
+            Translations.kFrontLeft,
+            AngularOffsets.kFrontLeft);
+    public static final ModuleInfo kFrontRight = new ModuleInfo(
+            IOConstants.Drivetrain.Drive.kFrontRight,
+            IOConstants.Drivetrain.Turn.kFrontRight,
+            IOConstants.Drivetrain.ModuleId.kFrontRight,
+            Translations.kFrontRight,
+            AngularOffsets.kFrontRight);
+    public static final ModuleInfo kRearLeft = new ModuleInfo(
+            IOConstants.Drivetrain.Drive.kRearLeft,
+            IOConstants.Drivetrain.Turn.kRearLeft,
+            IOConstants.Drivetrain.ModuleId.kRearLeft,
+            Translations.kRearLeft,
+            AngularOffsets.kRearLeft);
+    public static final ModuleInfo kRearRight = new ModuleInfo(
+            IOConstants.Drivetrain.Drive.kRearRight,
+            IOConstants.Drivetrain.Turn.kRearRight,
+            IOConstants.Drivetrain.ModuleId.kRearRight,
+            Translations.kRearRight,
+            AngularOffsets.kRearRight);
+
+    public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(Translations.kModules);
+
     public record ModuleInfo(int driveId, int turnId, int moduleId, Translation2d translation, double angularOffset) {
         public int ordinal() {
             return switch (moduleId) {
@@ -105,45 +132,16 @@ public final class ModuleConstants {
 
     /** Translation2ds to each module */
     public static final class Translations {
-        public static final Translation2d kFrontLeft =
-                new Translation2d(RobotConstants.DriveBase.kWheelBase / 2, RobotConstants.DriveBase.kTrackWidth / 2);
-        public static final Translation2d kFrontRight =
-                new Translation2d(RobotConstants.DriveBase.kWheelBase / 2, -RobotConstants.DriveBase.kTrackWidth / 2);
-        public static final Translation2d kRearLeft =
-                new Translation2d(-RobotConstants.DriveBase.kWheelBase / 2, RobotConstants.DriveBase.kTrackWidth / 2);
-        public static final Translation2d kRearRight =
-                new Translation2d(-RobotConstants.DriveBase.kWheelBase / 2, -RobotConstants.DriveBase.kTrackWidth / 2);
+        public static final Translation2d kGyroOffset =
+                new Translation2d(Inches.of(2).in(Meters), 0);
+
+        public static final Translation2d kFrontLeft = new Translation2d(
+                (RobotConstants.DriveBase.kWheelBase / 2) - kGyroOffset.getX(),
+                (RobotConstants.DriveBase.kTrackWidth / 2) - kGyroOffset.getY());
+        public static final Translation2d kFrontRight = new Translation2d(kFrontLeft.getX(), -kFrontLeft.getY());
+        public static final Translation2d kRearLeft = new Translation2d(-kFrontLeft.getX(), kFrontLeft.getY());
+        public static final Translation2d kRearRight = new Translation2d(-kFrontLeft.getX(), -kFrontLeft.getY());
         public static final Translation2d[] kModules =
                 new Translation2d[] {kFrontLeft, kFrontRight, kRearLeft, kRearRight};
     }
-
-    public static final ModuleInfo kFrontLeft = new ModuleInfo(
-            IOConstants.Drivetrain.Drive.kFrontLeft,
-            IOConstants.Drivetrain.Turn.kFrontLeft,
-            IOConstants.Drivetrain.ModuleId.kFrontLeft,
-            Translations.kFrontLeft,
-            AngularOffsets.kFrontLeft);
-
-    public static final ModuleInfo kFrontRight = new ModuleInfo(
-            IOConstants.Drivetrain.Drive.kFrontRight,
-            IOConstants.Drivetrain.Turn.kFrontRight,
-            IOConstants.Drivetrain.ModuleId.kFrontRight,
-            Translations.kFrontRight,
-            AngularOffsets.kFrontRight);
-
-    public static final ModuleInfo kRearLeft = new ModuleInfo(
-            IOConstants.Drivetrain.Drive.kRearLeft,
-            IOConstants.Drivetrain.Turn.kRearLeft,
-            IOConstants.Drivetrain.ModuleId.kRearLeft,
-            Translations.kRearLeft,
-            AngularOffsets.kRearLeft);
-
-    public static final ModuleInfo kRearRight = new ModuleInfo(
-            IOConstants.Drivetrain.Drive.kRearRight,
-            IOConstants.Drivetrain.Turn.kRearRight,
-            IOConstants.Drivetrain.ModuleId.kRearRight,
-            Translations.kRearRight,
-            AngularOffsets.kRearRight);
-
-    public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(Translations.kModules);
 }
